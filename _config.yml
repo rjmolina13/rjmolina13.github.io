@@ -43,6 +43,8 @@ author:
   # Used by `jekyll-feed`:
   name:                Ronanj Molina
   email:               rj.molina13@gmail.com
+  author:              Ronanj Molina
+  picture:    /assets/img/me.jpg
   # Used by `jekyll-seo-tag`:
   # twitter:             @rjmolina13
 
@@ -206,7 +208,14 @@ collections:
 # File inclusion/exclusion
 # ========================================================================================
 
-
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/
 
 
 # Plugins and Plugin Configuration
