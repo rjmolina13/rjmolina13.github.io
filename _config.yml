@@ -4,7 +4,7 @@
 # IMPORTANT: Set the URL of your site.
 # Set to https://<username>.github.io when hosting on GitHub Pages
 # (unless you are using a custom domain).
-url: https://domain.tld
+url: https://rjmolina13.github.io/
 
 # IMPORTANT: Set The "base URL" of your site.
 # When your site sits in a subdirectory, set to /<name of directory>
@@ -19,7 +19,7 @@ baseurl: ""
 lang: en
 
 # The title of your blog. Used in the sidebar and the browser tab.
-title:                 Hydejack
+title:                 Ronanj Molina
 
 # A short description (~150 chars) of the page used for the meta description tag.
 # Can use markdown, but no more than one paragraph (enforced by `>`)
@@ -28,10 +28,10 @@ description:           >
   **Hydejack** is your presence on the web, featuring a blog, portfolio, and resume.
 
 # A shorter description for the sidebar.
-tagline:               '"Best Jekyll Theme by a Mile"'
+tagline:                 16 // Grade 10 Student // Hacker // Coder // IT
 
 # A list of keywords for your blog
-keywords: []
+keywords: [ronanj, molina, blog, it, tech]
 
 # A (square) logo for your site.
 # If provided, it will be shown at the top of the sidebar.
@@ -40,8 +40,8 @@ logo: /assets/icons/icon.png
 
 # This should be the same author as first entry in `_data/authors.yml`.
 author:
-  name: <firstname> <lastname>
-  email: <mail@domain.tld>
+  name: Ronanj Molina
+  email: rj.molina13@gmail.com
   # Used by `jekyll-seo-tag`:
   # twitter:             <username>
 
@@ -272,7 +272,7 @@ plugins:
 
 # Used for Twitter cards
 # twitter:
-#   username:            <shortname>
+#   username:            rj.molina13
 
 # Used for Facebook open graph
 # facebook:
