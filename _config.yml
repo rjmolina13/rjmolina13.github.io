@@ -4,7 +4,7 @@
 # IMPORTANT: Set the URL of your site.
 # Set to https://<username>.github.io when hosting on GitHub Pages
 # (unless you are using a custom domain).
-url: https://rjmolina13.github.io/
+url: https://domain.tld
 
 # IMPORTANT: Set The "base URL" of your site.
 # When your site sits in a subdirectory, set to /<name of directory>
@@ -19,18 +19,16 @@ baseurl: ""
 lang: en
 
 # The title of your blog. Used in the sidebar and the browser tab.
-title:                 Ronanj Molina
-
-future: true
-timezone: PH
+title:                 Hydejack
 
 # A short description (~150 chars) of the page used for the meta description tag.
 # Can use markdown, but no more than one paragraph (enforced by `>`)
 description:           >
-  16 // Grade 10 Student // Hacker // Coder // IT
+  "Best Jekyll Theme by a Mile".
+  **Hydejack** is your presence on the web, featuring a blog, portfolio, and resume.
 
 # A shorter description for the sidebar.
-tagline:                 16 // Grade 10 Student // Hacker // Coder // IT
+tagline:               '"Best Jekyll Theme by a Mile"'
 
 # A list of keywords for your blog
 keywords: []
@@ -42,11 +40,10 @@ logo: /assets/icons/icon.png
 
 # This should be the same author as first entry in `_data/authors.yml`.
 author:
-  picture:  /assets/img/me.jpg
-  name: Ronanj Molina
-  email: rj.molina13@gmail.com
+  name: <firstname> <lastname>
+  email: <mail@domain.tld>
   # Used by `jekyll-seo-tag`:
-  # twitter:             rjmolina13
+  # twitter:             <username>
 
 # This text will appear in a `<small>` tag in the footer of every page.
 copyright: >
@@ -139,7 +136,7 @@ defaults:
 
 hydejack:
   # Configure the order of complementary content on blog posts
-  post_addons: [about]
+  post_addons: [about, newsletter, related]
 
   # Configure the order of complementary content on project pages
   project_addons: [about, newsletter, other]
@@ -186,7 +183,7 @@ hydejack:
   advertise: false
 
   # Note that dark mode only works in the PRO version of Hydejack.
-  dark_mode: true
+  dark_mode:
     # Set to `true` to always use the dark theme.
     always: false
 
@@ -274,8 +271,8 @@ plugins:
 #   yandex:              <verification-id>
 
 # Used for Twitter cards
-# twitter: rjmolina13
-#   username:            rjmolina13
+# twitter:
+#   username:            <shortname>
 
 # Used for Facebook open graph
 # facebook:
@@ -287,9 +284,8 @@ plugins:
 # social:
 #   name:                <firstname> <lastname>
 #   links:
-#     - https://twitter.com/rjmolina13
-#     - https://github.com/rjmolina13
-#      - https://facebook.com/rjmolina13
+#     - https://twitter.com/<username>
+#     - https://github.com/<username>
 
 # Other Plugins
 # ---------------------------------------------------------------------------------------
