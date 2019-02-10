@@ -24,8 +24,7 @@ title:                 Ronanj Molina
 # A short description (~150 chars) of the page used for the meta description tag.
 # Can use markdown, but no more than one paragraph (enforced by `>`)
 description:           >
-  "Best Jekyll Theme by a Mile".
-  **Hydejack** is your presence on the web, featuring a blog, portfolio, and resume.
+  16 // Grade 10 Student // Hacker // Coder // IT
 
 # A shorter description for the sidebar.
 tagline:                 16 // Grade 10 Student // Hacker // Coder // IT
@@ -272,8 +271,8 @@ plugins:
 #   yandex:              <verification-id>
 
 # Used for Twitter cards
-# twitter:
-#   username:            <shortname>
+# twitter: rjmolina13
+#   username:            rjmolina13
 
 # Used for Facebook open graph
 # facebook:
@@ -285,8 +284,9 @@ plugins:
 # social:
 #   name:                <firstname> <lastname>
 #   links:
-#     - https://twitter.com/<username>
-#     - https://github.com/<username>
+#     - https://twitter.com/rjmolina13
+#     - https://github.com/rjmolina13
+#      - https://facebook.com/rjmolina13
 
 # Other Plugins
 # ---------------------------------------------------------------------------------------
