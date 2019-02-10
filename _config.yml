@@ -206,9 +206,7 @@ collections:
 # File inclusion/exclusion
 # ========================================================================================
 
-exclude:
-  - vendor
-  - Gemfile.lock
+
 
 
 # Plugins and Plugin Configuration
