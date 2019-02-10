@@ -35,6 +35,7 @@ tagline:               >
 # A list of keywords for your blog.
 keywords:              []
 accent_image: /assets/img/sidebar-bg.jpg
+accent_color: rgb(79,177,186)
 # Used by jekyll-seo-tag.
 logo:                  /assets/icons/icon.png
 
