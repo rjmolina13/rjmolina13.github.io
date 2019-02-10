@@ -40,6 +40,7 @@ logo: /assets/icons/icon.png
 
 # This should be the same author as first entry in `_data/authors.yml`.
 author:
+  picture:  /assets/img/me.jpg
   name: Ronanj Molina
   email: rj.molina13@gmail.com
   # Used by `jekyll-seo-tag`:
