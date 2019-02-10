@@ -69,6 +69,8 @@ paginate_path:         /page-:num/
 # Customizaton
 # ========================================================================================
 
+{% avatar rjmolina13 %}
+
 # Sidebar image and theme color of the site.
 accent_image:          /assets/img/sidebar-bg.jpg
 accent_color:          rgb(79,177,186)
@@ -224,6 +226,7 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   - jekyll-titles-from-headings
+  - jekyll-avatar
 
 # Theme
 # ---------------------------------------------------------------------------------------
@@ -245,7 +248,7 @@ remote_theme: qwtel/hydejack@v8.1.1
 
 # Used for Twitter cards
 # twitter:
-#   username:            @rjmolina13
+#   username:            rjmolina13
 
 # Used for Facebook open graph
 # facebook:
