@@ -85,3 +85,6 @@ author2:
   accent_image:
     background:      '#202020'
     overlay:         false
+    
+ author:
+  picture:  /assets/img/me.jpg
