@@ -33,6 +33,16 @@ tagline:                 17 // Grade 11 Student // Tech Enthusiast // Coder // I
 # A list of keywords for your blog
 keywords: [ronanj, molina, blog, it, tech]
 
+menu:
+  - title: Blog
+    url:   /blog/
+  - title: Projects
+    url:   /projects/
+  - title: Resume
+    url:   /resume/
+  - title: About
+    url:   /about/
+
 # A (square) logo for your site.
 # If provided, it will be shown at the top of the sidebar.
 # It also used by the `jekyll-seo-tag` plugin.
