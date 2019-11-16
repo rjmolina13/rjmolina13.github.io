@@ -42,6 +42,7 @@ menu:
     url:   /resume/
   - title: About
     url:   /about/
+    
 
 # A (square) logo for your site.
 # If provided, it will be shown at the top of the sidebar.
@@ -108,6 +109,14 @@ defaults:
         background: rgb(32,32,32)
         overlay: false
 
+collections:
+  featured_categories:
+    permalink:         /:Posts/
+    output:            true
+  featured_tags:
+    permalink:         /tag-:Posts/
+    output:            true
+    
   # `jekyll-seo-tag` will mark collection outputs as `BlogPosting`,
   # but we want them to be `WebPage`s:
   - scope:
