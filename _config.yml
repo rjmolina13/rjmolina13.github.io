@@ -24,8 +24,7 @@ title:                 Ronanj Molina
 # A short description (~150 chars) of the page used for the meta description tag.
 # Can use markdown, but no more than one paragraph (enforced by `>`)
 description:           >
-  "Best Jekyll Theme by a Mile".
-  **Hydejack** is your presence on the web, featuring a blog, portfolio, and resume.
+  A blogging site by Ronanj Molina.
 
 # A shorter description for the sidebar.
 tagline:                 17 // Grade 11 Student // Tech Enthusiast // Coder // IT
@@ -36,10 +35,6 @@ keywords: [ronanj, molina, blog, it, tech]
 menu:
   - title: Blog
     url:   /blog/
-  - title: Projects
-    url:   /projects/
-  - title: Resume
-    url:   /resume/
   - title: About
     url:   /about/
     
@@ -89,7 +84,7 @@ accent_color: rgb(79,177,186)
 theme_color: rgb(25,55,71)
 
 # The string encoding which fonts to fetch from Google Fonts.
-# See: <https://hydejack.com/docs/configuration/>
+# See: <https://hydejack.com/s/configuration/>
 google_fonts: Roboto+Slab:400|Noto+Sans:400,400i,700,700i
 
 # The text font. Expects a string that is a valid CSS font-family value.
@@ -301,7 +296,7 @@ plugins:
 
 # Used on index and about sites
 # social:
-#   name:                <firstname> <lastname>
+#   name:                Ronanj Molina
 #   links:
 #     - https://twitter.com/rjmolina13
 #     - https://github.com/rjmolina13
