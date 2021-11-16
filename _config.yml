@@ -2,8 +2,7 @@ lang:                  en
 title:                 Ronanj Molina
 copyright:             © 2021. All rights reserved.
 
-description:           >
-"19 // Computer Science Student // BSCS // Pyton // Batch // Powershell // C++ // JS"
+description:           | "19 // Computer Science Student // BSCS // Pyton // Batch // Powershell // C++ // JS"
 
 accent_image:          /assets/img/sidebar-bg.jpg
 accent_color:          rgb(79,177,186)
