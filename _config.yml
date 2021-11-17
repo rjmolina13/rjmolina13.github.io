@@ -17,6 +17,12 @@ defaults:
     values:
       comments: true
 
+social:
+  name:                Ronanj Molina
+  links:
+    - https://twitter.com/rjmolina13
+    - https://github.com/rjmolina13
+    - https://facebook.com/rjmolina13
 
 author:
   social:
