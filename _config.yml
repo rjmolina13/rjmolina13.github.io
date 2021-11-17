@@ -84,8 +84,6 @@ sass:
   style:               compressed
 
 author:
-  name:  Ronanj Molina
-  email: rj.molina13@gmail.com
   social:
     twitter:         rjmolina13
     github:          rjmolina13
@@ -98,3 +96,5 @@ author:
     reddit:          rj-molina13
     stackoverflow:   13996402/rjmolina13
     paypal:          rjmolina13
+  name:  Ronanj Molina
+  email: rj.molina13@gmail.com
