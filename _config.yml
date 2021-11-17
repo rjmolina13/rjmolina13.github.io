@@ -39,6 +39,9 @@ menu:
     url:   /blog/
   - title: About
     url:   /about/
+  - title: "@qwtel"
+    url:   https://qwtel.com/
+    
 
 logo: /assets/icons/icon.png
 
