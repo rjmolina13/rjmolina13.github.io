@@ -8,6 +8,22 @@ accent_image:          /assets/img/sidebar-bg.jpg
 accent_color:          rgb(79,177,186)
 theme_color:           rgb(25,55,71)
 
+author:
+  social:
+    twitter:         rjmolina13
+    github:          rjmolina13
+    email:           rj.molina13@gmail.com
+    facebook:        rjmolina13
+    youtube:         UCIdLVxDK35qxYaXi60dx_9A
+    spotify:         rj.molina13
+    instagram:       rjmolina13
+    steam:           76561198332274350
+    reddit:          rj-molina13
+    stackoverflow:   13996402/rjmolina13
+    paypal:          rjmolina13
+  name:  Ronanj Molina
+  email: rj.molina13@gmail.com
+
 menu:
   - title: Blog
     url:   /blog/
@@ -82,19 +98,3 @@ compress_html:
 
 sass:
   style:               compressed
-
-author:
-  social:
-    twitter:         rjmolina13
-    github:          rjmolina13
-    email:           rj.molina13@gmail.com
-    facebook:        rjmolina13
-    youtube:         UCIdLVxDK35qxYaXi60dx_9A
-    spotify:         rj.molina13
-    instagram:       rjmolina13
-    steam:           76561198332274350
-    reddit:          rj-molina13
-    stackoverflow:   13996402/rjmolina13
-    paypal:          rjmolina13
-  name:  Ronanj Molina
-  email: rj.molina13@gmail.com
