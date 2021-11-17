@@ -8,6 +8,15 @@ accent_image:          /assets/img/sidebar-bg.jpg
 accent_color:          rgb(79,177,186)
 theme_color:           rgb(25,55,71)
 
+disqus: rubyj-xyz
+
+defaults:
+  - scope:
+      type: posts
+    values:
+      comments: true
+
+
 author:
   social:
     twitter:         rjmolina13
@@ -57,7 +66,7 @@ hydejack:
   no_breadcrumbs:      false
 
   use_lsi:             true
-  cookies_banner:      true
+  cookies_banner:      false
   advertise:           true
   hide_dates:          false
   hide_last_modified:  false
@@ -98,3 +107,9 @@ compress_html:
 
 sass:
   style:               compressed
+
+---
+layout:   post
+title:    Hello World
+comments: true
+---
