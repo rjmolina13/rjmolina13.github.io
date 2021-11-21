@@ -1,19 +1,92 @@
-<!DOCTYPE html>
-<html>
- <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/paypal/accessible-html5-video-player@raw/main/css/px-video.css" />
-    <div class="px-video-container" id="myvid">
-        <div class="px-video-img-captions-container">
-            <div class="px-video-captions hide" aria-hidden="true"></div>
-            <video width="640" height="360" poster="assets/bal_macho1.png" controls>
-                <source src="assets/Iizuka-senpai x Blazer 01.mp4" type="video/mp4" />
-                <div>
-                    <a href="assets/Iizuka-senpai x Blazer 01.mp4">
-                        <img src="assets/bal_macho1.png" width="640" height="360" alt="download video" />
-                    </a>
-                </div>
-            </video>
-        </div>
-        <div class="px-video-controls"></div>
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Accessible Responsive HTML5 Video Player</title>
+  <meta name="description" content="Custom HTML5 video controls and WebVTT captions." />
+  <meta name="author" content="Dennis Lembree, PayPal" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- PX-VIDEO CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/paypal/accessible-html5-video-player@main/css/px-video.css" />
+
+  <style>
+    /*** for demo only ***/
+
+    #wrapper {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    #brand a,
+    p a {
+      border: 1px #fff dotted;
+    }
+
+    #brand a:focus,
+    p a:focus {
+      border: 1px #999 dotted;
+      outline: none;
+    }
+
+    p {
+      padding-top: 1em;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div id="wrapper">
+
+    <div id="brand">
+      <h2><a href="http://rubyj.xyz/"><img src="assets/sneakyboi_jc.png" width="40" height="40" alt="">  Bhocxkzs Mascoot</h2> </a>
+      <!-- <a href="http://rubyj.xyz/"><img src="assets/sneakyboi_jc.png" width="50" height="50" alt="Bhocxkzs Mascoot"></a> -->
     </div>
- <head>
+
+    <h1><img src="assets/bal_macho1.png" width="40" height="40" alt=""> Zeus Balin Epar Bold HTML5 Hentai Video Player</h1>
+
+    <div class="px-video-container" id="myvid">
+      <div class="px-video-img-captions-container">
+        <div class="px-video-captions hide"></div>
+        <div class="px-video-wrapper">
+          <video poster="assets/shihan_oppar.png" class="px-video" controls>
+      			<!-- video files -->
+      			<source src="assets/Iizuka-senpai x Blazer 01.mp4" type="video/mp4" />
+
+      			<!-- fallback for browsers that don't support the video element -->
+      			<div>
+      				<a href="assets/Iizuka-senpai x Blazer 01.mp4">
+      					<img src="assets/bal_macho1.png" width="640" height="360" alt="download video" />
+      				</a>
+      			</div>
+      		</video>
+        </div>
+      </div>
+      <!-- end container for captions and video -->
+      <div class="px-video-controls"></div>
+    </div>
+    <!-- end video container -->
+
+    <p><a href="https://github.com/paypal/accessible-html5-video-player" target="_blank">GitHub Repo</a></p>
+
+  </div>
+  <!-- end page wrapper container -->
+  <script src="https://cdn.jsdelivr.net/gh/paypal/accessible-html5-video-player@main/js/strings.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/paypal/accessible-html5-video-player@main/js/px-video.js"></script>
+
+  <script>
+  // Initialize
+new InitPxVideo({
+  videoId: "myvid",
+  captionsOnDefault: true,
+  seekInterval: 10,
+  videoTitle: "Zeus Balin Hentai",
+  debug: true
+});
+</script>
+
+</body>
+
+</html>
