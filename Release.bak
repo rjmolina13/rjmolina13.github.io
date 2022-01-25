@@ -1,8 +1,8 @@
-Origin: ArtikusHG repo
-Label: ArtikusHG repo
+Origin: RubyJ repo
+Label: RubyJ repo
 Suite: stable
 Version: 1.0
 Codename: ios
 Architectures: iphoneos-arm
 Components: main
-Description: ArtikusHG repo
+Description: RubyJ repo
