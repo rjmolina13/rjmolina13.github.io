@@ -32,7 +32,7 @@ nbproject
 # Komodo
 *.komodoproject
 .komodotools
-
+update.bat
 # grunt-html-validation
 validation-status.json
 validation-report.json
