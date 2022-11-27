@@ -12,10 +12,10 @@ jobs:
     steps:
         name: Download
         uses: robinraju/release-downloader@v1.6
-          with:
-            repository: "34306/TrollStoreiPA"
-            latest: true
-            fileName: "*.ipa"
-            tarBall: true
-            zipBall: true
-            out-file-path: "my-downloads"
+        with:
+          repository: "34306/TrollStoreiPA"
+          latest: true
+          fileName: "*.ipa"
+          tarBall: true
+          zipBall: true
+          out-file-path: "my-downloads"
