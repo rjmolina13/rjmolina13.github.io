@@ -1,0 +1,11 @@
+{
+    "icon": "https://github.com/rjmolina13/rjmolina13.github.io/blob/main/CydiaIcon.png?raw=true",
+    "name": "RubyJ's Repo",
+    "apps": [{
+        "title": "Jaility",
+        "urlimg": "https://media.discordapp.net/attachments/969879614379921418/1042855197803827250/Icon-83_52x.png",
+        "url": "https://github.com/haxi0/Jaility/releases/download/3.1.1/Jaility-3.1.1.ipa",
+        "bundleid": "org.haxi0.Jaility",
+        "completed": false
+    }]
+}
