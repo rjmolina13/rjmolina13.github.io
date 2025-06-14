@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CSS Text Portrait Effects</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/flower/popup-flower.css">
+  <style>
+    :root {
+      --popup-bg: #ffffff;
+      --popup-text: #000000;
+      --popup-shadow: rgba(0, 0, 0, 0.2);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --popup-bg: #333333;
+        --popup-text: #ffffff;
+        --popup-shadow: rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #262626;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    p {
+      font-size: 10px;
+      line-height: 8px;
+      background-repeat: no-repeat;
+      background-position: center;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: rgba(255, 255, 255, 0);
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      text-align: center;
+    }
+
+    #invisible-btn {
+      position: absolute;
+      padding: 12px 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+      /* Position will be set dynamically via JavaScript */
+    }
+
+    #invisible-btn.debug {
+      opacity: 1;
+      background: rgba(255, 0, 0, 0.3);
+      border: 2px solid red;
+    }
+
+    .popup {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--popup-bg);
+      color: var(--popup-text);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px var(--popup-shadow);
+      width: min(80vw, 80vh);
+      height: min(80vw, 80vh);
+      z-index: 1000;
+      opacity: 1;
+      box-sizing: border-box;
+      flex-direction: column;
+    }
+
+    .popup[style*="block"] {
+      display: flex !important;
+    }
+
+    .popup-title {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .popup-flower {
+      flex: 0 0 auto;
+      width: min(50vh, 50vw);
+      height: min(50vh, 50vw);
+      margin: 10px auto;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--dark-color, #000);
+      border-radius: 4px;
+    }
+
+    .popup-content {
+      flex: 1;
+      overflow-y: scroll;
+      padding: 10px 15px;
+      margin-right: -10px;
+      color: var(--popup-text);
+      scrollbar-width: thin;
+      scrollbar-color: var(--popup-text) transparent;
+      min-height: 0;
+    }
+
+    .popup-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .popup-content::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 4px;
+    }
+
+    .popup-content::-webkit-scrollbar-thumb {
+      background-color: var(--popup-text);
+      border-radius: 4px;
+      opacity: 0.5;
+    }
+
+    .popup-content::-webkit-scrollbar-thumb:hover {
+      background-color: var(--popup-text);
+      opacity: 0.8;
+    }
+
+    .popup-content p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 10px 0;
+      color: var(--popup-text);
+      -webkit-text-fill-color: var(--popup-text);
+      white-space: normal;
+      text-align: left;
+    }
+
+    @media (max-width: 768px) {
+      .popup {
+        width: 90vw;
+        height: 90vh;
+        padding: 15px;
+      }
+
+      .popup-content {
+        margin-right: -5px;
+        padding: 10px 10px;
+      }
+
+      .popup-content::-webkit-scrollbar {
+        width: 6px;
+      }
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--popup-text);
+    }
+  </style>
+</head>
+<body>
+  <p id="text"></p>
+  <button id="invisible-btn">Click Me</button>
+  <div class="popup" id="popup">
+    <div class="popup-close" onclick="closePopup()">&times;</div>
+    <div class="popup-title">my blue.</div>
+    <div class="popup-flower" id="flower-container"></div>
+    <div class="popup-content">
+      <p>
+        The person I want to be with, everyday, every hour and every minute.<br>
+        The person who gives me peace and tranquility.<br>
+        The person who gives me happiness and joy.<br>
+        The person whom I look forward seeing every morning.<br>
+        The person I always want to talk to.<br>
+        The person I always want to eat meals with.<br>
+        The person I always want to share stories with.
+      </p>
+
+      <p>
+        My love, you bring me pure bliss. My euphoria.<br>
+        The reason why I wake up with a smile.<br>
+        The reason why I keep pushing myself.<br>
+        The reason why I want to better myself.
+      </p>
+
+      <p>
+        I thank God for bringing me close to you.<br>
+        Always thankful for everything.<br>
+        For your existence.<br>
+        For your efforts.<br>
+        For your small gestures.<br>
+        For your care and affection.
+      </p>
+      <p>
+        I want to spend more days with you my love.<br>
+        I want to experience life with you.<br>
+        I want to do more things with you.
+      </p>
+      <p>
+        And, I look forward to a future with you.
+      </p>
+
+      <p>
+        I love you yesterday, today and tomorrow.
+      </p>
+      <br>
+      <br>
+      <p>
+        I love you, Andrea. ♡<br>
+        Always. In all ways.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Application state
+    const AppState = {
+      isBlackAndWhite: false,
+      img: null,
+      canvas: null,
+      ctx: null,
+      imgW: 0,
+      imgH: 0,
+      finalW: 0,
+      finalH: 0
+    };
+
+    // Configuration
+    const Config = {
+      imageUrl: "assets/img/bb.jpg",
+      baseText: "ILOVEYOUSOMUCH",
+      buttonPosition: { x: 0.14, y: 0.65 },
+      textSettings: { lineHeight: 8, fontWidth: 6 }
+    };
+
+    // DOM elements
+    const Elements = {
+      paragraph: null,
+      invisibleBtn: null,
+      popup: null,
+      flowerContainer: null
+    };
+
+    // Initialize application
+    function initializeApp() {
+      // Cache DOM elements
+      Elements.paragraph = document.getElementById('text');
+      Elements.invisibleBtn = document.getElementById('invisible-btn');
+      Elements.popup = document.getElementById('popup');
+      Elements.flowerContainer = document.getElementById('flower-container');
+
+      // Setup image
+      setupImage();
+      
+      // Setup event listeners
+      setupEventListeners();
+    }
+
+    // Image setup and loading
+    function setupImage() {
+      AppState.img = new Image();
+      AppState.img.crossOrigin = 'Anonymous';
+      AppState.img.src = Config.imageUrl;
+      
+      AppState.img.onerror = function() {
+        console.error('Error loading image:', Config.imageUrl);
+      };
+      
+      AppState.img.onload = function() {
+        AppState.imgW = AppState.img.naturalWidth;
+        AppState.imgH = AppState.img.naturalHeight;
+        
+        // Initialize canvas
+        AppState.canvas = document.createElement('canvas');
+        AppState.ctx = AppState.canvas.getContext('2d');
+        
+        // Apply initial effect and layout
+        applyImageEffect();
+        updateLayout();
+      };
+    }
+
+    // Apply black and white effect
+    function applyImageEffect() {
+      if (!AppState.canvas || !AppState.ctx || !AppState.img) return;
+
+      AppState.canvas.width = AppState.img.width;
+      AppState.canvas.height = AppState.img.height;
+      AppState.ctx.drawImage(AppState.img, 0, 0);
+
+      if (AppState.isBlackAndWhite) {
+        const imageData = AppState.ctx.getImageData(0, 0, AppState.canvas.width, AppState.canvas.height);
+        const data = imageData.data;
+        
+        for (let i = 0; i < data.length; i += 4) {
+          const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+          data[i] = avg;
+          data[i + 1] = avg;
+          data[i + 2] = avg;
+        }
+        
+        AppState.ctx.putImageData(imageData, 0, 0);
+      }
+
+      Elements.paragraph.style.backgroundImage = `url(${AppState.canvas.toDataURL()})`;
+    }
+
+    // Toggle black and white effect
+    function toggleBlackAndWhite() {
+      AppState.isBlackAndWhite = !AppState.isBlackAndWhite;
+      applyImageEffect();
+    }
+
+    // Update layout and positioning
+    function updateLayout() {
+      if (!AppState.imgW || !AppState.imgH) return;
+      
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
+
+      // Scale image to fit inside viewport
+      const scale = Math.min(viewW / AppState.imgW, viewH / AppState.imgH);
+      AppState.finalW = AppState.imgW * scale;
+      AppState.finalH = AppState.imgH * scale;
+
+      // Apply background image and size
+      Elements.paragraph.style.width = AppState.finalW + "px";
+      Elements.paragraph.style.height = AppState.finalH + "px";
+      Elements.paragraph.style.backgroundSize = `${AppState.finalW}px ${AppState.finalH}px`;
+
+      // Update button position
+      updateButtonPosition();
+
+      // Update text content
+      updateTextContent();
+    }
+
+    // Update button position
+    function updateButtonPosition() {
+      const buttonLeft = (window.innerWidth - AppState.finalW) / 2 + (AppState.finalW * Config.buttonPosition.x);
+      const buttonTop = (window.innerHeight - AppState.finalH) / 2 + (AppState.finalH * Config.buttonPosition.y);
+      
+      Elements.invisibleBtn.style.left = buttonLeft + "px";
+      Elements.invisibleBtn.style.top = buttonTop + "px";
+      Elements.invisibleBtn.style.transform = "translate(-50%, -50%)";
+    }
+
+    // Update text content
+    function updateTextContent() {
+      const lines = Math.floor(AppState.finalH / Config.textSettings.lineHeight);
+      const charsPerLine = Math.floor(AppState.finalW / Config.textSettings.fontWidth);
+      const totalChars = lines * charsPerLine;
+      const repeatCount = Math.ceil(totalChars / Config.baseText.length);
+      
+      Elements.paragraph.textContent = Config.baseText.repeat(repeatCount);
+    }
+
+    // Setup all event listeners
+    function setupEventListeners() {
+      // Debug mode toggle with 'd' key
+      document.addEventListener('keydown', handleKeydown);
+      
+      // Popup functionality
+      Elements.invisibleBtn.addEventListener('click', openPopup);
+      
+      // Close popup when clicking outside
+      window.addEventListener('click', handleWindowClick);
+      
+      // Window resize event
+      window.addEventListener('resize', updateLayout);
+    }
+
+    // Handle keydown events
+    function handleKeydown(e) {
+      if (e.key === 'd') {
+        Elements.invisibleBtn.classList.toggle('debug');
+      } else if (e.key.toLowerCase() === 'b') {
+        toggleBlackAndWhite();
+      }
+    }
+
+    // Open popup dialog
+    function openPopup() {
+      Elements.popup.style.display = 'block';
+      loadFlowerAnimation();
+    }
+
+    // Close popup dialog
+    function closePopup() {
+      Elements.popup.style.display = 'none';
+      Elements.flowerContainer.innerHTML = '';
+      // Reapply image effect to ensure consistency
+      applyImageEffect();
+    }
+
+    // Handle window click events
+    function handleWindowClick(e) {
+      if (e.target === Elements.popup) {
+        closePopup();
+      }
+    }
+
+    // Load flower animation
+    function loadFlowerAnimation() {
+      // Only load if not already loaded
+      if (Elements.flowerContainer.children.length === 0) {
+        Elements.flowerContainer.innerHTML = `
+          <div class="night"></div>
+          <div class="flowers">
+            <div class="flower flower--1">
+              <div class="flower__leafs flower__leafs--1">
+                <div class="flower__leaf flower__leaf--1"></div>
+                <div class="flower__leaf flower__leaf--2"></div>
+                <div class="flower__leaf flower__leaf--3"></div>
+                <div class="flower__leaf flower__leaf--4"></div>
+                <div class="flower__white-circle"></div>
+                
+                <div class="flower__light flower__light--1"></div>
+                <div class="flower__light flower__light--2"></div>
+                <div class="flower__light flower__light--3"></div>
+                <div class="flower__light flower__light--4"></div>
+                <div class="flower__light flower__light--5"></div>
+                <div class="flower__light flower__light--6"></div>
+                <div class="flower__light flower__light--7"></div>
+                <div class="flower__light flower__light--8"></div>
+              </div>
+              <div class="flower__line">
+                <div class="flower__line__leaf flower__line__leaf--1"></div>
+                <div class="flower__line__leaf flower__line__leaf--2"></div>
+                <div class="flower__line__leaf flower__line__leaf--3"></div>
+                <div class="flower__line__leaf flower__line__leaf--4"></div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        // Initialize animation
+        setTimeout(() => {
+          const flowerElements = Elements.flowerContainer.querySelectorAll('*');
+          flowerElements.forEach(el => {
+            if (el.classList.contains('not-loaded')) {
+              el.classList.remove('not-loaded');
+            }
+          });
+        }, 100);
+      }
+    }
+
+    // Make closePopup globally accessible for onclick handler
+    window.closePopup = closePopup;
+
+    // Initialize when DOM is loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+/* Envelope Animation Styles */
+
+/* Envelope container */
+.envelope-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2000;
+  pointer-events: none;
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Envelope container starting position (will be set dynamically) */
+.envelope-container.from-button {
+  transform: translate(-50%, -50%) scale(0.1);
+  opacity: 0;
+}
+
+/* Envelope wrapper */
+.envelope {
+  position: relative;
+  width: 200px;
+  height: 140px;
+  transform-style: preserve-3d;
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Envelope base */
+.envelope-base {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f4f4f4, #e8e8e8);
+  border: 2px solid #d0d0d0;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Envelope flap */
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background: linear-gradient(135deg, #f8f8f8, #ececec);
+  border: 2px solid #d0d0d0;
+  border-bottom: none;
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  z-index: 1;
+}
+
+/* Envelope flap open state */
+.envelope.opening .envelope-flap {
+  transform: rotateX(-180deg);
+}
+
+/* Letter inside envelope */
+.letter {
+  position: absolute;
+  top: 20px;
+  left: 15px;
+  width: calc(100% - 30px);
+  height: calc(100% - 40px);
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 2px;
+  transform: translateY(0);
+  transition: transform 0.8s ease-out 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0.9;
+}
+
+/* Letter emerging from envelope */
+.envelope.opening .letter {
+  transform: translateY(-60px);
+}
+
+/* Hearts container */
+.hearts-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1500;
+}
+
+/* Individual heart */
+.heart {
+  position: absolute;
+  font-size: 20px;
+  color: #ff6b9d;
+  animation: float-heart 3s ease-out forwards;
+  opacity: 0;
+}
+
+.heart:nth-child(2n) {
+  color: #ff8fab;
+  font-size: 16px;
+}
+
+.heart:nth-child(3n) {
+  color: #ffa8cc;
+  font-size: 24px;
+}
+
+.heart:nth-child(4n) {
+  color: #ff4081;
+  font-size: 18px;
+}
+
+/* Heart floating animation */
+@keyframes float-heart {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1) rotate(5deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-100px) scale(1.1) rotate(-5deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-200px) scale(0.8) rotate(10deg);
+  }
+}
+
+/* Envelope appear animation - smooth growth from button */
+@keyframes envelope-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.1) rotateY(20deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.7) rotateY(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+}
+
+/* Envelope disappear animation */
+@keyframes envelope-disappear {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotateY(0deg);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1) rotateY(-10deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.1) rotateY(-20deg) translateY(-100px);
+  }
+}
+
+/* Envelope disappearing state */
+.envelope.disappearing {
+  animation: envelope-disappear 0.8s ease-in forwards;
+}
+
+/* Popup animation enhancement */
+.popup.envelope-opening {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.3);
+  animation: popup-envelope-appear 1s ease-out 1.5s forwards;
+}
+
+@keyframes popup-envelope-appear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotateY(15deg);
+  }
+  30% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(0.6) rotateY(8deg);
+  }
+  70% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(0.95) rotateY(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotateY(0deg);
+  }
+}
+
+/* Hide envelope when animation is complete */
+.envelope-container.hidden {
+  display: none;
+}

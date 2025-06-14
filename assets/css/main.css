@@ -1,0 +1,498 @@
+
+:root {
+      --popup-bg: #ffffff;
+      --popup-text: #000000;
+      --popup-shadow: rgba(0, 0, 0, 0.2);
+      /* Light mode scrollbar colors */
+      --scrollbar-track: rgba(0, 0, 0, 0.1);
+      --scrollbar-track-border: rgba(0, 0, 0, 0.05);
+      --scrollbar-thumb: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.4) 100%);
+      --scrollbar-thumb-border: rgba(0, 0, 0, 0.2);
+      --scrollbar-thumb-hover: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.5) 100%);
+      --scrollbar-thumb-hover-border: rgba(0, 0, 0, 0.3);
+      --scrollbar-thumb-active: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.6) 100%);
+      --scrollbar-shadow: rgba(0, 0, 0, 0.2);
+      --scrollbar-shadow-hover: rgba(0, 0, 0, 0.3);
+      /* Firefox scrollbar colors */
+      --scrollbar-firefox-thumb: rgba(0, 0, 0, 0.4);
+      --scrollbar-firefox-track: rgba(0, 0, 0, 0.1);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --popup-bg: #333333;
+        --popup-text: #ffffff;
+        --popup-shadow: rgba(0, 0, 0, 0.4);
+        /* Dark mode scrollbar colors */
+        --scrollbar-track: rgba(255, 255, 255, 0.1);
+        --scrollbar-track-border: rgba(255, 255, 255, 0.05);
+        --scrollbar-thumb: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.6) 100%);
+        --scrollbar-thumb-border: rgba(255, 255, 255, 0.2);
+        --scrollbar-thumb-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.7) 100%);
+        --scrollbar-thumb-hover-border: rgba(255, 255, 255, 0.3);
+        --scrollbar-thumb-active: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.8) 100%);
+        --scrollbar-shadow: rgba(0, 0, 0, 0.3);
+        --scrollbar-shadow-hover: rgba(0, 0, 0, 0.4);
+        /* Firefox scrollbar colors */
+        --scrollbar-firefox-thumb: rgba(255, 255, 255, 0.5);
+        --scrollbar-firefox-track: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #262626;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    p {
+      font-size: 5px;
+      line-height: 4px;
+      letter-spacing: -1px;
+      background-repeat: no-repeat;
+      background-position: center;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: rgba(255, 255, 255, 0);
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      text-align: center;
+    }
+
+    #invisible-btn {
+      position: absolute;
+      padding: 12px 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+      /* Position will be set dynamically via JavaScript */
+    }
+
+    #invisible-btn.debug {
+      opacity: 1;
+      background: rgba(255, 0, 0, 0.3);
+      border: 2px solid red;
+    }
+
+    .popup {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--popup-bg);
+      color: var(--popup-text);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px var(--popup-shadow);
+      width: min(80vw, 80vh);
+      height: min(80vw, 80vh);
+      z-index: 1000;
+      opacity: 1;
+      box-sizing: border-box;
+      flex-direction: column;
+    }
+
+    .popup[style*="block"] {
+      display: flex !important;
+    }
+
+    .popup-title {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .popup-flower {
+      flex: 0 0 auto;
+      width: min(50vh, 50vw);
+      height: min(50vh, 50vw);
+      margin: 10px auto;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--dark-color, #000);
+      border-radius: 4px;
+    }
+
+    .popup-content {
+      flex: 1;
+      overflow-y: scroll;
+      padding: 10px 20px 10px 15px;
+      color: var(--popup-text);
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-firefox-thumb) var(--scrollbar-firefox-track);
+      min-height: 0;
+      /* Force scrollbar to always be visible */
+      scrollbar-gutter: stable;
+      /* Ensure content is always scrollable to show scrollbar */
+      overflow-y: scroll !important;
+    }
+
+    /* Custom scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+    .popup-content::-webkit-scrollbar {
+      width: 14px;
+      /* Always show scrollbar */
+      display: block !important;
+      /* Force visibility */
+      visibility: visible !important;
+    }
+
+    .popup-content::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+      border-radius: 7px;
+      border: 1px solid var(--scrollbar-track-border);
+      /* Always visible track */
+      opacity: 1 !important;
+      /* Add subtle inner shadow for depth */
+      box-shadow: inset 0 1px 3px var(--scrollbar-shadow);
+    }
+
+    .popup-content::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 7px;
+      border: 1px solid var(--scrollbar-thumb-border);
+      /* Always visible thumb */
+      opacity: 1 !important;
+      min-height: 40px;
+      /* Enhanced shadow for better visibility */
+      box-shadow: 0 2px 6px var(--scrollbar-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      /* Ensure minimum visibility */
+      visibility: visible !important;
+    }
+
+    .popup-content::-webkit-scrollbar-thumb:hover {
+      background: var(--scrollbar-thumb-hover);
+      border-color: var(--scrollbar-thumb-hover-border);
+      box-shadow: 0 3px 8px var(--scrollbar-shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      /* Slight scale effect for better feedback */
+      transform: scaleX(1.1);
+    }
+
+    .popup-content::-webkit-scrollbar-thumb:active {
+      background: var(--scrollbar-thumb-active);
+      box-shadow: 0 1px 3px var(--scrollbar-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transform: scaleX(1.05);
+    }
+
+    /* Custom scrollbar corner */
+    .popup-content::-webkit-scrollbar-corner {
+      background: var(--scrollbar-track);
+      border-radius: 7px;
+    }
+
+    .popup-content p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin: 10px 0;
+      color: var(--popup-text);
+      -webkit-text-fill-color: var(--popup-text);
+      white-space: normal;
+      text-align: left;
+    }
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--popup-text);
+    }
+
+    /* Enhanced mobile scrollbar visibility */
+    @media (max-width: 768px) {
+      .popup {
+        width: 90vw;
+        height: 80vh;
+        padding: 15px;
+      }
+      .popup-flower {
+        flex: 0 0 auto;
+        width: min(70vh, 70vw);
+        height: min(50vh, 50vw);
+        margin: 10px auto;
+        position: relative;
+        overflow: hidden;
+        background-color: var(--dark-color, #000);
+        border-radius: 4px;
+      }
+      .popup-content {
+        padding: 8px 18px 8px 10px;
+        /* Ensure scrollbar is always visible on mobile */
+        scrollbar-width: auto;
+      }
+
+      .popup-content::-webkit-scrollbar {
+        width: 16px;
+        /* Larger touch target for mobile */
+        display: block !important;
+        visibility: visible !important;
+      }
+      
+      .popup-content::-webkit-scrollbar-track {
+        background: var(--scrollbar-track);
+        border-radius: 8px;
+        border: 2px solid var(--scrollbar-track-border);
+        /* Enhanced visibility on mobile */
+        opacity: 1 !important;
+        box-shadow: inset 0 2px 4px var(--scrollbar-shadow);
+      }
+      
+      .popup-content::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb);
+        border-radius: 8px;
+        border: 2px solid var(--scrollbar-thumb-border);
+        min-height: 50px;
+        /* Larger minimum height for better touch interaction */
+        opacity: 1 !important;
+        visibility: visible !important;
+        /* Enhanced shadow for mobile visibility */
+        box-shadow: 0 3px 8px var(--scrollbar-shadow), inset 0 2px 0 rgba(255, 255, 255, 0.15);
+      }
+      
+      .popup-content::-webkit-scrollbar-thumb:hover {
+        background: var(--scrollbar-thumb-hover);
+        border-color: var(--scrollbar-thumb-hover-border);
+        box-shadow: 0 4px 10px var(--scrollbar-shadow-hover), inset 0 2px 0 rgba(255, 255, 255, 0.25);
+        transform: scaleX(1.05);
+      }
+
+      .popup-content::-webkit-scrollbar-thumb:active {
+        background: var(--scrollbar-thumb-active);
+        box-shadow: 0 2px 5px var(--scrollbar-shadow), inset 0 2px 0 rgba(255, 255, 255, 0.15);
+        transform: scaleX(1.02);
+      }
+
+      .popup-content::-webkit-scrollbar-corner {
+        background: var(--scrollbar-track);
+        border-radius: 8px;
+      }
+
+      .popup-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        cursor: pointer;
+        font-size: 28px;
+        color: #ababab;
+      }
+    }
+
+    /* Extra small screens - even more prominent scrollbar */
+    @media (max-width: 480px) {
+      .popup-content {
+        padding: 6px 20px 6px 8px;
+      }
+
+      .popup-content::-webkit-scrollbar {
+        width: 18px;
+        /* Even larger for very small screens */
+      }
+
+      .popup-content::-webkit-scrollbar-thumb {
+        min-height: 60px;
+        /* Larger minimum height for tiny screens */
+        border-width: 3px;
+        /* Thicker border for better visibility */
+      }
+    }
+
+    /* Touch device specific enhancements */
+    @media (hover: none) and (pointer: coarse) {
+      .popup-content::-webkit-scrollbar {
+        width: 20px;
+        /* Maximum width for touch devices */
+      }
+
+      .popup-content::-webkit-scrollbar-thumb {
+        min-height: 70px;
+        /* Large touch target */
+        border-width: 3px;
+        /* Prominent border */
+        /* High contrast for touch visibility */
+        box-shadow: 0 4px 12px var(--scrollbar-shadow-hover), inset 0 3px 0 rgba(255, 255, 255, 0.2);
+      }
+
+      /* Remove hover effects on touch devices */
+      .popup-content::-webkit-scrollbar-thumb:hover {
+        transform: none;
+      }
+    }
+
+    /* Audio Controls Styling */
+    .audio-controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .music-player {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      max-width: 250px;
+      margin: 0 auto;
+    }
+
+    .music-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .music-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .volume-slider {
+      width: 100px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      outline: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .volume-slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      background: var(--popup-text);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .volume-slider::-moz-range-thumb {
+      width: 15px;
+      height: 15px;
+      background: var(--popup-text);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    .volume-label {
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    .volume-note {
+      font-size: 12px;
+      opacity: 0.7;
+      color: var(--popup-text);
+      margin-left: 10px;
+      white-space: nowrap;
+    }
+
+    /* Enhanced mobile support */
+    @media (max-width: 768px) {
+      .music-player {
+        gap: 8px;
+        padding: 8px 12px;
+        max-width: 280px;
+        min-height: 50px;
+        flex-wrap: wrap;
+      }
+      
+      .volume-slider {
+        width: 100px;
+        height: 8px;
+        /* Enhanced touch target for mobile */
+        -webkit-appearance: none;
+        appearance: none;
+      }
+      
+      .volume-slider::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+        /* Larger touch target for mobile */
+      }
+      
+      .volume-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        /* Larger touch target for mobile */
+      }
+      
+      .music-btn {
+        font-size: 18px;
+        padding: 8px 12px;
+        min-width: 44px;
+        min-height: 44px;
+        /* Minimum touch target size for accessibility */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+        /* Remove tap highlight on mobile */
+      }
+      
+      .volume-note {
+        font-size: 11px;
+        margin-left: 5px;
+        flex-basis: 100%;
+        text-align: center;
+        margin-top: 5px;
+      }
+    }
+
+    /* Additional mobile-specific styles */
+    @media (max-width: 480px) {
+      .music-player {
+        max-width: 250px;
+        gap: 6px;
+        padding: 6px 10px;
+      }
+      
+      .volume-slider {
+        width: 80px;
+      }
+      
+      .music-btn {
+        font-size: 16px;
+        min-width: 40px;
+        min-height: 40px;
+      }
+      
+      .volume-label {
+        font-size: 14px;
+      }
+    }
+
+    /* Touch device optimizations */
+    @media (hover: none) and (pointer: coarse) {
+      .music-btn:hover {
+        /* Disable hover effects on touch devices */
+        background: rgba(255, 255, 255, 0.2);
+        transform: none;
+      }
+      
+      .music-btn:active {
+        background: rgba(255, 255, 255, 0.4);
+        transform: scale(0.95);
+      }
+      
+      .volume-slider {
+        /* Ensure slider is easily touchable */
+        height: 10px;
+      }
+    }
+
