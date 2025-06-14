@@ -7,7 +7,8 @@
       imgW: 0,
       imgH: 0,
       finalW: 0,
-      finalH: 0
+      finalH: 0,
+      initialScale: null
     };
 
     // Configuration
@@ -80,10 +81,25 @@
     function updateLayout() {
       if (!AppState.imgW || !AppState.imgH) return;
       
-      const viewW = window.innerWidth;
-      const viewH = window.innerHeight;
+      // Use visual viewport if available to prevent zoom-based resizing
+      const viewW = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+      const viewH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
 
-      const scale = Math.min(viewW / AppState.imgW, viewH / AppState.imgH);
+      // On mobile, maintain fixed scale to prevent auto-resizing during zoom
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      let scale;
+      if (isMobile && AppState.initialScale) {
+        // Use the initial scale calculated on first load
+        scale = AppState.initialScale;
+      } else {
+        scale = Math.min(viewW / AppState.imgW, viewH / AppState.imgH);
+        // Store initial scale for mobile devices
+        if (isMobile && !AppState.initialScale) {
+          AppState.initialScale = scale;
+        }
+      }
+      
       AppState.finalW = AppState.imgW * scale;
       AppState.finalH = AppState.imgH * scale;
 
