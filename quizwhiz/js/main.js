@@ -5,7 +5,7 @@ class QuizWhizApp {
     constructor() {
         // App version information
         this.version = "3.0";
-        this.lastUpdated = "2023-07-15";
+        this.lastUpdated = "2025-07-23";
         
         this.flashcards = [];
         this.quizzes = [];
