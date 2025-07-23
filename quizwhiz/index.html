@@ -10,19 +10,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- CSS Files -->
-    <link rel="stylesheet" href="../css/variables.css">
-    <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../css/layout.css">
-    <link rel="stylesheet" href="../css/navigation.css">
-    <link rel="stylesheet" href="../css/components.css">
-    <link rel="stylesheet" href="../css/buttons.css">
-    <link rel="stylesheet" href="../css/forms.css">
-    <link rel="stylesheet" href="../css/flashcards.css">
-    <link rel="stylesheet" href="../css/quiz.css">
-    <link rel="stylesheet" href="../css/settings.css">
-    <link rel="stylesheet" href="../css/utilities.css">
-    <link rel="stylesheet" href="../css/love-word.css">
-    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/navigation.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/buttons.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/flashcards.css">
+    <link rel="stylesheet" href="css/quiz.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/utilities.css">
+    <link rel="stylesheet" href="css/love-word.css">
+    <link rel="stylesheet" href="css/home-gradient.css">
+    <link rel="stylesheet" href="css/main.css">
     
     <style>
         .redirect-container {
@@ -32,32 +33,41 @@
             justify-content: center;
             min-height: 100vh;
             text-align: center;
-            /* background: var(--bg-primary, #ffffff); */
-            color: var(--text-primary, #333333);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            z-index: 1;
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
         }
         
         .redirect-content {
             max-width: 500px;
             padding: 2rem;
+            background: var(--card-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
         }
         
         .redirect-logo {
             font-size: 4rem;
-            color: var(--primary-color, #007bff);
+            color: var(--primary-color);
             margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .redirect-title {
             font-size: 2.5rem;
             margin-bottom: 1rem;
-            color: var(--text-primary, #333333);
+            color: var(--text-primary);
+            font-weight: 700;
         }
         
         .redirect-message {
             font-size: 1.1rem;
             margin-bottom: 2rem;
-            color: var(--text-secondary, #666666);
+            color: var(--text-secondary);
+            line-height: 1.6;
         }
         
         .redirect-btn {
@@ -65,20 +75,22 @@
             align-items: center;
             gap: 0.5rem;
             padding: 1rem 2rem;
-            background: var(--primary-color, #007bff);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             font-size: 1.1rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             border: none;
             cursor: pointer;
+            box-shadow: var(--shadow-medium);
         }
         
         .redirect-btn:hover {
-            background: var(--primary-hover, #0056b3);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
             transform: translateY(-2px);
+            box-shadow: var(--shadow-heavy);
         }
         
         .loading-dots {
@@ -102,13 +114,16 @@
             text-align: left;
             margin: 2rem 0;
             padding: 1.5rem;
-            background: var(--bg-secondary, #4e4e4e);
-            border-radius: 8px;
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
         }
         
         .features-list h3 {
             margin-bottom: 1rem;
-            color: var(--text-primary, #333333);
+            color: var(--text-primary);
+            font-weight: 600;
         }
         
         .features-list ul {
@@ -121,15 +136,70 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            color: var(--text-secondary);
         }
         
         .features-list li i {
-            color: var(--primary-color, #007bff);
+            color: var(--primary-color);
             width: 20px;
+        }
+        
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-medium);
+            z-index: 10;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-heavy);
+        }
+        
+        .theme-toggle i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
+    <!-- Gradient Background -->
+    <div class="gradient-bg">
+        <svg style="position: fixed; top: 0; left: 0; width: 0; height: 0; pointer-events: none;">
+            <defs>
+                <filter id="goo">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                    <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8" result="goo" />
+                    <feBlend in="SourceGraphic" in2="goo" />
+                </filter>
+            </defs>
+        </svg>
+        <div class="gradients-container">
+            <div class="g1"></div>
+            <div class="g2"></div>
+            <div class="g3"></div>
+            <div class="g4"></div>
+            <div class="g5"></div>
+        </div>
+    </div>
+    
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+    
     <div class="redirect-container">
         <div class="redirect-content">
             <div class="redirect-logo">
@@ -158,6 +228,55 @@
     </div>
     
     <script>
+        // Theme management
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const body = document.body;
+        
+        // Check for saved theme preference or default to 'auto'
+        const currentTheme = localStorage.getItem('theme') || 'auto';
+        
+        // Apply theme on page load
+        if (currentTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            themeIcon.className = 'fas fa-sun';
+        } else if (currentTheme === 'light') {
+            body.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fas fa-moon';
+        } else {
+            // Auto mode - use system preference
+            body.removeAttribute('data-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            themeIcon.className = prefersDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else if (currentTheme === 'light') {
+                body.removeAttribute('data-theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                themeIcon.className = prefersDark ? 'fas fa-sun' : 'fas fa-moon';
+                localStorage.setItem('theme', 'auto');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Listen for system theme changes when in auto mode
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!body.getAttribute('data-theme')) {
+                themeIcon.className = e.matches ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        });
+        
         // Auto-redirect after 3 seconds
         setTimeout(() => {
             window.location.href = 'pages/home.html';
