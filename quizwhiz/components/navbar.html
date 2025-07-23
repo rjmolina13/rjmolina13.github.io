@@ -1,0 +1,68 @@
+<!-- Navigation Header -->
+<header class="navbar">
+    <div class="nav-brand">
+        <i class="fas fa-brain"></i>
+        <h1>Quiz Whiz</h1>
+    </div>
+    <nav class="nav-menu">
+        <button class="nav-btn active" data-page="home">
+            <i class="fas fa-home"></i> Home
+        </button>
+        
+        <!-- Study Modes Submenu -->
+        <div class="nav-dropdown">
+            <button class="nav-btn dropdown-toggle"><i class="fas fa-book-open"></i> Study Modes <i class="fas fa-chevron-down"></i></button>
+            <div class="dropdown-content">
+                <button class="nav-btn" data-page="flashcards">
+                    <i class="fas fa-layer-group"></i> Flashcards
+                </button>
+                <button class="nav-btn" data-page="quiz">
+                    <i class="fas fa-question-circle"></i> Quiz
+                </button>
+                <button class="nav-btn" data-page="mixed">
+                    <i class="fas fa-random"></i> Mixed Mode
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tools Submenu -->
+        <div class="nav-dropdown">
+            <button class="nav-btn dropdown-toggle"><i class="fas fa-tools"></i> Tools <i class="fas fa-chevron-down"></i></button>
+            <div class="dropdown-content">
+                <button class="nav-btn" data-page="content">
+                    <i class="fas fa-edit"></i> Content
+                </button>
+                <button class="nav-btn" data-page="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
+            </div>
+        </div>
+        
+        <button class="nav-btn" data-page="about">
+            <i class="fas fa-info-circle"></i> About
+        </button>
+    </nav>
+    
+    <!-- User Profile Section -->
+    <div class="user-profile">
+        <div class="user-dropdown">
+            <button class="user-avatar-btn" id="user-avatar" title="User Profile">
+                <i class="fas fa-user"></i>
+            </button>
+            <div class="user-dropdown-content">
+                <div class="user-info">
+                    <div class="user-avatar-display" id="user-avatar-display">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="user-name">User</span>
+                    </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" data-action="edit-profile">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </button>
+            </div>
+        </div>
+    </div>
+</header>

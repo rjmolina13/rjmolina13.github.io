@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Mode - QuizWhiz</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/buttons.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="../css/custom-checkbox.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/navigation.css">
+    <link rel="stylesheet" href="../css/quiz.css">
+    <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header Container -->
+        <div id="navbar-container"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section id="quiz" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-question-circle"></i> Quiz Mode</h2>
+                </div>
+
+                <!-- Quiz Setup Screen -->
+                <div id="quiz-setup" class="quiz-card">
+                    <div class="card-header">
+                        <div class="quiz-setup-header">
+                            <h2><i class="fas fa-cogs"></i> Setup Your Quiz</h2>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <form id="quiz-setup-form">
+                            <div class="form-group">
+                                <label for="num-questions">Number of Questions:</label>
+                                <div class="question-count-selector">
+                                    <button type="button" class="btn btn-secondary" data-count="5">5</button>
+                                    <button type="button" class="btn btn-secondary active" data-count="10">10</button>
+                                    <button type="button" class="btn btn-secondary" data-count="15">15</button>
+                                    <button type="button" class="btn btn-secondary" data-count="20">20</button>
+                                    <button type="button" class="btn btn-secondary" data-count="25">25</button>
+                                    <button type="button" class="btn btn-secondary" data-count="30">30</button>
+                                    <input type="number" id="num-questions" min="1" max="100" placeholder="Custom" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="quiz-deck-selector">Deck:</label>
+                                <select id="quiz-deck-selector" class="form-control">
+                                    <option value="all">All Decks</option>
+                                    <!-- Options populated dynamically by JS -->
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Difficulty:</label>
+                                <div class="difficulty-selector">
+                                    <button type="button" class="btn btn-secondary active" data-difficulty="all">All</button>
+                                    <button type="button" class="btn btn-secondary" data-difficulty="easy">Easy</button>
+                                    <button type="button" class="btn btn-secondary" data-difficulty="medium">Medium</button>
+                                    <button type="button" class="btn btn-secondary" data-difficulty="hard">Hard</button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Quiz Mode:</label>
+                                <div class="quiz-mode-selector">
+                                    <button type="button" class="btn btn-secondary active" data-mode="normal">Normal</button>
+                                    <button type="button" class="btn btn-secondary" data-mode="timed">Timed</button>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="start-quiz-btn" class="btn btn-primary btn-block">
+                                <i class="fas fa-play-circle"></i> Start Quiz
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Quiz Active Section -->
+                <div id="quiz-active" class="quiz-active-container hidden">
+                    <!-- Progress Bar with Quiz Config -->
+                    <div class="quiz-progress-container">
+                        <div class="quiz-info-header quiz-config-header">
+                            <div class="quiz-config-info">
+                                <span id="quiz-config-questions"><i class="fas fa-question-circle"></i> 10</span>
+                                <span id="quiz-config-deck"><i class="fas fa-layer-group"></i> All</span>
+                                <span id="quiz-config-difficulty"><i class="fas fa-signal"></i> All</span>
+                                <span id="quiz-config-mode"><i class="fas fa-cog"></i> Normal</span>
+                            </div>
+                            <div class="quiz-progress-section">
+                                <div class="quiz-progress-bar-wrapper">
+                                    <div class="quiz-progress-bar" id="quiz-progress-bar" style="width: 0%;"></div>
+                                </div>
+                                <span class="progress-text" id="progress-text">Question 0 of 0 (0%)</span>
+                            </div>
+                            <div id="quiz-config-timer" class="hidden">
+                                <i class="fas fa-clock"></i> <span id="timer-display">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Side Navigation Buttons -->
+                    <div id="quiz-navigation-container" class="quiz-side-navigation hidden">
+                        <button id="prev-question-btn" class="quiz-nav-btn quiz-nav-left" disabled>
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <button id="next-question-btn" class="quiz-nav-btn quiz-nav-right" disabled>
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="quiz-card">
+                        <div class="card-header">
+                            <div class="quiz-question-header">
+                                <div class="current-question-info">
+                                    <h3 id="current-question-deck"><i class="fas fa-layer-group"></i> Loading...</h3>
+                                    <h3 id="current-question-difficulty"><i class="fas fa-signal"></i> Loading...</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div id="quiz-question" class="quiz-question-content">
+                                <!-- Question will be injected here -->
+                                <div class="question-container">
+                                    <h4 class="question-title" id="question-title">Loading question...</h4>
+                                    <div class="quiz-options" id="quiz-options">
+                                        <!-- Options will be populated dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer quiz-controls">
+                            <div class="quiz-info-bottom">
+                                <span id="quiz-info-score">Score: 0</span>
+                                <span id="quiz-info-progress">Question: 0/0</span>
+                            </div>
+                            <div class="quiz-action-buttons">
+                                <button id="submit-answer-btn" class="btn btn-primary" disabled>
+                                    <i class="fas fa-check-circle"></i> Submit Answer
+                                </button>
+                                <button id="end-quiz-btn" class="btn btn-danger">
+                                    <i class="fas fa-times-circle"></i> End Quiz
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Results Section -->
+                <div id="quiz-results" class="quiz-card hidden">
+                    <div class="card-header">
+                        <div class="quiz-setup-header">
+                            <h2><i class="fas fa-trophy"></i> Quiz Results</h2>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="results-summary">
+                            <div class="score-display">
+                                <h4>Final Score</h4>
+                                <p class="score-text">
+                                    <span id="final-score">0</span> / <span id="total-questions-answered">0</span>
+                                    (<span id="score-percentage">0%</span>)
+                                </p>
+                            </div>
+                            <div class="inspirational-quote">
+                                <blockquote id="quote-text">
+                                    <!-- Quote will be populated dynamically -->
+                                </blockquote>
+                                <cite id="quote-author"><!-- Author will be populated dynamically --></cite>
+                            </div>
+                            <div class="results-breakdown">
+                                <div class="result-item correct">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Correct: <span id="correct-answers-count">0</span></span>
+                                </div>
+                                <div class="result-item incorrect">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Incorrect: <span id="incorrect-answers-count">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="mistakes-summary" class="mistakes-section">
+                            <h4>Review Mistakes:</h4>
+                            <div id="mistakes-list" class="mistakes-list">
+                                <!-- Mistakes will be listed here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="results-actions">
+                            <button id="retake-quiz-btn" class="btn btn-primary">
+                                <i class="fas fa-redo"></i> Retake Quiz
+                            </button>
+                            <button id="new-quiz-btn" class="btn btn-secondary">
+                                <i class="fas fa-plus"></i> New Quiz
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-brain fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- JavaScript Modules -->
+    <script src="../js/navbar-loader.js"></script>
+    <script src="../js/data-manager.js"></script>
+    <script src="../js/custom-dropdown.js"></script>
+    <script src="../js/flashcard-manager.js"></script>
+    <script src="../js/quiz-manager.js"></script>
+    <script src="../js/mixed-manager.js"></script>
+    <script src="../js/content-manager.js"></script>
+    <script src="../js/user-manager.js"></script>
+    <script src="../js/ui-manager.js"></script>
+    <script src="../js/event-handler.js"></script>
+    <script src="../js/router.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.app === 'undefined') {
+                window.app = new QuizWhizApp();
+            }
+            if (typeof app === 'undefined') {
+                app = window.app;
+            }
+            if (typeof Router !== 'undefined') {
+                app.router = new Router(app);
+            }
+            if (app.uiManager) {
+                app.uiManager.showSection('quiz');
+            }
+        });
+    </script>
+</body>
+</html>

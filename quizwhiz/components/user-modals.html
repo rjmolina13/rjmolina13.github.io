@@ -1,0 +1,67 @@
+<!-- Welcome Modal -->
+<div class="modal welcome-modal" id="welcome-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="welcome-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h2>Welcome to QuizWhiz!</h2>
+        </div>
+        <div class="modal-body">
+            <p>Let's get you started! What would you like us to call you?</p>
+            <div class="form-group">
+                <label for="welcome-username">Your Name:</label>
+                <input type="text" id="welcome-username" placeholder="Enter your name" value="User" maxlength="30">
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="welcome-continue-btn" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Continue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal profile-modal" id="profile-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+            <span class="close" onclick="app.uiManager?.closeModal('profile-modal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <!-- Profile Preview -->
+            <div class="profile-preview">
+                <div class="profile-preview-avatar" id="preview-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-preview-info">
+                    <h3 id="preview-username">User</h3>
+                </div>
+            </div>
+            
+            <!-- Username Input -->
+            <div class="form-group">
+                <label for="profile-username">Username:</label>
+                <input type="text" id="profile-username" placeholder="Enter your username" maxlength="30">
+            </div>
+            
+            <!-- Avatar Selection -->
+            <div class="avatar-selection">
+                <h4>Choose Your Avatar:</h4>
+                <div class="avatar-grid" id="avatar-grid">
+                    <!-- Avatar options will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" onclick="app.uiManager?.closeModal('profile-modal')" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" id="save-profile-btn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,207 @@
+/* Custom Checkbox Component for QuizWhiz */
+
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    user-select: none;
+    position: relative;
+}
+
+.custom-checkbox:hover {
+    background-color: var(--hover-bg, rgba(0, 0, 0, 0.05));
+}
+
+[data-theme="dark"] .custom-checkbox:hover {
+    background-color: var(--hover-bg-dark, rgba(255, 255, 255, 0.1));
+}
+
+.custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.custom-checkbox-box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color, #cbd5e0);
+    border-radius: 4px;
+    background-color: var(--checkbox-bg, #ffffff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+[data-theme="dark"] .custom-checkbox-box {
+    border-color: var(--border-color-dark, #4a5568);
+    background-color: var(--checkbox-bg-dark, #2d3748);
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .custom-checkbox-box {
+    background-color: var(--primary-color, #3b82f6);
+    border-color: var(--primary-color, #3b82f6);
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .custom-checkbox-box::after {
+    content: '';
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    position: absolute;
+    top: 1px;
+    left: 4px;
+}
+
+.custom-checkbox input[type="checkbox"]:focus + .custom-checkbox-box {
+    box-shadow: 0 0 0 3px var(--focus-ring, rgba(59, 130, 246, 0.3));
+    outline: none;
+}
+
+[data-theme="dark"] .custom-checkbox input[type="checkbox"]:focus + .custom-checkbox-box {
+    box-shadow: 0 0 0 3px var(--focus-ring-dark, rgba(96, 165, 250, 0.3));
+}
+
+.custom-checkbox input[type="checkbox"]:disabled + .custom-checkbox-box {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.custom-checkbox input[type="checkbox"]:disabled ~ .custom-checkbox-label {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.custom-checkbox-label {
+    font-size: 0.95rem;
+    color: var(--text-color, #374151);
+    line-height: 1.4;
+    flex: 1;
+}
+
+[data-theme="dark"] .custom-checkbox-label {
+    color: var(--text-color-dark, #e5e7eb);
+}
+
+/* Animation for checkbox state change */
+.custom-checkbox-box {
+    animation: none;
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .custom-checkbox-box {
+    animation: checkboxCheck 0.3s ease;
+}
+
+@keyframes checkboxCheck {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Variants */
+.custom-checkbox.small .custom-checkbox-box {
+    width: 16px;
+    height: 16px;
+}
+
+.custom-checkbox.small .custom-checkbox-box::after {
+    width: 4px;
+    height: 8px;
+    top: 1px;
+    left: 5px;
+}
+
+.custom-checkbox.large .custom-checkbox-box {
+    width: 24px;
+    height: 24px;
+}
+
+.custom-checkbox.large .custom-checkbox-box::after {
+    width: 8px;
+    height: 12px;
+    top: 3px;
+    left: 7px;
+}
+
+/* Color variants */
+.custom-checkbox.success input[type="checkbox"]:checked + .custom-checkbox-box {
+    background-color: var(--success-color, #10b981);
+    border-color: var(--success-color, #10b981);
+}
+
+.custom-checkbox.warning input[type="checkbox"]:checked + .custom-checkbox-box {
+    background-color: var(--warning-color, #f59e0b);
+    border-color: var(--warning-color, #f59e0b);
+}
+
+.custom-checkbox.danger input[type="checkbox"]:checked + .custom-checkbox-box {
+    background-color: var(--danger-color, #ef4444);
+    border-color: var(--danger-color, #ef4444);
+}
+
+/* Integration with existing QuizWhiz styles */
+/* Enhanced setting item styling for expanded clickable area - only for checkbox items */
+.setting-item:has(.custom-checkbox-container) {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+.setting-item:has(.custom-checkbox-container):hover {
+    background-color: var(--hover-bg-light, rgba(0, 0, 0, 0.05));
+}
+
+[data-theme="dark"] .setting-item:has(.custom-checkbox-container):hover {
+    background-color: var(--hover-bg-dark, rgba(255, 255, 255, 0.05));
+}
+
+.setting-item:has(.custom-checkbox-container) label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.setting-item label {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+}
+
+.setting-item .custom-checkbox {
+    margin: 0;
+    padding: 0.25rem 0;
+}
+
+.setting-item .custom-checkbox .custom-checkbox-label {
+    font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .custom-checkbox {
+        gap: 0.5rem;
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .custom-checkbox-label {
+        font-size: 0.9rem;
+    }
+}

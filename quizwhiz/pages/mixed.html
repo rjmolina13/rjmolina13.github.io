@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mixed Study Mode - QuizWhiz</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header Container -->
+        <div id="navbar-container"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section id="mixed" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-random"></i> Mixed Study Mode</h2>
+                    <p>Combine flashcards and quizzes for comprehensive learning</p>
+                </div>
+
+                <div class="mixed-controls">
+                    <div class="deck-selector">
+                        <label for="mixed-deck-select">Select Deck:</label>
+                        <select id="mixed-deck-select">
+                            <option value="all">All Decks</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mixed-settings">
+                        <div class="setting-group">
+                            <label for="flashcard-ratio">Flashcard Ratio:</label>
+                            <input type="range" id="flashcard-ratio" min="0" max="100" value="50">
+                            <span id="flashcard-ratio-value">50%</span>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label for="mixed-duration">Session Duration:</label>
+                            <select id="mixed-duration">
+                                <option value="10">10 minutes</option>
+                                <option value="15" selected>15 minutes</option>
+                                <option value="20">20 minutes</option>
+                                <option value="30">30 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button id="start-mixed-btn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Start Mixed Session
+                    </button>
+                </div>
+
+                <div id="mixed-session" class="mixed-session" style="display: none;">
+                    <div class="session-header">
+                        <div class="session-progress">
+                            <div class="progress-bar">
+                                <div id="mixed-progress" class="progress-fill"></div>
+                            </div>
+                            <span id="mixed-timer">15:00</span>
+                        </div>
+                        
+                        <div class="session-stats">
+                            <span id="mixed-mode-indicator" class="mode-indicator">Flashcard Mode</span>
+                            <span id="mixed-score">Score: 0/0</span>
+                        </div>
+                    </div>
+
+                    <div id="mixed-content" class="mixed-content">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+
+                    <div class="mixed-controls-active">
+                        <button id="mixed-next-btn" class="btn btn-primary">
+                            <i class="fas fa-arrow-right"></i> Next
+                        </button>
+                        <button id="mixed-end-btn" class="btn btn-secondary">
+                            <i class="fas fa-stop"></i> End Session
+                        </button>
+                    </div>
+                </div>
+
+                <div id="mixed-results" class="mixed-results" style="display: none;">
+                    <h3><i class="fas fa-chart-line"></i> Session Complete!</h3>
+                    <div class="results-summary">
+                        <div class="result-item">
+                            <span class="result-label">Total Items:</span>
+                            <span id="total-mixed-items">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Flashcards Reviewed:</span>
+                            <span id="flashcards-reviewed">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Quiz Questions:</span>
+                            <span id="quiz-questions-answered">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Overall Accuracy:</span>
+                            <span id="mixed-accuracy">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="results-actions">
+                        <button id="start-new-mixed-session" class="btn btn-primary">
+                            <i class="fas fa-redo"></i> Start New Session
+                        </button>
+                        <button id="review-mixed-mistakes" class="btn btn-secondary">
+                            <i class="fas fa-eye"></i> Review Mistakes
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-brain fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- JavaScript Modules -->
+    <script src="../js/navbar-loader.js"></script>
+    <script src="../js/data-manager.js"></script>
+    <script src="../js/flashcard-manager.js"></script>
+    <script src="../js/quiz-manager.js"></script>
+    <script src="../js/mixed-manager.js"></script>
+    <script src="../js/content-manager.js"></script>
+    <script src="../js/ui-manager.js"></script>
+    <script src="../js/user-manager.js"></script>
+    <script src="../js/event-handler.js"></script>
+    <script src="../js/router.js"></script>
+    <script src="../js/main.js"></script>
+    <!-- <script src="../js/love-word-animation.js"></script> -->
+    <script>
+        // Initialize app for this page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create global app instance if it doesn't exist
+            if (typeof window.app === 'undefined') {
+                window.app = new QuizWhizApp();
+            }
+            // Make it available as 'app' for backward compatibility
+            if (typeof app === 'undefined') {
+                app = window.app;
+            }
+            
+            // Initialize router
+            if (typeof Router !== 'undefined') {
+                app.router = new Router(app);
+            }
+            
+            // Show mixed section
+            if (app.uiManager) {
+                app.uiManager.showSection('mixed');
+            }
+        });
+    </script>
+</body>
+</html>

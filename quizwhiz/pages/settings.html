@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Settings - QuizWhiz</title>
+        <link
+        rel="icon" type="image/x-icon" href="../favicon.ico">
+
+        <!-- Font Awesome -->
+        <link
+        rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+        <!-- CSS Files -->
+        <link rel="stylesheet" href="../css/main.css">
+    </head>
+    <body>
+        <div
+            class="app-container">
+            <!-- Navigation Header -->
+            <div id="navbar-container"></div>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <section id="settings" class="content-section active">
+                    <div class="section-header">
+                        <h2>
+                            <i class="fas fa-cog"></i>
+                            Settings & Data Management</h2>
+                    </div>
+
+                    <div class="settings-container">
+                        <div class="settings-group">
+                            <h3>
+                                <i class="fas fa-palette"></i>
+                                Appearance</h3>
+                            <div class="setting-item">
+                                <label for="theme-select">Theme:</label>
+                                <div class="custom-select" id="theme-selector-container">
+                                    <button class="select-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="selected-value">
+                                            <i class="fas fa-sun"></i>
+                                            Light
+                                        </span>
+                                        <i class="fas fa-chevron-down arrow"></i>
+                                    </button>
+                                    <ul class="select-dropdown hidden" role="listbox">
+                                        <li class="select-option selected" data-value="light" role="option">
+                                            <i class="fas fa-sun"></i>
+                                            Light
+                                        </li>
+                                        <li class="select-option" data-value="dark" role="option">
+                                            <i class="fas fa-moon"></i>
+                                            Dark
+                                        </li>
+                                        <li class="select-option" data-value="auto" role="option">
+                                            <i class="fas fa-adjust"></i>
+                                            Auto
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label for="animation-toggle">Animations:</label>
+                                <div class="custom-checkbox-container" id="animation-toggle-container">
+                                    <input type="checkbox" id="animation-toggle" checked>
+                                    <div class="custom-checkbox-box"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>
+                                <i class="fas fa-brain"></i>
+                                Study Settings</h3>
+                            <div class="setting-item">
+                                <label for="auto-flip">Auto-flip cards (seconds):</label>
+                                <input type="number" id="auto-flip" min="0" max="30" value="0" placeholder="0 = disabled">
+                            </div>
+                            <div class="setting-item">
+                                <label for="shuffle-default">Shuffle by default:</label>
+                                <div class="custom-checkbox-container" id="shuffle-default-container">
+                                    <input type="checkbox" id="shuffle-default">
+                                    <div class="custom-checkbox-box"></div>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <label for="difficulty-feature">Difficulty feature:</label>
+                                <div class="custom-checkbox-container" id="difficulty-feature-container">
+                                    <input type="checkbox" id="difficulty-feature">
+                                    <div class="custom-checkbox-box"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Management Section -->
+                        <div class="settings-group">
+                            <h3>
+                                <i class="fas fa-database"></i>
+                                Data Management</h3>
+
+                            <!-- Import Data -->
+                            <div class="data-subsection">
+                                <h4>
+                                    <i class="fas fa-upload"></i>
+                                    Import Data</h4>
+                                <p class="import-description">
+                                    Import flashcards and data from various formats. JSON exports from QuizWhiz will restore your complete backup including all settings and preferences.
+                                </p>
+                                <div class="file-upload-area" id="settings-file-upload-area">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Drag and drop files here or click to browse</p>
+                                    <small>Supports JSON, XML, CSV, TXT, PDF, and DOCX files</small>
+                                    <input type="file" id="settings-file-input" accept=".json,.xml,.csv,.txt,.pdf,.docx" multiple>
+                                </div>
+                                <div class="file-format-help">
+                                    <h4>Supported Formats:</h4>
+                                    <ul>
+                                        <li>
+                                            <strong>JSON (Complete Backup):</strong>
+                                            Restores all data including flashcards, quizzes, settings, statistics, and user profile</li>
+                                        <li>
+                                            <strong>JSON (Legacy/Partial):</strong>
+                                            {"flashcards": [{"question": "Q", "answer": "A", "deck": "Deck", "difficulty": "easy"}]}</li>
+                                        <li>
+                                            <strong>CSV:</strong>
+                                            question,answer,deck,difficulty</li>
+                                        <li>
+                                            <strong>TXT:</strong>
+                                            Question|Answer|Deck|Difficulty (one per line)</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Export Data -->
+                            <div class="data-subsection">
+                                <h4>
+                                    <i class="fas fa-download"></i>
+                                    Export Data</h4>
+                                <p class="export-description">
+                                    Export your complete QuizWhiz data including flashcards, quizzes, settings, statistics, user profile, and all preferences.
+                                </p>
+                                <div class="export-actions">
+                                    <button class="btn btn-primary" id="export-json-btn">
+                                        <i class="fas fa-download"></i>
+                                        Export Complete Backup (JSON)
+                                    </button>
+                                    <button class="btn btn-primary" id="export-xml-btn">
+                                        <i class="fas fa-download"></i>
+                                        Export Complete Backup (XML)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Storage Information Section -->
+                        <div class="settings-group">
+                            <h3>
+                                <i class="fas fa-database"></i>
+                                Storage Information</h3>
+                            <div class="storage-card">
+                                <div class="storage-stat">
+                                    <i class="fas fa-hdd"></i>
+                                    <div class="stat-details">
+                                        <span class="stat-label">Storage Used:</span>
+                                        <span class="stat-value" id="storage-used">0 KB</span>
+                                    </div>
+                                </div>
+                                <div class="storage-stat">
+                                    <i class="fas fa-layer-group"></i>
+                                    <div class="stat-details">
+                                        <span class="stat-label">Total Flashcards:</span>
+                                        <span class="stat-value" id="total-flashcards-count">0</span>
+                                    </div>
+                                </div>
+                                <div class="storage-stat">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="stat-details">
+                                        <span class="stat-label">Total Quizzes:</span>
+                                        <span class="stat-value" id="total-quizzes-count">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="danger-zone">
+                                <h4>
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Danger Zone</h4>
+                                <button class="btn btn-danger" id="clear-all-data-btn">
+                                    <i class="fas fa-trash"></i>
+                                    Clear All Data
+                                </button>
+                                <small>This action cannot be undone. All data including flashcards, quizzes, settings, statistics, user profile, and preferences will be permanently deleted.</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner">
+                <i class="fas fa-brain fa-spin"></i>
+                <p>Loading...</p>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toast-container"></div>
+
+        <!-- File input is handled by settings-file-input above -->
+
+        <!-- Clear Data Confirmation Modal -->
+        <div class="modal" id="clear-data-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Confirm Clear All Data</h2>
+                    <span class="close" onclick="app.uiManager.closeModal('clear-data-modal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="warning-message">
+                        <p>
+                            <strong>⚠️ Warning: This action cannot be undone!</strong>
+                        </p>
+                        <p>You are about to permanently delete:</p>
+                        <ul>
+                            <li>All flashcards and decks</li>
+                            <li>All study progress and statistics</li>
+                            <li>All custom settings</li>
+                        </ul>
+                        <p>Are you sure you want to continue?</p>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" onclick="app.uiManager.closeModal('clear-data-modal')" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                        <button type="button" onclick="app.dataManager.confirmClearAllData()" class="btn btn-danger">
+                            <i class="fas fa-trash"></i>
+                            Yes, Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSS Modules -->
+        <link rel="stylesheet" href="../css/custom-checkbox.css">
+        
+        <!-- JavaScript Modules -->
+        <script src="../js/navbar-loader.js"></script>
+        <script src="../js/custom-dropdown.js"></script>
+        <script src="../js/custom-checkbox.js"></script>
+        <script src="../js/data-manager.js"></script>
+        <script src="../js/flashcard-manager.js"></script>
+        <script src="../js/quiz-manager.js"></script>
+        <script src="../js/mixed-manager.js"></script>
+        <script src="../js/content-manager.js"></script>
+        <script src="../js/ui-manager.js"></script>
+        <script src="../js/user-manager.js"></script>
+        <script src="../js/event-handler.js"></script>
+        <script src="../js/router.js"></script>
+        <script src="../js/main.js"></script>
+        <!-- <script src="../js/love-word-animation.js"></script> -->
+        <script>
+            // Initialize app for this page
+            document.addEventListener('DOMContentLoaded', () => { // Create global app instance if it doesn't exist
+                if (typeof window.app === 'undefined') {
+                    window.app = new QuizWhizApp();
+                }
+                // Make it available as 'app' for backward compatibility
+                if (typeof app === 'undefined') {
+                    app = window.app;
+                }
+
+                // Initialize router
+                if (typeof Router !== 'undefined') {
+                    app.router = new Router(app);
+                }
+
+                // Show settings section
+                if (app.uiManager) {
+                    app.uiManager.showSection('settings');
+                }
+            });
+        </script>
+    </body>
+</html>

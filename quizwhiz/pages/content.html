@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content - QuizWhiz</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header Container -->
+        <div id="navbar-container"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section id="content" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-edit"></i> Content Management</h2>
+                </div>
+                
+                <div class="content-management-container">
+                    <!-- File Upload Section -->
+                    <div class="management-section file-upload-section">
+                        <h3><i class="fas fa-file-upload"></i> Quick File Upload</h3>
+                        <div class="compact-upload-container">
+                             <div class="file-upload-area compact-upload" id="file-upload-area">
+                                 <i class="fas fa-cloud-upload-alt"></i>
+                                 <p>Drag and drop files here or click to browse</p>
+                                 <small>Supports JSON, XML, CSV, TXT, PDF, and DOCX files</small>
+                                 <input type="file" id="file-input" accept=".json,.xml,.csv,.txt,.pdf,.docx" multiple>
+                             </div>
+                             <div class="file-format-help">
+                                 <h4>Supported Formats:</h4>
+                                 <ul>
+                                     <li><strong>JSON:</strong> {"flashcards": [{"question": "Q", "answer": "A", "deck": "Deck", "difficulty": "easy"}]}</li>
+                                     <li><strong>CSV:</strong> question,answer,deck,difficulty</li>
+                                     <li><strong>TXT:</strong> Question|Answer|Deck|Difficulty (one per line)</li>
+                                 </ul>
+                             </div>
+                         </div>
+                    </div>
+
+                    <!-- Quiz Management Section -->
+                    <div class="management-section">
+                        <h3><i class="fas fa-question-circle"></i> Manage Quizzes</h3>
+                        <div class="quiz-management">
+                            <div class="upload-method">
+                                <h4><i class="fas fa-keyboard"></i> Manual Entry</h4>
+                                <button id="open-add-quiz-modal" class="btn btn-success">
+                                    <i class="fas fa-plus-circle"></i> Add Quiz Question
+                                </button>
+                            </div>
+                            
+                            <div class="management-controls">
+                                <div class="search-filter-bar">
+                                    <input type="text" id="manage-quiz-search" placeholder="Search quiz questions..." class="search-input">
+                                    <select id="manage-quiz-deck-filter" class="deck-filter">
+                                        <option value="">All Decks</option>
+                                    </select>
+                                    <select id="manage-quiz-difficulty-filter" class="difficulty-filter">
+                                        <option value="">All Difficulties</option>
+                                        <option value="easy">Easy</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="hard">Hard</option>
+                                    </select>
+                                    <button id="refresh-quiz-list" class="btn btn-secondary">
+                                        <i class="fas fa-sync-alt"></i> Refresh
+                                    </button>
+                                </div>
+                                <div class="bulk-actions">
+                                    <button id="select-all-quizzes" class="btn btn-outline">
+                                        <i class="fas fa-check-square"></i> Select All
+                                    </button>
+                                    <button id="delete-selected-quizzes-btn" class="btn btn-danger" disabled>
+                                        <i class="fas fa-trash"></i> Delete Selected
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-list-container">
+                                <div id="quiz-count-info" class="count-info">
+                                    <span id="displayed-quiz-count">0</span> of <span id="total-quiz-count">0</span> quiz questions
+                                </div>
+                                <div id="quiz-management-list" class="quiz-list">
+                                    <!-- Quiz questions will be populated here -->
+                                </div>
+                                <div id="no-quizzes-message" class="no-content-message" style="display: none;">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>No quiz questions found. Start by adding some quiz questions!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manage Existing Flashcards -->
+                    <div class="management-section">
+                        <h3><i class="fas fa-list"></i> Manage Flashcards</h3>
+                        <div class="flashcard-management">
+                            <div class="upload-methods">
+                                <div class="upload-method">
+                                    <h4><i class="fas fa-keyboard"></i> Manual Entry</h4>
+                                    <button id="open-add-flashcard-modal" class="btn btn-success">
+                                        <i class="fas fa-plus-circle"></i> Add Flashcard
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="management-controls">
+                                <div class="search-filter-bar">
+                                    <input type="text" id="manage-search" placeholder="Search flashcards..." class="search-input">
+                                    <select id="manage-deck-filter" class="deck-filter">
+                                        <option value="">All Decks</option>
+                                    </select>
+                                    <select id="manage-difficulty-filter" class="difficulty-filter">
+                                        <option value="">All Difficulties</option>
+                                        <option value="easy">Easy</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="hard">Hard</option>
+                                    </select>
+                                    <button id="refresh-flashcard-list" class="btn btn-secondary">
+                                        <i class="fas fa-sync-alt"></i> Refresh
+                                    </button>
+                                </div>
+                                <div class="bulk-actions">
+                                    <button id="select-all-flashcards" class="btn btn-outline">
+                                        <i class="fas fa-check-square"></i> Select All
+                                    </button>
+                                    <button id="bulk-delete-flashcards" class="btn btn-danger bulk-action-btn" disabled>
+                                        <i class="fas fa-trash"></i> Delete Selected
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="flashcard-list-container">
+                                <div id="flashcard-count-info" class="count-info">
+                                    <span id="displayed-count">0</span> of <span id="total-count">0</span> flashcards
+                                </div>
+                                <div id="flashcard-management-list" class="flashcard-list">
+                                    <!-- Flashcards will be populated here -->
+                                </div>
+                                <div id="no-flashcards-message" class="no-content-message" style="display: none;">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>No flashcards found. Start by adding some flashcards!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-brain fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Add Flashcard Modal -->
+    <div id="add-flashcard-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Flashcard</h2>
+                <span class="close" id="close-add-flashcard-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="add-flashcard-form">
+                    <div class="form-group">
+                        <label for="modal-deck-name">Deck Name:</label>
+                        <input type="text" id="modal-deck-name" list="deck-suggestions" placeholder="Enter deck name" required autocomplete="off">
+                        <datalist id="deck-suggestions">
+                            <!-- Deck suggestions will be populated dynamically -->
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-question-input">Question:</label>
+                        <textarea id="modal-question-input" placeholder="Enter your question" required rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-answer-input">Answer:</label>
+                        <textarea id="modal-answer-input" placeholder="Enter the answer" required rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-difficulty-select">Difficulty:</label>
+                        <select id="modal-difficulty-select">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancel-add-flashcard" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Flashcard
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Flashcard Modal -->
+    <div id="edit-flashcard-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Edit Flashcard</h2>
+                <span class="close" id="close-edit-flashcard-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-flashcard-form">
+                    <div class="form-group">
+                        <label for="edit-deck-name">Deck Name:</label>
+                        <input type="text" id="edit-deck-name" list="edit-deck-suggestions" placeholder="Enter deck name" required autocomplete="off">
+                        <datalist id="edit-deck-suggestions">
+                            <!-- Deck suggestions will be populated dynamically -->
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-question-input">Question:</label>
+                        <textarea id="edit-question-input" placeholder="Enter your question" required rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-answer-input">Answer:</label>
+                        <textarea id="edit-answer-input" placeholder="Enter the answer" required rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-difficulty-select">Difficulty:</label>
+                        <select id="edit-difficulty-select">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancel-edit-flashcard" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Quiz Modal -->
+    <div id="add-quiz-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Quiz Question</h2>
+                <span class="close" id="close-add-quiz-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="add-quiz-form">
+                    <div class="form-group">
+                        <label for="quiz-modal-deck-name">Deck Name:</label>
+                        <input type="text" id="quiz-modal-deck-name" name="quiz-deck" list="quiz-deck-suggestions" placeholder="Enter deck name" required autocomplete="off">
+                        <datalist id="quiz-deck-suggestions">
+                            <!-- Deck suggestions will be populated dynamically -->
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="quiz-modal-question-input">Question:</label>
+                        <textarea id="quiz-modal-question-input" name="quiz-question" placeholder="Enter your question" required rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="quiz-modal-correct-answer">Correct Answer:</label>
+                        <textarea id="quiz-modal-correct-answer" name="quiz-correct-answer" placeholder="Enter the correct answer" required rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="quiz-modal-wrong-answers">Wrong Answers (one per line):</label>
+                        <textarea id="quiz-modal-wrong-answers" name="quiz-wrong-answers" placeholder="Enter wrong answers, one per line" rows="4"></textarea>
+                        <small class="form-help">Enter 2-3 wrong answers for multiple choice questions</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="quiz-modal-difficulty-select">Difficulty:</label>
+                        <select id="quiz-modal-difficulty-select" name="quiz-difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancel-add-quiz" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Quiz Question
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Quiz Modal -->
+    <div id="edit-quiz-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Edit Quiz Question</h2>
+                <span class="close" id="close-edit-quiz-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="edit-quiz-form">
+                    <input type="hidden" name="quiz-id">
+                    <div class="form-group">
+                        <label for="edit-quiz-deck-name">Deck Name:</label>
+                        <input type="text" id="edit-quiz-deck-name" name="quiz-deck" list="edit-quiz-deck-suggestions" placeholder="Enter deck name" required autocomplete="off">
+                        <datalist id="edit-quiz-deck-suggestions">
+                            <!-- Deck suggestions will be populated dynamically -->
+                        </datalist>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-quiz-question-input">Question:</label>
+                        <textarea id="edit-quiz-question-input" name="quiz-question" placeholder="Enter your question" required rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-quiz-correct-answer">Correct Answer:</label>
+                        <textarea id="edit-quiz-correct-answer" name="quiz-correct-answer" placeholder="Enter the correct answer" required rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-quiz-wrong-answers">Wrong Answers (one per line):</label>
+                        <textarea id="edit-quiz-wrong-answers" name="quiz-wrong-answers" placeholder="Enter wrong answers, one per line" rows="4"></textarea>
+                        <small class="form-help">Enter 2-3 wrong answers for multiple choice questions</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-quiz-difficulty-select">Difficulty:</label>
+                        <select id="edit-quiz-difficulty-select" name="quiz-difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancel-edit-quiz" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Flashcard Confirmation Modal -->
+    <div id="delete-flashcard-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h2>
+                <span class="close" id="close-delete-flashcard-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="delete-flashcard-message">Are you sure you want to delete this flashcard?</p>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-delete-flashcard" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" id="confirm-delete-flashcard" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Quiz Confirmation Modal -->
+    <div id="delete-quiz-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Delete</h2>
+                <span class="close" id="close-delete-quiz-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="delete-quiz-message">Are you sure you want to delete this quiz question?</p>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-delete-quiz" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" id="confirm-delete-quiz" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Delete Flashcards Confirmation Modal -->
+    <div id="bulk-delete-flashcards-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Bulk Delete</h2>
+                <span class="close" id="close-bulk-delete-flashcards-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="bulk-delete-flashcards-message">Are you sure you want to delete the selected flashcards?</p>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-bulk-delete-flashcards" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" id="confirm-bulk-delete-flashcards" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Delete Quizzes Confirmation Modal -->
+    <div id="bulk-delete-quizzes-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Bulk Delete</h2>
+                <span class="close" id="close-bulk-delete-quizzes-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="bulk-delete-quizzes-message">Are you sure you want to delete the selected quiz questions?</p>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-bulk-delete-quizzes" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" id="confirm-bulk-delete-quizzes" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Quiz Confirmation Modal -->
+    <div id="end-quiz-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> End Quiz</h2>
+                <span class="close" id="close-end-quiz-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="end-quiz-message">Are you sure you want to end the quiz? Your progress will be lost.</p>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-end-quiz" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" id="confirm-end-quiz" class="btn btn-danger">
+                        <i class="fas fa-stop"></i> End Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Session Confirmation Modal -->
+    <div id="end-session-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> End Session</h2>
+                <span class="close" id="close-end-session-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="end-session-message">Are you sure you want to end the session? Your progress will be lost.</p>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-end-session" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" id="confirm-end-session" class="btn btn-danger">
+                        <i class="fas fa-stop"></i> End Session
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Validation Error Modal -->
+    <div id="form-error-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-circle"></i> Form Error</h2>
+                <span class="close" id="close-form-error-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="form-error-message">Please fill in all required fields.</p>
+                <div class="modal-actions">
+                    <button type="button" id="close-form-error" class="btn btn-primary">
+                        <i class="fas fa-check"></i> OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="../js/navbar-loader.js"></script>
+    <script src="../js/data-manager.js"></script>
+    <script src="../js/flashcard-manager.js"></script>
+    <script src="../js/quiz-manager.js"></script>
+    <script src="../js/mixed-manager.js"></script>
+    <script src="../js/content-manager.js"></script>
+    <script src="../js/ui-manager.js"></script>
+    <script src="../js/user-manager.js"></script>
+    <script src="../js/event-handler.js"></script>
+    <script src="../js/router.js"></script>
+    <script src="../js/main.js"></script>
+    <!-- <script src="../js/love-word-animation.js"></script> -->
+    <script>
+        // Initialize app for this page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create global app instance if it doesn't exist
+            if (typeof window.app === 'undefined') {
+                window.app = new QuizWhizApp();
+            }
+            // Make it available as 'app' for backward compatibility
+            if (typeof app === 'undefined') {
+                app = window.app;
+            }
+            
+            // Initialize router
+            if (typeof Router !== 'undefined') {
+                app.router = new Router(app);
+            }
+            
+            // Show content section
+            if (app.uiManager) {
+                app.uiManager.showSection('content');
+            }
+        });
+    </script>
+</body>
+</html>

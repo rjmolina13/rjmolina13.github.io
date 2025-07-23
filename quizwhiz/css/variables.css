@@ -1,0 +1,79 @@
+/* Quiz Whiz - CSS Variables and Theming */
+
+/* CSS Variables for Theming */
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #5856eb;
+    --secondary-color: #8b5cf6;
+    --background-color: rgba(248, 250, 252, 0.3); 
+    --surface-color: rgba(255, 255, 255, 0.8);
+    --card-color: rgba(255, 255, 255, 0.9);
+    --text-color: #2d3748;
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --border-color: #e2e8f0;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition: all 0.3s ease;
+    
+    /* Status Colors */
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    --warning-color: #f59e0b;
+    --info-color: #3b82f6;
+    --primary-color-rgb: 99, 102, 241;
+}
+
+/* Auto Dark Mode Detection */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: rgba(15, 23, 42, 0.2); /* More transparent for gradient visibility */
+        --surface-color: rgba(30, 41, 59, 0.8);
+        --card-color: rgba(51, 65, 85, 0.9);
+        --text-color: #f1f5f9;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --border-color: #475569;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.3);
+        --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.4);
+        --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.5);
+        --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* Manual Light Theme Override */
+[data-theme="light"] {
+    --background-color: rgba(248, 250, 252, 0.2); /* More transparent for gradient visibility */
+    --surface-color: rgba(255, 255, 255, 0.8);
+    --card-color: rgba(255, 255, 255, 0.9);
+    --text-color: #2d3748;
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --border-color: #e2e8f0;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Manual Dark Theme Override */
+[data-theme="dark"] {
+    --background-color: rgba(15, 23, 42, 1); /* More transparent for gradient visibility */
+    --surface-color: rgba(30, 41, 59, 0.8);
+    --card-color: rgba(51, 65, 85, 0.9);
+    --text-color: #f1f5f9;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #475569;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.4);
+    --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+}

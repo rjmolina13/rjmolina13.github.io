@@ -1,0 +1,509 @@
+/* Quiz Whiz - Forms and Upload Styles */
+
+/* Upload Styles */
+.upload-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.upload-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1rem;
+}
+
+.upload-method {
+    background: var(--card-color);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    /* box-shadow: var(--shadow-medium); */
+    border: 1px solid var(--border-color);
+}
+
+.upload-method h3 {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--primary-color);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--surface-color);
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: var(--transition);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Datalist styling for autocomplete */
+.form-group input[list] {
+    position: relative;
+}
+
+/* Enhanced styling for inputs with datalist */
+.form-group input[list]::-webkit-calendar-picker-indicator {
+    display: none;
+}
+
+.form-group input[list]::after {
+    content: '▼';
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.file-upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+/* Compact file upload styling */
+.file-upload-section {
+    margin-bottom: 2rem;
+}
+
+.compact-upload-container {
+    max-width: 730px; /* Same as card widths (350px * 2 + 1rem gap) */
+    margin: 0 auto;
+}
+
+.file-upload-area.compact-upload {
+    padding: 1rem;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.file-upload-area.compact-upload i {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.file-upload-area.compact-upload p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.file-upload-area.compact-upload small {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.file-upload-area:hover {
+    border-color: var(--primary-color);
+    background: var(--surface-color);
+}
+
+.file-upload-area.dragover {
+    border-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.file-upload-area i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+}
+
+.file-upload-area input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 300px;
+}
+
+.select-button {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: inherit;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    transition: var(--transition);
+    text-align: left;
+}
+
+.select-button:hover {
+    border-color: var(--primary-color);
+    background: var(--card-color);
+}
+
+.select-button:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.select-button[aria-expanded="true"] {
+    border-color: var(--primary-color);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.selected-value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.selected-value i {
+    flex-shrink: 0;
+    width: 1rem;
+    text-align: center;
+}
+
+.arrow {
+    margin-left: 0.5rem;
+    transition: transform 0.2s ease;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    font-size: 0.75rem;
+}
+
+.select-button[aria-expanded="true"] .arrow {
+    transform: rotate(180deg);
+}
+
+.select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface-color);
+    border: 1px solid var(--primary-color);
+    border-top: none;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    box-shadow: var(--shadow-medium);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.select-dropdown.hidden {
+    display: none;
+}
+
+.select-dropdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.select-dropdown li {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    transition: var(--transition);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.select-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.select-dropdown li:hover,
+.select-dropdown li:focus {
+    background-color: var(--primary-color);
+    color: white;
+    outline: none;
+}
+
+.select-dropdown li.selected {
+    background-color: rgba(99, 102, 241, 0.1);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.select-dropdown li.selected:hover,
+.select-dropdown li.selected:focus {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.select-dropdown li i {
+    flex-shrink: 0;
+    width: 1rem;
+    text-align: center;
+    transition: color 0.2s ease;
+}
+
+/* Preserve icon colors on hover/focus/selection for general icons */
+.select-dropdown li:hover i,
+.select-dropdown li:focus i {
+    color: inherit;
+}
+
+/* Preserve specific difficulty icon colors */
+.select-dropdown li:hover .difficulty-easy,
+.select-dropdown li:focus .difficulty-easy,
+.select-dropdown li.selected .difficulty-easy {
+    color: #10b981 !important;
+}
+
+.select-dropdown li:hover .difficulty-medium,
+.select-dropdown li:focus .difficulty-medium,
+.select-dropdown li.selected .difficulty-medium {
+    color: #f59e0b !important;
+}
+
+.select-dropdown li:hover .difficulty-hard,
+.select-dropdown li:focus .difficulty-hard,
+.select-dropdown li.selected .difficulty-hard {
+    color: #ef4444 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .custom-dropdown {
+        max-width: 100%;
+    }
+    
+    .select-dropdown {
+        max-height: 150px;
+    }
+}
+
+
+
+/* Export description styling */
+.export-description {
+    margin-bottom: 0.5rem;
+}
+
+.file-format-help {
+    background: var(--surface-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.file-format-help h4 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.file-format-help ul {
+    list-style: none;
+    padding: 0;
+}
+
+.file-format-help li {
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.file-format-help strong {
+    color: var(--primary-color);
+}
+
+/* Storage Information Styles */
+.storage-card {
+    /* padding: 0.5rem; */
+    margin-bottom: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+
+.storage-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    
+}
+
+.storage-stat i {
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    width: 1.5rem;
+    text-align: center;
+}
+
+.stat-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.125rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Danger Zone Styles */
+.danger-zone {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: var(--border-radius);
+}
+
+.danger-zone h4 {
+    margin-bottom: 1.5rem;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.danger-zone .btn-danger {
+    background: #ef4444;
+    border-color: #ef4444;
+    margin-bottom: 1rem;
+    display: block;
+    width: fit-content;
+}
+
+.danger-zone .btn-danger:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.danger-zone small {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin-top: 0;
+}
+
+/* Data Subsection Styles */
+.data-subsection {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--surface-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.data-subsection:last-child {
+    margin-bottom: 0;
+}
+
+.data-subsection h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.data-subsection h4 i {
+    color: var(--primary-color);
+}
+
+/* Import/Export Actions */
+.import-actions,
+.export-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .import-actions,
+    .export-actions {
+        flex-direction: column;
+    }
+    
+    .storage-info {
+        grid-template-columns: 1fr;
+    }
+    
+    .storage-stat {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .stat-details {
+        align-items: center;
+    }
+}

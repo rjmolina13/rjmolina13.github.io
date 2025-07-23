@@ -1,0 +1,40 @@
+/* --- The Magic 'love-word' Span --- */ 
+.love-word { 
+    position: relative; /* This is crucial for positioning the hearts */ 
+    background: linear-gradient(45deg, #fe015c, #ff7ccc); /* Gradient background from dark to light pink */ 
+    color: #ffffff; /* White text */ 
+    padding: 0.3em 0.8em; /* Padding to create the bubble shape */ 
+    border-radius: 50px; /* Makes it a pill shape */ 
+    white-space: nowrap; /* Prevents the word and hearts from breaking lines */ 
+    display: inline-block; 
+    font-weight: bold; 
+} 
+
+/* --- Heart SVG Container --- */ 
+.heart-container { 
+    position: absolute; 
+    display: block; 
+    width: 20px; /* Slightly larger hearts */ 
+    height: 20px; 
+    z-index: 1; /* Ensure hearts are on top */ 
+    pointer-events: none; /* Makes hearts non-interactive */ 
+    animation: float-heart 5s ease-in-out infinite; 
+} 
+
+.heart-container svg { 
+    width: 100%; 
+    height: 100%; 
+    fill: url(#heart-gradient); /* Using gradient fill instead of solid color */
+    stroke: none; /* No border on hearts */ 
+    opacity: 0.9; 
+} 
+
+/* --- Keyframe Animation for Floating Effect --- */ 
+@keyframes float-heart { 
+    0%, 100% { 
+        transform: translateY(0) rotate(0deg) scale(1); 
+    } 
+    50% { 
+        transform: translateY(-5px) rotate(8deg) scale(1.15); 
+    } 
+}
