@@ -5,9 +5,9 @@
     --primary-color: #6366f1;
     --primary-dark: #5856eb;
     --secondary-color: #8b5cf6;
-    --background-color: rgba(248, 250, 252, 0.3); 
-    --surface-color: rgba(255, 255, 255, 0.8);
-    --card-color: rgba(255, 255, 255, 0.9);
+    --background-color: rgba(248, 250, 252, 1); 
+    --surface-color: rgba(255, 255, 255, 0.85);
+    --card-color: rgba(255, 255, 255, 0.3);
     --text-color: #2d3748;
     --text-primary: #2d3748;
     --text-secondary: #718096;
@@ -31,9 +31,9 @@
 /* Auto Dark Mode Detection */
 @media (prefers-color-scheme: dark) {
     :root {
-        --background-color: rgba(15, 23, 42, 0.2); /* More transparent for gradient visibility */
-        --surface-color: rgba(30, 41, 59, 0.8);
-        --card-color: rgba(51, 65, 85, 0.9);
+        --background-color: rgba(15, 23, 42, 1); /* More transparent for gradient visibility */
+        --surface-color: rgba(30, 41, 59, 0.85);
+        --card-color: rgba(51, 65, 85, 0.3);
         --text-color: #f1f5f9;
         --text-primary: #f1f5f9;
         --text-secondary: #94a3b8;
@@ -48,9 +48,9 @@
 
 /* Manual Light Theme Override */
 [data-theme="light"] {
-    --background-color: rgba(248, 250, 252, 0.2); /* More transparent for gradient visibility */
-    --surface-color: rgba(255, 255, 255, 0.8);
-    --card-color: rgba(255, 255, 255, 0.9);
+    --background-color: rgba(248, 250, 252, 1); 
+    --surface-color: rgba(255, 255, 255, 0.85);
+    --card-color: rgba(255, 255, 255, 0.3);
     --text-color: #2d3748;
     --text-primary: #2d3748;
     --text-secondary: #718096;
@@ -65,8 +65,8 @@
 /* Manual Dark Theme Override */
 [data-theme="dark"] {
     --background-color: rgba(15, 23, 42, 1); /* More transparent for gradient visibility */
-    --surface-color: rgba(30, 41, 59, 0.8);
-    --card-color: rgba(51, 65, 85, 0.9);
+    --surface-color: rgba(30, 41, 59, 0.85);
+    --card-color: rgba(51, 65, 85, 0.3);
     --text-color: #f1f5f9;
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;

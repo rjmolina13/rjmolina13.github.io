@@ -315,6 +315,12 @@ class FlashcardManager {
             originalCard.reviewCount = (originalCard.reviewCount || 0) + 1;
             
             this.app.dataManager.saveData();
+            
+            // Record study session for streak tracking
+            if (this.app.dataManager) {
+                this.app.dataManager.recordStudySession();
+            }
+            
             this.showFlashcard(this.currentIndex); // Refresh to show updated difficulty
             this.app.showToast(`Marked as ${difficulty}`, 'success');
             

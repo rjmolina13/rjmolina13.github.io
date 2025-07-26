@@ -12,6 +12,7 @@ class DataManager {
             const savedQuizzes = localStorage.getItem('quizwhiz_quizzes');
             const savedSettings = localStorage.getItem('quizwhiz_settings');
             const savedStats = localStorage.getItem('quizwhiz_stats');
+            const savedStreakData = localStorage.getItem('quizwhiz_streak_data');
 
             if (savedFlashcards) {
                 this.app.flashcards = JSON.parse(savedFlashcards);
@@ -25,6 +26,9 @@ class DataManager {
             if (savedStats) {
                 this.app.stats = { ...this.app.stats, ...JSON.parse(savedStats) };
             }
+            
+            // Load and update study streak data
+            this.loadAndUpdateStreakData(savedStreakData);
         } catch (error) {
             console.error('Error loading data:', error);
             this.app.showToast('Error loading saved data', 'error');
@@ -39,6 +43,11 @@ class DataManager {
             localStorage.setItem('quizwhiz_quizzes', JSON.stringify(this.app.quizzes));
             localStorage.setItem('quizwhiz_settings', JSON.stringify(this.app.settings));
             localStorage.setItem('quizwhiz_stats', JSON.stringify(this.app.stats));
+            
+            // Save streak data
+            if (this.app.streakData) {
+                localStorage.setItem('quizwhiz_streak_data', JSON.stringify(this.app.streakData));
+            }
         } catch (error) {
             console.error('Error saving data:', error);
             this.app.showToast('Error saving data', 'error');
@@ -73,28 +82,152 @@ class DataManager {
             exportVersion: '2.0' // Version to track export format
         };
 
+        // Get current username for filename
+        const currentUser = this.app.userManager && this.app.userManager.currentUser ? this.app.userManager.currentUser.username : 'User';
+        const sanitizedUsername = currentUser.replace(/[^a-zA-Z0-9]/g, '_'); // Sanitize username for filename
+        const timestamp = new Date().toISOString().split('T')[0];
+
         let content, filename, mimeType;
 
         switch (format) {
             case 'json':
                 content = JSON.stringify(data, null, 2);
-                filename = `quizwhiz-backup-${new Date().toISOString().split('T')[0]}.json`;
+                filename = `quizwhiz_backup-${sanitizedUsername}-${timestamp}.json`;
                 mimeType = 'application/json';
                 break;
             case 'xml':
                 content = this.convertToXML(data);
-                filename = `quizwhiz-backup-${new Date().toISOString().split('T')[0]}.xml`;
+                filename = `quizwhiz_backup-${sanitizedUsername}-${timestamp}.xml`;
                 mimeType = 'application/xml';
                 break;
             case 'csv':
                 content = this.convertToCSV(this.app.flashcards);
-                filename = `quizwhiz-flashcards-${new Date().toISOString().split('T')[0]}.csv`;
+                filename = `quizwhiz_flashcards-${sanitizedUsername}-${timestamp}.csv`;
                 mimeType = 'text/csv';
                 break;
         }
 
         this.downloadFile(content, filename, mimeType);
         this.app.showToast(`Data exported as ${format.toUpperCase()}`, 'success');
+    }
+
+    // Study Streak Management
+    loadAndUpdateStreakData(savedStreakData) {
+        const today = new Date().toDateString();
+        
+        // Initialize default streak data
+        let streakData = {
+            currentStreak: 0,
+            longestStreak: 0,
+            lastStudyDate: null,
+            studyDates: [], // Array of study dates for detailed tracking
+            totalStudyDays: 0
+        };
+        
+        // Load existing streak data if available
+        if (savedStreakData) {
+            try {
+                streakData = { ...streakData, ...JSON.parse(savedStreakData) };
+            } catch (error) {
+                console.warn('Error parsing streak data, using defaults:', error);
+            }
+        }
+        
+        // Update streak based on last study date
+        this.updateStreakOnLogin(streakData, today);
+        
+        // Store in app
+        this.app.streakData = streakData;
+        this.app.stats.studyStreak = streakData.currentStreak;
+    }
+    
+    updateStreakOnLogin(streakData, today) {
+        const lastStudyDate = streakData.lastStudyDate;
+        
+        if (!lastStudyDate) {
+            // First time user - no streak yet
+            return;
+        }
+        
+        const lastDate = new Date(lastStudyDate);
+        const todayDate = new Date(today);
+        const daysDifference = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+        
+        if (daysDifference === 1) {
+            // Consecutive day - maintain streak
+            return;
+        } else if (daysDifference > 1) {
+            // Missed days - reset streak
+            streakData.currentStreak = 0;
+        }
+        // If daysDifference === 0, it's the same day, no change needed
+    }
+    
+    recordStudySession() {
+        const today = new Date().toDateString();
+        
+        if (!this.app.streakData) {
+            this.loadAndUpdateStreakData(null);
+        }
+        
+        const streakData = this.app.streakData;
+        
+        // Check if already studied today
+        if (streakData.lastStudyDate === today) {
+            return; // Already recorded for today
+        }
+        
+        const lastStudyDate = streakData.lastStudyDate;
+        
+        if (!lastStudyDate) {
+            // First study session ever
+            streakData.currentStreak = 1;
+            streakData.longestStreak = 1;
+            streakData.totalStudyDays = 1;
+        } else {
+            const lastDate = new Date(lastStudyDate);
+            const todayDate = new Date(today);
+            const daysDifference = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDifference === 1) {
+                // Consecutive day
+                streakData.currentStreak += 1;
+                streakData.totalStudyDays += 1;
+            } else if (daysDifference > 1) {
+                // Missed days - start new streak
+                streakData.currentStreak = 1;
+                streakData.totalStudyDays += 1;
+            }
+            // If daysDifference === 0, it's the same day, no change needed
+        }
+        
+        // Update longest streak if current is higher
+        if (streakData.currentStreak > streakData.longestStreak) {
+            streakData.longestStreak = streakData.currentStreak;
+        }
+        
+        // Record the study date
+        streakData.lastStudyDate = today;
+        
+        // Add to study dates array (keep last 30 days for performance)
+        if (!streakData.studyDates.includes(today)) {
+            streakData.studyDates.push(today);
+            // Keep only last 30 entries
+            if (streakData.studyDates.length > 30) {
+                streakData.studyDates = streakData.studyDates.slice(-30);
+            }
+        }
+        
+        // Update app stats
+        this.app.stats.studyStreak = streakData.currentStreak;
+        
+        // Save data
+        this.saveData();
+        
+        // Update UI if on home page
+        if (this.app.uiManager && typeof this.app.uiManager.updateStats === 'function') {
+            this.app.uiManager.updateStats();
+        }
     }
 
     convertToXML(data) {
@@ -192,6 +325,20 @@ class DataManager {
         URL.revokeObjectURL(url);
     }
 
+    getStreakStats() {
+        if (!this.app.streakData) {
+            return {
+                currentStreak: 0,
+                longestStreak: 0,
+                totalStudyDays: 0,
+                lastStudyDate: null,
+                studyDates: []
+            };
+        }
+        
+        return { ...this.app.streakData };
+    }
+    
     clearAllData() {
         // Open the custom confirmation modal instead of native confirm
         this.app.uiManager.openModal('clear-data-modal');
@@ -492,21 +639,35 @@ class DataManager {
                                 <p>How would you like to handle this import?</p>
                                 
                                 <div class="option-buttons">
-                                    <button class="btn btn-primary" onclick="app.dataManager.executeImport('${file.name}', 'merge')">
-                                        <i class="fas fa-plus-circle"></i> Merge/Append
-                                        <small>Add to existing data</small>
+                                    <button class="btn btn-primary import-option-btn" onclick="app.dataManager.executeImport('${file.name}', 'merge')">
+                                        <div class="btn-content">
+                                            <div class="btn-main">
+                                                <i class="fas fa-plus-circle"></i> Merge/Append
+                                            </div>
+                                            <div class="btn-subtitle">
+                                                Add to existing data
+                                            </div>
+                                        </div>
                                     </button>
                                     
-                                    <button class="btn btn-warning" onclick="app.dataManager.executeImport('${file.name}', 'replace')">
-                                        <i class="fas fa-sync-alt"></i> Replace
-                                        <small>Replace all existing data</small>
+                                    <button class="btn btn-warning import-option-btn" onclick="app.dataManager.executeImport('${file.name}', 'replace')">
+                                        <div class="btn-content">
+                                            <div class="btn-main">
+                                                <i class="fas fa-sync-alt"></i> Replace
+                                            </div>
+                                            <div class="btn-subtitle">
+                                                Replace all existing data
+                                            </div>
+                                        </div>
                                     </button>
                                 </div>
                                 
                                 <div class="warning-message">
-                                    <i class="fas fa-info-circle"></i>
-                                    <strong>Merge/Append:</strong> Adds imported content to your existing data.<br>
-                                    <strong>Replace:</strong> Completely replaces your current data with the imported content.
+                                    <h4><i class="fas fa-exclamation-triangle"></i> Warning</h4>
+                                    <p>
+                                        <strong>Merge/Append:</strong> Adds imported content to your existing data.<br>
+                                        <strong>Replace:</strong> Completely replaces your current data with the imported content.
+                                    </p>
                                 </div>
                             </div>
                         ` : ''}

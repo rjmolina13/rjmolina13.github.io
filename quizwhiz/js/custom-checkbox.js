@@ -122,11 +122,15 @@ class CustomCheckbox {
         if (settingItem) {
             settingItem.addEventListener('click', (e) => {
                 // Only toggle if not clicking on the checkbox itself or other interactive elements
-                if (e.target === this.checkbox || e.target.closest('.custom-checkbox-container') || e.target.closest('button') || e.target.closest('input')) {
+                if (e.target === this.checkbox || e.target.closest('.custom-checkbox-container') || e.target.closest('button') || e.target.closest('input') || e.target.closest('select') || e.target.closest('textarea') || e.target.closest('a[href]')) {
                     return;
                 }
-                e.preventDefault();
-                this.toggle();
+                // Only prevent default if we're actually going to toggle the checkbox
+                // This prevents unwanted scroll behavior when clicking on non-interactive areas
+                if (e.target.closest('.setting-item') === settingItem) {
+                    e.preventDefault();
+                    this.toggle();
+                }
             });
         }
         

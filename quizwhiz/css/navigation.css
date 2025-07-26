@@ -52,6 +52,39 @@
     align-items: center;
     gap: 0.5rem;
     backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+    z-index: 1;
+}
+
+.nav-btn > * {
+    position: relative;
+    z-index: 2;
+}
+
+.nav-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle 150px at var(--mouse-x) var(--mouse-y),
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.05) 40%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.nav-btn:hover::after {
+    opacity: 1;
 }
 
 .nav-btn:hover {
@@ -70,6 +103,21 @@
 
 .nav-btn i {
     font-size: 1.1rem;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .nav-btn {
+        transition: none;
+    }
+    
+    .nav-btn::after {
+        display: none;
+    }
+    
+    .nav-btn:hover {
+        transform: none;
+    }
 }
 
 /* Theme Picker Styles */

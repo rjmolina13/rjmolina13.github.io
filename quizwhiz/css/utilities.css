@@ -137,10 +137,8 @@
 }
 
 .results-summary {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
-    margin: 2rem 0;
 }
 
 .result-item {
@@ -168,7 +166,7 @@
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 2rem;
+    flex-direction: row;
 }
 
 /* Mixed mode flashcard styles */

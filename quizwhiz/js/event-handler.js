@@ -104,6 +104,14 @@ class EventHandler {
                             content.style.display = 'none';
                         }
                     }, 300);
+                    
+                    // Prevent default behavior to avoid unwanted page scrolling
+                    // Only prevent default if the click target is not an interactive element
+                    // and if it's not within a settings-group or other content areas
+                    const isInteractiveElement = e.target.closest('button, input, select, textarea, a[href], [tabindex], [contenteditable="true"], .setting-item, .settings-group, .content-section');
+                    if (!isInteractiveElement) {
+                        e.preventDefault();
+                    }
                 }
             });
         });
@@ -469,6 +477,12 @@ class EventHandler {
 
         // Mouse tracking for gradient effect
         this.setupFlashcardMouseTracking();
+        
+        // Mouse tracking for quiz options
+        this.setupQuizOptionMouseTracking();
+        
+        // Mouse tracking for navigation buttons
+        this.setupNavButtonMouseTracking();
     }
 
     setupFlashcardMouseTracking() {
@@ -698,6 +712,122 @@ class EventHandler {
             const allQuizzesChecked = allQuizCheckboxes.length > 0 && Array.from(allQuizCheckboxes).every(cb => cb.checked);
             quizSelectAllBtn.textContent = allQuizzesChecked ? 'Deselect All' : 'Select All';
         }
+    }
+
+    setupQuizOptionMouseTracking() {
+        let currentQuizOption = null;
+        
+        // Use event delegation to handle dynamically created quiz options
+        document.addEventListener('mousemove', (e) => {
+            const quizOption = e.target && e.target.closest ? e.target.closest('.quiz-option') : null;
+            
+            if (quizOption) {
+                currentQuizOption = quizOption;
+                const rect = quizOption.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                // Update CSS custom properties for the quiz option
+                quizOption.style.setProperty('--mouse-x', `${x}%`);
+                quizOption.style.setProperty('--mouse-y', `${y}%`);
+            } else if (currentQuizOption) {
+                // Mouse is outside any quiz option, but we had one before
+                // Calculate position relative to the last quiz option for smooth exit
+                const rect = currentQuizOption.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                currentQuizOption.style.setProperty('--mouse-x', `${x}%`);
+                currentQuizOption.style.setProperty('--mouse-y', `${y}%`);
+                
+                // Clear the current quiz option after a delay to allow smooth transition
+                setTimeout(() => {
+                    if (!e.target || !e.target.closest || !e.target.closest('.quiz-option')) {
+                        currentQuizOption = null;
+                    }
+                }, 100);
+            }
+        });
+        
+        // Handle mouse enter/leave for quiz option containers
+        document.addEventListener('mouseenter', (e) => {
+            if (e.target && e.target.closest && e.target.closest('.quiz-option')) {
+                currentQuizOption = e.target.closest('.quiz-option');
+            }
+        }, true);
+        
+        document.addEventListener('mouseleave', (e) => {
+            if (e.target && e.target.closest && e.target.closest('.quiz-option')) {
+                const quizOption = e.target.closest('.quiz-option');
+                
+                // Only reset if we're actually leaving the quiz option area
+                setTimeout(() => {
+                    if (!document.querySelector('.quiz-option:hover')) {
+                        quizOption.style.setProperty('--mouse-x', '50%');
+                        quizOption.style.setProperty('--mouse-y', '50%');
+                        currentQuizOption = null;
+                    }
+                }, 150);
+            }
+        }, true);
+    }
+
+    setupNavButtonMouseTracking() {
+        let currentNavButton = null;
+        
+        // Use event delegation to handle navigation buttons
+        document.addEventListener('mousemove', (e) => {
+            const navButton = e.target && e.target.closest ? e.target.closest('.nav-btn') : null;
+            
+            if (navButton) {
+                currentNavButton = navButton;
+                const rect = navButton.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                // Update CSS custom properties for the navigation button
+                navButton.style.setProperty('--mouse-x', `${x}%`);
+                navButton.style.setProperty('--mouse-y', `${y}%`);
+            } else if (currentNavButton) {
+                // Mouse is outside any nav button, but we had one before
+                // Calculate position relative to the last nav button for smooth exit
+                const rect = currentNavButton.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                
+                currentNavButton.style.setProperty('--mouse-x', `${x}%`);
+                currentNavButton.style.setProperty('--mouse-y', `${y}%`);
+                
+                // Clear the current nav button after a delay to allow smooth transition
+                setTimeout(() => {
+                    if (!e.target || !e.target.closest || !e.target.closest('.nav-btn')) {
+                        currentNavButton = null;
+                    }
+                }, 100);
+            }
+        });
+        
+        // Handle mouse enter/leave for navigation button containers
+        document.addEventListener('mouseenter', (e) => {
+            if (e.target && e.target.closest && e.target.closest('.nav-btn')) {
+                currentNavButton = e.target.closest('.nav-btn');
+            }
+        }, true);
+        
+        document.addEventListener('mouseleave', (e) => {
+            if (e.target && e.target.closest && e.target.closest('.nav-btn')) {
+                const navButton = e.target.closest('.nav-btn');
+                
+                // Only reset if we're actually leaving the nav button area
+                setTimeout(() => {
+                    if (!document.querySelector('.nav-btn:hover')) {
+                        navButton.style.setProperty('--mouse-x', '50%');
+                        navButton.style.setProperty('--mouse-y', '50%');
+                        currentNavButton = null;
+                    }
+                }, 150);
+            }
+        }, true);
     }
 
     setupQuizEvents() {
@@ -1215,11 +1345,19 @@ class EventHandler {
         const settingsFileUploadArea = document.getElementById('settings-file-upload-area');
         if (settingsFileUploadArea && settingsFileInput) {
             settingsFileUploadArea.addEventListener('click', (e) => {
-                // Only prevent default if the click target is not the file input itself
+                // Prevent default behavior and event bubbling
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Only trigger file input if not clicking directly on the file input
                 if (e.target !== settingsFileInput) {
-                    e.preventDefault();
+                    settingsFileInput.click();
                 }
-                settingsFileInput.click();
+            });
+            
+            // Prevent the file input itself from bubbling up
+            settingsFileInput.addEventListener('click', (e) => {
+                e.stopPropagation();
             });
 
             settingsFileUploadArea.addEventListener('dragover', (e) => {
@@ -1246,11 +1384,19 @@ class EventHandler {
         const fileUploadArea = document.getElementById('file-upload-area');
         if (fileUploadArea && fileInput) {
             fileUploadArea.addEventListener('click', (e) => {
-                // Only prevent default if the click target is not the file input itself
+                // Prevent default behavior and event bubbling
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Only trigger file input if not clicking directly on the file input
                 if (e.target !== fileInput) {
-                    e.preventDefault();
+                    fileInput.click();
                 }
-                fileInput.click();
+            });
+            
+            // Prevent the file input itself from bubbling up
+            fileInput.addEventListener('click', (e) => {
+                e.stopPropagation();
             });
         }
     }

@@ -108,6 +108,8 @@ class NavbarLoader {
                 // Handle dropdown item actions
                 if (action === 'edit-profile' && window.userManager) {
                     window.userManager.showProfileModal();
+                } else if (action === 'export-data' && window.app && window.app.dataManager) {
+                    window.app.dataManager.exportData('json');
                 }
                 
                 // Close all dropdowns after action
@@ -119,6 +121,14 @@ class NavbarLoader {
                 document.querySelectorAll('.nav-dropdown, .user-dropdown').forEach(d => {
                     d.classList.remove('active');
                 });
+                
+                // Prevent default behavior to avoid unwanted page scrolling
+                // Only prevent default if the click target is not an interactive element
+                // and if it's not within a settings-group or other content areas
+                const isInteractiveElement = e.target.closest('button, input, select, textarea, a[href], [tabindex], [contenteditable="true"], .setting-item, .settings-group, .content-section');
+                if (!isInteractiveElement) {
+                    e.preventDefault();
+                }
              }
         });
     }

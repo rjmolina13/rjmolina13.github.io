@@ -224,6 +224,11 @@ class MixedManager {
                 originalCard.reviewCount = (originalCard.reviewCount || 0) + 1;
             }
             
+            // Record study session for streak tracking
+            if (this.app.dataManager) {
+                this.app.dataManager.recordStudySession();
+            }
+            
             this.mixedSession.flashcardsReviewed++;
             this.nextMixedItem();
         }

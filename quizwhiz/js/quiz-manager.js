@@ -593,11 +593,13 @@ class QuizManager {
         const active = document.getElementById('quiz-active');
         const results = document.getElementById('quiz-results');
         const navigation = document.getElementById('quiz-navigation-container');
+        const quizSetupInfo = document.getElementById('quiz-setup-info');
         
         if (setup) setup.classList.add('hidden');
         if (active) active.classList.remove('hidden');
         if (results) results.classList.add('hidden');
         if (navigation) navigation.classList.remove('hidden');
+        if (quizSetupInfo) quizSetupInfo.classList.remove('hidden');
         
         // Update quiz info
         this.updateQuizInfo();
@@ -631,25 +633,54 @@ class QuizManager {
         const modeConfig = document.getElementById('quiz-config-mode');
         const timerConfig = document.getElementById('quiz-config-timer');
         
+        // Update quiz configuration elements in header
+        const headerQuestionsConfig = document.getElementById('header-quiz-config-questions');
+        const headerDeckConfig = document.getElementById('header-quiz-config-deck');
+        const headerDifficultyConfig = document.getElementById('header-quiz-config-difficulty');
+        const headerModeConfig = document.getElementById('header-quiz-config-mode');
+        
+        const questionsText = `<i class="fas fa-question-circle"></i> ${this.currentQuiz.questions.length}`;
+        const deckText = this.currentQuiz.settings.deck === 'all' ? 'All Decks' : this.currentQuiz.settings.deck;
+        const deckHtml = `<i class="fas fa-layer-group"></i> ${deckText}`;
+        const difficultyText = this.currentQuiz.settings.difficulty.charAt(0).toUpperCase() + 
+            this.currentQuiz.settings.difficulty.slice(1);
+        const difficultyHtml = `<i class="fas fa-signal"></i> ${difficultyText}`;
+        const modeText = this.currentQuiz.settings.mode.charAt(0).toUpperCase() + 
+            this.currentQuiz.settings.mode.slice(1);
+        const modeHtml = `<i class="fas fa-cog"></i> ${modeText}`;
+        
+        // Update progress bar elements
         if (questionsConfig) {
-            questionsConfig.innerHTML = `<i class="fas fa-question-circle"></i> ${this.currentQuiz.questions.length}`;
+            questionsConfig.innerHTML = questionsText;
         }
         
         if (deckConfig) {
-            const deckText = this.currentQuiz.settings.deck === 'all' ? 'All Decks' : this.currentQuiz.settings.deck;
-            deckConfig.innerHTML = `<i class="fas fa-layer-group"></i> ${deckText}`;
+            deckConfig.innerHTML = deckHtml;
         }
         
         if (difficultyConfig) {
-            const difficultyText = this.currentQuiz.settings.difficulty.charAt(0).toUpperCase() + 
-                this.currentQuiz.settings.difficulty.slice(1);
-            difficultyConfig.innerHTML = `<i class="fas fa-signal"></i> ${difficultyText}`;
+            difficultyConfig.innerHTML = difficultyHtml;
         }
         
         if (modeConfig) {
-            const modeText = this.currentQuiz.settings.mode.charAt(0).toUpperCase() + 
-                this.currentQuiz.settings.mode.slice(1);
-            modeConfig.innerHTML = `<i class="fas fa-cog"></i> ${modeText}`;
+            modeConfig.innerHTML = modeHtml;
+        }
+        
+        // Update header elements
+        if (headerQuestionsConfig) {
+            headerQuestionsConfig.innerHTML = questionsText;
+        }
+        
+        if (headerDeckConfig) {
+            headerDeckConfig.innerHTML = deckHtml;
+        }
+        
+        if (headerDifficultyConfig) {
+            headerDifficultyConfig.innerHTML = difficultyHtml;
+        }
+        
+        if (headerModeConfig) {
+            headerModeConfig.innerHTML = modeHtml;
         }
         
         // Show/hide timer based on mode
@@ -665,11 +696,153 @@ class QuizManager {
     processQuestionText(questionText) {
         // Replace sequences of underscores with styled blank lines
         // Match 3 or more consecutive underscores
-        return questionText.replace(/_{3,}/g, (match) => {
+        let processedText = questionText.replace(/_{3,}/g, (match) => {
             // Create a blank line span with width proportional to underscore count
             const width = Math.max(80, match.length * 12); // Minimum 80px, 12px per underscore
             return `<span class="blank-line" style="min-width: ${width}px;"></span>`;
         });
+        
+        // Process Roman numeral enumerations
+        processedText = this.formatRomanNumeralEnumerations(processedText);
+        
+        // Apply text balancing for better line distribution
+        processedText = this.balanceTextLines(processedText);
+        
+        return processedText;
+    }
+    
+    formatRomanNumeralEnumerations(text) {
+        // Regular expression to match Roman numerals (I, II, III, IV, V, VI, VII, VIII, IX, X, etc.)
+        // This pattern matches Roman numerals followed by a period and content
+        const romanNumeralPattern = /\b((?:IX|IV|V?I{0,3}|X{1,3}(?:IX|IV|V?I{0,3})?))\.(\s*[^\n\r]+?)(?=\s+(?:IX|IV|V?I{0,3}|X{1,3}(?:IX|IV|V?I{0,3})?)\.|$)/gm;
+        
+        // Check if the text contains Roman numeral enumerations
+        const matches = text.match(romanNumeralPattern);
+        if (!matches || matches.length < 2) {
+            return text; // Return original text if no Roman numerals found or less than 2 items
+        }
+        
+        // Find the main question (text before first Roman numeral)
+        const firstRomanMatch = text.match(/\b((?:IX|IV|V?I{0,3}|X{1,3}(?:IX|IV|V?I{0,3})?))\./); 
+        let mainQuestion = '';
+        let enumeratedItems = [];
+        
+        if (firstRomanMatch) {
+            const firstMatchIndex = text.indexOf(firstRomanMatch[0]);
+            mainQuestion = text.substring(0, firstMatchIndex).trim();
+        }
+        
+        // Extract all Roman numeral items
+        let match;
+        const romanRegex = /\b((?:IX|IV|V?I{0,3}|X{1,3}(?:IX|IV|V?I{0,3})?))\.(\s*[^\n\r]+?)(?=\s+(?:IX|IV|V?I{0,3}|X{1,3}(?:IX|IV|V?I{0,3})?)\.|$)/gm;
+        
+        while ((match = romanRegex.exec(text)) !== null) {
+            const romanNumeral = match[1];
+            const content = match[2].trim();
+            enumeratedItems.push({ numeral: romanNumeral, content: content });
+        }
+        
+        // If we have a main question and enumerated items, format them
+        if (mainQuestion && enumeratedItems.length > 0) {
+            let result = `<div class="question-main">${mainQuestion}</div>`;
+            result += '<div class="question-enumeration">';
+            
+            enumeratedItems.forEach(item => {
+                result += `<div class="enumeration-item">`;
+                result += `<span class="enumeration-numeral">${item.numeral}.</span>`;
+                result += `<span class="enumeration-content">${item.content}</span>`;
+                result += '</div>';
+            });
+            
+            result += '</div>';
+            return result;
+        }
+        
+        return text; // Return original text if parsing fails
+    }
+
+    balanceTextLines(text) {
+        // Skip balancing if text contains HTML tags (already formatted)
+        if (text.includes('<div') || text.includes('<span')) {
+            return text;
+        }
+        
+        // Split text into sentences, avoiding common abbreviations
+        // This regex looks for sentence endings but excludes common abbreviations
+        const sentences = text.split(/(?<!\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|vs|etc|i\.e|e\.g|a\.m|p\.m|U\.S|U\.K))\.\s+/);
+        let balancedText = '';
+        
+        sentences.forEach((sentence, index) => {
+            if (sentence.trim().length === 0) return;
+            
+            const words = sentence.trim().split(/\s+/);
+            const wordCount = words.length;
+            
+            // Only balance if sentence has more than 8 words
+            if (wordCount > 8) {
+                const balancedSentence = this.balanceSentenceLines(words);
+                balancedText += balancedSentence;
+            } else {
+                balancedText += sentence;
+            }
+            
+            // Add line break between sentences
+            if (index < sentences.length - 1) {
+                // Always add period if the sentence doesn't end with punctuation
+                const trimmedSentence = sentence.trim();
+                if (!/[.!?]$/.test(trimmedSentence)) {
+                    balancedText += '.';
+                }
+                balancedText += '<br>';
+            }
+        });
+        
+        return balancedText;
+    }
+    
+    balanceSentenceLines(words) {
+        const totalWords = words.length;
+        
+        // Calculate optimal words per line based on total word count
+        let wordsPerLine;
+        if (totalWords <= 20) {
+            wordsPerLine = Math.ceil(totalWords / 2); // 2 lines
+        } else if (totalWords <= 40) {
+            wordsPerLine = Math.ceil(totalWords / 3); // 3 lines
+        } else {
+            wordsPerLine = Math.ceil(totalWords / 4); // 4 lines max
+        }
+        
+        // Ensure minimum 3 words per line and maximum 8 words per line
+        wordsPerLine = Math.max(3, Math.min(10, wordsPerLine));
+        
+        let result = '';
+        let currentLineWords = 0;
+        
+        for (let i = 0; i < words.length; i++) {
+            const word = words[i];
+            
+            // Add word to current line
+            if (currentLineWords > 0) {
+                result += ' ';
+            }
+            result += word;
+            currentLineWords++;
+            
+            // Check if we should break to next line
+            const remainingWords = words.length - (i + 1);
+            const shouldBreak = currentLineWords >= wordsPerLine && remainingWords > 0;
+            
+            // Avoid leaving very few words on the last line
+            const wouldLeaveOrphans = remainingWords > 0 && remainingWords < 3;
+            
+            if (shouldBreak && !wouldLeaveOrphans) {
+                result += '<br>';
+                currentLineWords = 0;
+            }
+        }
+        
+        return result;
     }
 
     updateCurrentQuestionInfo() {
@@ -882,10 +1055,35 @@ class QuizManager {
 
     updateTimerDisplay() {
         const timerDisplay = document.getElementById('timer-display');
-        if (timerDisplay) {
+        const timerContainer = document.getElementById('quiz-config-timer');
+        
+        if (timerDisplay && timerContainer) {
             const minutes = Math.floor(this.currentQuiz.timeRemaining / 60);
             const seconds = this.currentQuiz.timeRemaining % 60;
             timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Calculate time percentage remaining
+            const totalTime = this.currentQuiz.questions.length * 30;
+            const timePercentage = (this.currentQuiz.timeRemaining / totalTime) * 100;
+            
+            // Remove existing timer classes
+            timerContainer.classList.remove('timer-normal', 'timer-warning', 'timer-danger', 'timer-critical', 'timer-vibrating');
+            
+            // Apply color class based on remaining time percentage
+            if (timePercentage > 50) {
+                timerContainer.classList.add('timer-normal');
+            } else if (timePercentage > 25) {
+                timerContainer.classList.add('timer-warning');
+            } else if (timePercentage > 10) {
+                timerContainer.classList.add('timer-danger');
+            } else {
+                timerContainer.classList.add('timer-critical');
+            }
+            
+            // Add vibrating effect when timer reaches last 10 seconds
+            if (this.currentQuiz.timeRemaining <= 10 && this.currentQuiz.timeRemaining > 0) {
+                timerContainer.classList.add('timer-vibrating');
+            }
         }
     }
 
@@ -908,10 +1106,12 @@ class QuizManager {
         const active = document.getElementById('quiz-active');
         const results = document.getElementById('quiz-results');
         const navigation = document.getElementById('quiz-navigation-container');
+        const quizSetupInfo = document.getElementById('quiz-setup-info');
         
         if (active) active.classList.add('hidden');
         if (results) results.classList.remove('hidden');
         if (navigation) navigation.classList.add('hidden');
+        if (quizSetupInfo) quizSetupInfo.classList.add('hidden');
         
         // Calculate results
         const totalQuestions = this.currentQuiz.questions.length;
@@ -919,12 +1119,20 @@ class QuizManager {
         const incorrectAnswers = totalQuestions - correctAnswers;
         const percentage = Math.round((correctAnswers / totalQuestions) * 100);
         
+        // Calculate quiz duration
+        const quizDuration = this.currentQuiz.endTime - this.currentQuiz.startTime;
+        const durationMinutes = Math.floor(quizDuration / 60000);
+        const durationSeconds = Math.floor((quizDuration % 60000) / 1000);
+        const formattedDuration = `${durationMinutes.toString().padStart(2, '0')}:${durationSeconds.toString().padStart(2, '0')}`;
+        
         // Update results display
         const finalScore = document.getElementById('final-score');
         const totalAnswered = document.getElementById('total-questions-answered');
         const scorePercentage = document.getElementById('score-percentage');
         const correctCount = document.getElementById('correct-answers-count');
         const incorrectCount = document.getElementById('incorrect-answers-count');
+        const finalTimeDisplay = document.getElementById('final-time-display');
+        const finalTime = document.getElementById('final-time');
         
         if (finalScore) finalScore.textContent = correctAnswers;
         if (totalAnswered) totalAnswered.textContent = totalQuestions;
@@ -932,8 +1140,43 @@ class QuizManager {
         if (correctCount) correctCount.textContent = correctAnswers;
         if (incorrectCount) incorrectCount.textContent = incorrectAnswers;
         
+        // Show final time if timer was enabled
+        if (this.currentQuiz.settings.mode === 'timed' && finalTimeDisplay && finalTime) {
+            finalTime.textContent = formattedDuration;
+            finalTimeDisplay.classList.remove('hidden');
+        } else if (finalTimeDisplay) {
+            finalTimeDisplay.classList.add('hidden');
+        }
+        
+        // Display statistics
+        this.displayQuizStatistics();
+        
+        // Apply color classes based on percentage
+        const scoreElements = [finalScore, totalAnswered, scorePercentage];
+        const scoreClass = this.getScoreColorClass(percentage);
+        
+        scoreElements.forEach(element => {
+            if (element) {
+                // Remove existing score classes
+                element.classList.remove('score-excellent', 'score-good', 'score-average', 'score-poor', 'score-fail');
+                // Add new score class
+                element.classList.add(scoreClass);
+            }
+        });
+        
         // Show inspirational quote
         this.showInspirationalQuote(percentage);
+        
+        // Save quiz statistics
+        this.saveQuizStats({
+            deck: this.currentQuiz.settings.deck,
+            numQuestions: totalQuestions,
+            score: correctAnswers,
+            percentage: percentage,
+            duration: quizDuration,
+            mode: this.currentQuiz.settings.mode,
+            timestamp: this.currentQuiz.endTime
+        });
         
         // Show mistakes
         this.showMistakes();
@@ -981,14 +1224,45 @@ class QuizManager {
     showInspirationalQuote(percentage) {
         const quoteText = document.getElementById('quote-text');
         const quoteAuthor = document.getElementById('quote-author');
+        const quoteContainer = document.querySelector('.inspirational-quote');
         
-        if (!quoteText || !quoteAuthor) return;
+        if (!quoteText || !quoteAuthor || !quoteContainer) return;
         
         const quotes = this.getQuotesByPercentage(percentage);
         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
         
         quoteText.textContent = randomQuote.text;
         quoteAuthor.textContent = randomQuote.author;
+        
+        // Remove existing performance classes
+        quoteContainer.classList.remove('quote-excellent', 'quote-good', 'quote-average', 'quote-poor', 'quote-fail');
+        
+        // Add performance-based class for different background styling
+        if (percentage >= 90) {
+            quoteContainer.classList.add('quote-excellent');
+        } else if (percentage >= 80) {
+            quoteContainer.classList.add('quote-good');
+        } else if (percentage >= 70) {
+            quoteContainer.classList.add('quote-average');
+        } else if (percentage >= 50) {
+            quoteContainer.classList.add('quote-poor');
+        } else {
+            quoteContainer.classList.add('quote-fail');
+        }
+    }
+
+    getScoreColorClass(percentage) {
+        if (percentage >= 90) {
+            return 'score-excellent';
+        } else if (percentage >= 80) {
+            return 'score-good';
+        } else if (percentage >= 70) {
+            return 'score-average';
+        } else if (percentage >= 50) {
+            return 'score-poor';
+        } else {
+            return 'score-fail';
+        }
     }
 
     getQuotesByPercentage(percentage) {
@@ -1058,11 +1332,13 @@ class QuizManager {
         const active = document.getElementById('quiz-active');
         const results = document.getElementById('quiz-results');
         const navigation = document.getElementById('quiz-navigation-container');
+        const quizSetupInfo = document.getElementById('quiz-setup-info');
         
         if (setup) setup.classList.remove('hidden');
         if (active) active.classList.add('hidden');
         if (results) results.classList.add('hidden');
         if (navigation) navigation.classList.add('hidden');
+        if (quizSetupInfo) quizSetupInfo.classList.add('hidden');
     }
 
     resetQuiz() {
@@ -1081,6 +1357,196 @@ class QuizManager {
         this.currentQuiz.startTime = null;
         this.currentQuiz.endTime = null;
         this.currentQuiz.timeRemaining = 0;
+    }
+
+    // Quiz Statistics Management
+    saveQuizStats(stats) {
+        try {
+            // Get existing quiz stats
+            const existingStats = JSON.parse(localStorage.getItem('quizwhiz_quiz_stats') || '{}');
+            
+            // Initialize deck stats if not exists
+            if (!existingStats[stats.deck]) {
+                existingStats[stats.deck] = {
+                    bestScores: {},
+                    bestTimes: {},
+                    averageScores: {},
+                    totalQuizzes: 0,
+                    allScores: [],
+                    allTimes: []
+                };
+            }
+            
+            const deckStats = existingStats[stats.deck];
+            const questionKey = `q${stats.numQuestions}`;
+            
+            // Update best score for this question count
+            if (!deckStats.bestScores[questionKey] || stats.percentage > deckStats.bestScores[questionKey]) {
+                deckStats.bestScores[questionKey] = stats.percentage;
+            }
+            
+            // Update best time for this question count (only for timed mode)
+            if (stats.mode === 'timed') {
+                if (!deckStats.bestTimes[questionKey] || stats.duration < deckStats.bestTimes[questionKey]) {
+                    deckStats.bestTimes[questionKey] = stats.duration;
+                }
+            }
+            
+            // Add to all scores and times for average calculation
+            deckStats.allScores.push(stats.percentage);
+            if (stats.mode === 'timed') {
+                deckStats.allTimes.push(stats.duration);
+            }
+            
+            // Calculate average score
+            deckStats.averageScores[questionKey] = this.calculateAverageForQuestionCount(
+                deckStats.allScores, stats.numQuestions
+            );
+            
+            // Update total quizzes count
+            deckStats.totalQuizzes++;
+            
+            // Save back to localStorage
+            localStorage.setItem('quizwhiz_quiz_stats', JSON.stringify(existingStats));
+            
+            // Record study session for streak tracking
+            if (this.app && this.app.dataManager) {
+                this.app.dataManager.recordStudySession();
+            }
+            
+            // Update home page stats to reflect new best score
+            if (this.app && this.app.uiManager) {
+                this.app.uiManager.updateStats();
+            }
+            
+        } catch (error) {
+            console.error('Error saving quiz stats:', error);
+        }
+    }
+    
+    calculateAverageForQuestionCount(allScores, targetQuestionCount) {
+        // For now, calculate overall average
+        // In future, could filter by question count if we track that per score
+        if (allScores.length === 0) return 0;
+        const sum = allScores.reduce((acc, score) => acc + score, 0);
+        return Math.round(sum / allScores.length);
+    }
+    
+    getQuizStats(deck = null) {
+        try {
+            const stats = JSON.parse(localStorage.getItem('quizwhiz_quiz_stats') || '{}');
+            
+            if (deck && stats[deck]) {
+                return stats[deck];
+            }
+            
+            return stats;
+        } catch (error) {
+            console.error('Error loading quiz stats:', error);
+            return {};
+        }
+    }
+    
+    getBestScoreForDeck(deck) {
+        const deckStats = this.getQuizStats(deck);
+        if (!deckStats || !deckStats.bestScores) return null;
+        
+        const scores = Object.values(deckStats.bestScores);
+        return scores.length > 0 ? Math.max(...scores) : null;
+    }
+    
+    getBestTimeForDeck(deck) {
+        const deckStats = this.getQuizStats(deck);
+        if (!deckStats || !deckStats.bestTimes) return null;
+        
+        const times = Object.values(deckStats.bestTimes);
+        return times.length > 0 ? Math.min(...times) : null;
+    }
+    
+    getAverageScoreForDeck(deck) {
+        const deckStats = this.getQuizStats(deck);
+        if (!deckStats || !deckStats.allScores || deckStats.allScores.length === 0) return null;
+        
+        const sum = deckStats.allScores.reduce((acc, score) => acc + score, 0);
+        return Math.round(sum / deckStats.allScores.length);
+    }
+    
+    formatDuration(milliseconds) {
+        const minutes = Math.floor(milliseconds / 60000);
+        const seconds = Math.floor((milliseconds % 60000) / 1000);
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    displayQuizStatistics() {
+        try {
+            const currentDeck = this.currentQuiz.settings.deck;
+            const deckStats = this.getQuizStats(currentDeck);
+            
+            if (!deckStats || deckStats.totalQuizzes === 0) {
+                return; // No stats to display yet
+            }
+            
+            // Find or create statistics display area
+            let statsContainer = document.getElementById('quiz-statistics');
+            if (!statsContainer) {
+                statsContainer = document.createElement('div');
+                statsContainer.id = 'quiz-statistics';
+                statsContainer.className = 'quiz-statistics';
+                
+                // Insert after results breakdown
+                const resultsBreakdown = document.querySelector('.results-breakdown');
+                if (resultsBreakdown && resultsBreakdown.parentNode) {
+                    resultsBreakdown.parentNode.insertBefore(statsContainer, resultsBreakdown.nextSibling);
+                }
+            }
+            
+            // Build statistics HTML
+            let statsHTML = '<h3><i class="fas fa-chart-bar"></i> Deck Statistics</h3><div class="stats-grid">';
+            
+            // Best overall score
+            const bestScore = this.getBestScoreForDeck(currentDeck);
+            if (bestScore !== null) {
+                statsHTML += `
+                    <div class="stat-item">
+                        <span class="stat-label"><i class="fas fa-trophy"></i> Best Score:</span>
+                        <span class="stat-value">${bestScore}%</span>
+                    </div>`;
+            }
+            
+            // Average score
+            const avgScore = this.getAverageScoreForDeck(currentDeck);
+            if (avgScore !== null) {
+                statsHTML += `
+                    <div class="stat-item">
+                        <span class="stat-label"><i class="fas fa-chart-line"></i> Average Score:</span>
+                        <span class="stat-value">${avgScore}%</span>
+                    </div>`;
+            }
+            
+            // Best time
+            const bestTime = this.getBestTimeForDeck(currentDeck);
+            if (bestTime !== null) {
+                statsHTML += `
+                    <div class="stat-item">
+                        <span class="stat-label"><i class="fas fa-bolt"></i> Best Time:</span>
+                        <span class="stat-value">${this.formatDuration(bestTime)}</span>
+                    </div>`;
+            }
+            
+            // Total quizzes
+            statsHTML += `
+                <div class="stat-item">
+                    <span class="stat-label"><i class="fas fa-bullseye"></i> Total Quizzes:</span>
+                    <span class="stat-value">${deckStats.totalQuizzes}</span>
+                </div>`;
+            
+            statsHTML += '</div>';
+            
+            statsContainer.innerHTML = statsHTML;
+            
+        } catch (error) {
+            console.error('Error displaying quiz statistics:', error);
+        }
     }
 
     // Method for MixedManager compatibility

@@ -184,6 +184,13 @@ class UIManager {
                 this.populateDeckSuggestions();
             }
             
+            // Populate stats modals
+            if (modalId === 'best-score-modal') {
+                this.populateBestScoreModal();
+            } else if (modalId === 'study-streak-modal') {
+                this.populateStudyStreakModal();
+            }
+            
             // Focus first input if available
             const firstInput = modal.querySelector('input, textarea, select');
             if (firstInput) {
@@ -706,6 +713,176 @@ class UIManager {
         ).join('');
     }
 
+    // Stat Card Interaction Methods
+    setupStatCardListeners() {
+        const statCards = document.querySelectorAll('.stat-card.clickable');
+        statCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                const action = card.getAttribute('data-action');
+                const target = card.getAttribute('data-target');
+                
+                if (action === 'navigate') {
+                    this.app.showSection(target);
+                } else if (action === 'modal') {
+                    this.openModal(target);
+                }
+            });
+        });
+    }
+
+    populateBestScoreModal() {
+        const container = document.getElementById('best-score-breakdown');
+        if (!container) return;
+
+        // Get quiz stats from localStorage
+        const quizStats = JSON.parse(localStorage.getItem('quizwhiz_quiz_stats') || '{}');
+        const overallBestScore = this.getOverallBestScore();
+        
+        let content = `
+            <div class="breakdown-section">
+                <h3><i class="fas fa-trophy"></i> Overall Performance</h3>
+                <div class="breakdown-grid">
+                    <div class="breakdown-item highlight">
+                        <span class="label">Best Score</span>
+                        <span class="value">${overallBestScore}%</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add deck-specific scores if available
+        if (Object.keys(quizStats).length > 0) {
+            content += `
+                <div class="breakdown-section">
+                    <h3><i class="fas fa-layer-group"></i> Best Scores by Deck</h3>
+                    <div class="breakdown-grid">
+            `;
+            
+            Object.entries(quizStats).forEach(([deck, stats]) => {
+                if (stats.bestScore !== undefined) {
+                    content += `
+                        <div class="breakdown-item">
+                            <span class="label">${deck}</span>
+                            <span class="value">${stats.bestScore}%</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            content += `
+                    </div>
+                </div>
+            `;
+        } else {
+            content += `
+                <div class="breakdown-section">
+                    <p style="text-align: center; color: var(--text-secondary); margin: 0;">
+                        <i class="fas fa-info-circle"></i> No quiz data available yet. Take some quizzes to see detailed statistics!
+                    </p>
+                </div>
+            `;
+        }
+
+        container.innerHTML = content;
+    }
+
+    populateStudyStreakModal() {
+        const container = document.getElementById('study-streak-breakdown');
+        if (!container) return;
+
+        // Get detailed streak data from data manager
+        const streakStats = this.app.dataManager ? this.app.dataManager.getStreakStats() : {
+            currentStreak: 0,
+            longestStreak: 0,
+            totalStudyDays: 0,
+            lastStudyDate: null,
+            studyDates: []
+        };
+        
+        const currentStreak = streakStats.currentStreak;
+        const longestStreak = streakStats.longestStreak;
+        const totalStudyDays = streakStats.totalStudyDays;
+        const lastStudyDate = streakStats.lastStudyDate;
+        
+        let content = `
+            <div class="breakdown-section">
+                <h3><i class="fas fa-fire"></i> Current Streak</h3>
+                <div class="breakdown-grid">
+                    <div class="breakdown-item highlight">
+                        <span class="label">Days Studied</span>
+                        <span class="value">${currentStreak}</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="label">Status</span>
+                        <span class="value">${currentStreak > 0 ? 'Active' : 'Inactive'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="breakdown-section">
+                <h3><i class="fas fa-chart-line"></i> Streak Statistics</h3>
+                <div class="breakdown-grid">
+                    <div class="breakdown-item">
+                        <span class="label">Longest Streak</span>
+                        <span class="value">${longestStreak} days</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="label">Total Study Days</span>
+                        <span class="value">${totalStudyDays}</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="label">Streak Level</span>
+                        <span class="value">${this.getStreakLevel(currentStreak)}</span>
+                    </div>
+                    ${lastStudyDate ? `
+                        <div class="breakdown-item">
+                            <span class="label">Last Study Date</span>
+                            <span class="value">${new Date(lastStudyDate).toLocaleDateString()}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        if (currentStreak === 0) {
+            content += `
+                <div class="breakdown-section">
+                    <p style="text-align: center; color: var(--text-secondary); margin: 0;">
+                        <i class="fas fa-info-circle"></i> Start studying to build your streak! Complete flashcard reviews or quizzes for consecutive days to maintain it.
+                    </p>
+                </div>
+            `;
+        } else {
+            // Show recent study activity
+            const recentDates = streakStats.studyDates.slice(-7); // Last 7 study dates
+            if (recentDates.length > 0) {
+                content += `
+                    <div class="breakdown-section">
+                        <h3><i class="fas fa-calendar-check"></i> Recent Activity</h3>
+                        <div class="recent-activity">
+                            ${recentDates.map(date => `
+                                <div class="activity-day">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>${new Date(date).toLocaleDateString()}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        container.innerHTML = content;
+    }
+
+    getStreakLevel(streak) {
+        if (streak === 0) return 'None';
+        if (streak < 7) return 'Beginner';
+        if (streak < 30) return 'Consistent';
+        if (streak < 100) return 'Dedicated';
+        return 'Master';
+    }
+
     calculateStorageSize() {
         try {
             // Calculate total size of all QuizWhiz localStorage data
@@ -850,10 +1027,36 @@ class UIManager {
             totalQuizzesElement.textContent = this.app.quizzes.length;
         }
         if (quizScoreElement) {
-            quizScoreElement.textContent = `${this.app.stats.bestScore}%`;
+            // Get overall best score from all decks
+            const overallBestScore = this.getOverallBestScore();
+            quizScoreElement.textContent = `${overallBestScore}%`;
         }
         if (studyStreakElement) {
             studyStreakElement.textContent = this.app.stats.studyStreak;
+        }
+    }
+    
+    // Get overall best score from all quiz decks
+    getOverallBestScore() {
+        try {
+            const quizStats = JSON.parse(localStorage.getItem('quizwhiz_quiz_stats') || '{}');
+            let overallBest = 0;
+            
+            // Iterate through all decks and find the highest score
+            Object.values(quizStats).forEach(deckStats => {
+                if (deckStats.bestScores) {
+                    const deckBestScores = Object.values(deckStats.bestScores);
+                    if (deckBestScores.length > 0) {
+                        const deckBest = Math.max(...deckBestScores);
+                        overallBest = Math.max(overallBest, deckBest);
+                    }
+                }
+            });
+            
+            return overallBest;
+        } catch (error) {
+            console.error('Error getting overall best score:', error);
+            return this.app.stats.bestScore || 0;
         }
     }
 }

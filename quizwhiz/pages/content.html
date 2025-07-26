@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content - QuizWhiz</title>
-    <link rel="icon" type="image/x-icon" href="../favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+    <link rel="alternate icon" href="../favicon.svg">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -29,11 +30,11 @@
                     <div class="management-section file-upload-section">
                         <h3><i class="fas fa-file-upload"></i> Quick File Upload</h3>
                         <div class="compact-upload-container">
-                             <div class="file-upload-area compact-upload" id="file-upload-area">
+                             <div class="file-upload-area compact-upload" id="file-upload-area-disabled" style="opacity: 0.6; cursor: not-allowed;">
                                  <i class="fas fa-cloud-upload-alt"></i>
-                                 <p>Drag and drop files here or click to browse</p>
-                                 <small>Supports JSON, XML, CSV, TXT, PDF, and DOCX files</small>
-                                 <input type="file" id="file-input" accept=".json,.xml,.csv,.txt,.pdf,.docx" multiple>
+                                 <p>Quick upload temporarily disabled - Use Settings page for file imports</p>
+                                 <small>Go to Settings > Data Management > Import Data</small>
+                                 <!-- <input type="file" id="file-input" accept=".json,.xml,.csv,.txt,.pdf,.docx" multiple> -->
                              </div>
                              <div class="file-format-help">
                                  <h4>Supported Formats:</h4>
@@ -514,7 +515,6 @@
     <script src="../js/event-handler.js"></script>
     <script src="../js/router.js"></script>
     <script src="../js/main.js"></script>
-    <!-- <script src="../js/love-word-animation.js"></script> -->
     <script>
         // Initialize app for this page
         document.addEventListener('DOMContentLoaded', () => {
@@ -535,6 +535,26 @@
             // Show content section
             if (app.uiManager) {
                 app.uiManager.showSection('content');
+            }
+            
+            // Disable the Quick File Upload area to prevent conflicts
+            const disabledUploadArea = document.getElementById('file-upload-area-disabled');
+            if (disabledUploadArea) {
+                disabledUploadArea.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                });
+                disabledUploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                });
+                disabledUploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                });
             }
         });
     </script>

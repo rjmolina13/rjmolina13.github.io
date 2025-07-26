@@ -49,12 +49,32 @@
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 1rem;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    margin-top: 5rem;
+    background: linear-gradient(
+        90deg,
+        var(--primary-color),
+        var(--secondary-color),
+        var(--primary-color)
+    );
+    background-size: 300% 100%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    animation: scrolling-gradient 5s ease-in-out infinite;
     align-items: center;
     text-align: center;
+}
+
+@keyframes scrolling-gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 .hero-content p {
@@ -77,16 +97,126 @@
 
 .stat-card {
     background: var(--card-color);
-    padding: 2rem;
+    padding-top: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-medium);
     transition: var(--transition);
     border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     text-align: center;
 }
 
-.stat-card:hover {
+.stat-card.clickable {
+    cursor: pointer;
+}
+
+.stat-card.clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-large);
+    border-color: var(--primary-color);
+}
+
+.stat-card.clickable:active {
+    transform: translateY(0);
+}
+
+/* Stats Modal Styling */
+.stats-modal .modal-content {
+    max-width: 600px;
+    width: 90%;
+}
+
+.stats-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.breakdown-section {
+    background: var(--background-secondary);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.breakdown-section h3 {
+    margin: 0 0 1rem 0;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--card-background);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.breakdown-item.highlight {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.breakdown-item .label {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.breakdown-item.highlight .label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.breakdown-item .value {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Recent Activity Styles */
+.recent-activity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.activity-day {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--card-background);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.activity-day i {
+    color: var(--success-color);
+    font-size: 0.8rem;
+}
+
+.activity-day span {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.stat-card:not(.clickable):hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-heavy);
 }
