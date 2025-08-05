@@ -14,61 +14,68 @@ class ContentManager {
 
     // Display flashcards in content management
     displayFlashcards() {
-        const flashcardsContainer = document.getElementById('flashcards-list');
+        const flashcardsContainer = document.getElementById('flashcard-management-list');
         if (!flashcardsContainer) return;
 
-        const searchTerm = document.getElementById('flashcard-search')?.value?.toLowerCase() || '';
-        const deckFilter = document.getElementById('deck-filter')?.value || 'all';
-        const difficultyFilter = document.getElementById('difficulty-filter')?.value || 'all';
+        const searchTerm = document.getElementById('manage-search')?.value?.toLowerCase() || '';
+        const deckFilter = document.getElementById('manage-deck-filter')?.value || '';
+        const difficultyFilter = document.getElementById('manage-difficulty-filter')?.value || '';
 
         let filteredCards = this.app.flashcards.filter(card => {
-            const matchesSearch = card.front.toLowerCase().includes(searchTerm) ||
-                                card.back.toLowerCase().includes(searchTerm) ||
+            const matchesSearch = card.question.toLowerCase().includes(searchTerm) ||
+                                card.answer.toLowerCase().includes(searchTerm) ||
                                 card.deck.toLowerCase().includes(searchTerm);
-            const matchesDeck = deckFilter === 'all' || card.deck === deckFilter;
-            const matchesDifficulty = difficultyFilter === 'all' || card.difficulty === difficultyFilter;
+            const matchesDeck = !deckFilter || card.deck === deckFilter;
+            const matchesDifficulty = !difficultyFilter || card.difficulty === difficultyFilter;
             
             return matchesSearch && matchesDeck && matchesDifficulty;
         });
 
         // Update count
-        const countElement = document.getElementById('flashcard-count');
-        if (countElement) {
-            countElement.textContent = `${filteredCards.length} flashcard(s)`;
+        const displayedCount = document.getElementById('displayed-count');
+        const totalCount = document.getElementById('total-count');
+        if (displayedCount && totalCount) {
+            displayedCount.textContent = filteredCards.length;
+            totalCount.textContent = this.app.flashcards.length;
         }
 
         if (filteredCards.length === 0) {
             flashcardsContainer.innerHTML = `
                 <div class="no-content-message">
-                    <i class="fas fa-inbox"></i>
-                    <p>No flashcards found.</p>
+                    <i class="fas fa-search"></i>
+                    <p>${this.app.flashcards.length === 0 ? 'No flashcards found. Create some flashcards to get started!' : 'No flashcards match your current filters.'}</p>
                 </div>
             `;
+            document.getElementById('no-flashcards-message')?.style.setProperty('display', 'block');
             return;
         }
 
+        document.getElementById('no-flashcards-message')?.style.setProperty('display', 'none');
         flashcardsContainer.innerHTML = filteredCards.map(card => `
-            <div class="flashcard-item">
-                <div class="flashcard-checkbox">
-                    <input type="checkbox" class="flashcard-checkbox-input" value="${card.id}">
-                </div>
+            <div class="flashcard-item" data-id="${card.id}">
+                <input type="checkbox" class="flashcard-checkbox" data-id="${card.id}">
                 <div class="flashcard-content">
-                    <div class="flashcard-front">
-                        <strong>Front:</strong> ${card.front}
-                    </div>
-                    <div class="flashcard-back">
-                        <strong>Back:</strong> ${card.back}
-                    </div>
+                    <div class="flashcard-question-management">${this.truncateText(card.question, 100)}</div>
+                    <div class="flashcard-answer-management">${this.truncateText(card.answer, 80)}</div>
                     <div class="flashcard-meta">
-                        <span class="deck-tag">${card.deck}</span>
-                        <span class="difficulty-tag difficulty-${card.difficulty}">${card.difficulty}</span>
+                        <div class="flashcard-deck">
+                            <i class="fas fa-folder"></i>
+                            <span>${card.deck}</span>
+                        </div>
+                        <div class="flashcard-difficulty">
+                            <span class="difficulty-badge difficulty-${card.difficulty}">${card.difficulty}</span>
+                        </div>
+                        <div class="flashcard-stats">
+                            <i class="fas fa-eye"></i>
+                            <span>${card.reviewCount || 0} reviews</span>
+                        </div>
                     </div>
                 </div>
                 <div class="flashcard-actions">
-                    <button class="edit-btn edit-flashcard-btn" data-card-id="${card.id}">
+                    <button class="btn btn-sm btn-outline edit-flashcard-btn" data-card-id="${card.id}" title="Edit flashcard">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="delete-btn delete-flashcard-btn" data-card-id="${card.id}">
+                    <button class="btn btn-sm btn-danger delete-flashcard-btn" data-card-id="${card.id}" title="Delete flashcard">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -86,16 +93,17 @@ class ContentManager {
         const quizzesContainer = document.getElementById('quiz-management-list');
         if (!quizzesContainer) return;
 
-        const searchTerm = document.getElementById('quiz-content-search')?.value?.toLowerCase() || '';
-        const deckFilter = document.getElementById('quiz-content-deck-filter')?.value || 'all';
-        const difficultyFilter = document.getElementById('quiz-content-difficulty-filter')?.value || 'all';
+        const searchTerm = document.getElementById('manage-quiz-search')?.value?.toLowerCase() || '';
+        const deckFilter = document.getElementById('manage-quiz-deck-filter')?.value || '';
+        const difficultyFilter = document.getElementById('manage-quiz-difficulty-filter')?.value || '';
 
         let filteredQuizzes = this.app.quizzes.filter(quiz => {
             const matchesSearch = quiz.question.toLowerCase().includes(searchTerm) ||
                                 quiz.correctAnswer.toLowerCase().includes(searchTerm) ||
+                                (quiz.wrongAnswers && quiz.wrongAnswers.some(answer => answer.toLowerCase().includes(searchTerm))) ||
                                 quiz.deck.toLowerCase().includes(searchTerm);
-            const matchesDeck = deckFilter === 'all' || quiz.deck === deckFilter;
-            const matchesDifficulty = difficultyFilter === 'all' || quiz.difficulty === difficultyFilter;
+            const matchesDeck = !deckFilter || quiz.deck === deckFilter;
+            const matchesDifficulty = !difficultyFilter || quiz.difficulty === difficultyFilter;
             
             return matchesSearch && matchesDeck && matchesDifficulty;
         });
@@ -117,35 +125,45 @@ class ContentManager {
         }
 
         if (filteredQuizzes.length === 0) {
-            quizzesContainer.innerHTML = '';
+            quizzesContainer.innerHTML = `
+                <div class="no-content-message">
+                    <i class="fas fa-search"></i>
+                    <p>${this.app.quizzes.length === 0 ? 'No quiz questions found. Start by adding some quiz questions!' : 'No quiz questions match your current filters.'}</p>
+                </div>
+            `;
+            document.getElementById('no-quizzes-message')?.style.setProperty('display', 'block');
             return;
         }
 
+        document.getElementById('no-quizzes-message')?.style.setProperty('display', 'none');
         quizzesContainer.innerHTML = filteredQuizzes.map(quiz => `
-            <div class="quiz-item">
-                <div class="quiz-checkbox">
-                    <input type="checkbox" class="quiz-checkbox" value="${quiz.id}">
-                </div>
+            <div class="quiz-item" data-id="${quiz.id}">
+                <input type="checkbox" class="quiz-checkbox" data-id="${quiz.id}">
                 <div class="quiz-content">
-                    <div class="quiz-question">
-                        <strong>Question:</strong> ${quiz.question}
+                    <div class="quiz-question-management">${this.truncateText(quiz.question, 100)}</div>
+                    <div class="quiz-answer-management">
+                        <strong>Correct:</strong> ${this.truncateText(quiz.correctAnswer, 60)}
                     </div>
-                    <div class="quiz-answer">
-                        <strong>Correct Answer:</strong> ${quiz.correctAnswer}
-                    </div>
-                    <div class="quiz-wrong-answers">
-                        <strong>Wrong Answers:</strong> ${quiz.wrongAnswers.join(', ')}
-                    </div>
+                    ${quiz.wrongAnswers && quiz.wrongAnswers.length > 0 ? `
+                        <div class="quiz-wrong-answers">
+                            <strong>Wrong:</strong> ${quiz.wrongAnswers.map(answer => this.truncateText(answer, 40)).join(', ')}
+                        </div>
+                    ` : ''}
                     <div class="quiz-meta">
-                        <span class="deck-tag">${quiz.deck}</span>
-                        <span class="difficulty-tag difficulty-${quiz.difficulty}">${quiz.difficulty}</span>
+                        <div class="quiz-deck">
+                            <i class="fas fa-folder"></i>
+                            <span>${quiz.deck}</span>
+                        </div>
+                        <div class="quiz-difficulty">
+                            <span class="difficulty-badge difficulty-${quiz.difficulty}">${quiz.difficulty}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="quiz-actions">
-                    <button class="edit-btn edit-quiz-btn" data-quiz-id="${quiz.id}">
+                    <button class="btn btn-sm btn-outline edit-quiz-btn" data-quiz-id="${quiz.id}" title="Edit quiz question">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="delete-btn delete-quiz-btn" data-quiz-id="${quiz.id}">
+                    <button class="btn btn-sm btn-danger delete-quiz-btn" data-quiz-id="${quiz.id}" title="Delete quiz question">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -158,6 +176,12 @@ class ContentManager {
         }
     }
 
+    // Utility method to truncate text
+    truncateText(text, maxLength) {
+        if (!text) return '';
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    }
+
     // Update deck options in dropdowns
     updateDeckOptions() {
         const allDecks = [...new Set([
@@ -166,11 +190,11 @@ class ContentManager {
         ])].filter(deck => deck);
 
         // Update flashcard deck filter
-        const flashcardDeckFilter = document.getElementById('deck-filter');
+        const flashcardDeckFilter = document.getElementById('manage-deck-filter');
         if (flashcardDeckFilter) {
             const currentValue = flashcardDeckFilter.value;
             flashcardDeckFilter.innerHTML = `
-                <option value="all">All Decks</option>
+                <option value="">All Decks</option>
                 ${allDecks.map(deck => `<option value="${deck}">${deck}</option>`).join('')}
             `;
             if (allDecks.includes(currentValue)) {
@@ -179,17 +203,20 @@ class ContentManager {
         }
 
         // Update quiz deck filter
-        const quizDeckFilter = document.getElementById('quiz-content-deck-filter');
+        const quizDeckFilter = document.getElementById('manage-quiz-deck-filter');
         if (quizDeckFilter) {
             const currentValue = quizDeckFilter.value;
             quizDeckFilter.innerHTML = `
-                <option value="all">All Decks</option>
+                <option value="">All Decks</option>
                 ${allDecks.map(deck => `<option value="${deck}">${deck}</option>`).join('')}
             `;
             if (allDecks.includes(currentValue)) {
                 quizDeckFilter.value = currentValue;
             }
         }
+        
+        // Update deck suggestions for all modals
+        this.app.uiManager.populateAllDeckSuggestions();
     }
 
     // Add new flashcard

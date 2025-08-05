@@ -179,9 +179,9 @@ class UIManager {
             modal.classList.add('show');
             document.body.classList.add('modal-open');
             
-            // Populate deck suggestions for add flashcard modal
-            if (modalId === 'add-flashcard-modal') {
-                this.populateDeckSuggestions();
+            // Populate deck suggestions for modals with deck inputs
+            if (modalId === 'add-flashcard-modal' || modalId === 'add-quiz-modal' || modalId === 'edit-quiz-modal') {
+                this.populateAllDeckSuggestions();
             }
             
             // Populate stats modals
@@ -231,6 +231,38 @@ class UIManager {
             const option = document.createElement('option');
             option.value = deck;
             datalist.appendChild(option);
+        });
+    }
+
+    // Populate all deck suggestion datalists with combined deck names from flashcards and quizzes
+    populateAllDeckSuggestions() {
+        // Get unique deck names from both flashcards and quizzes
+        const allDecks = [...new Set([
+            ...this.app.flashcards.map(card => card.deck),
+            ...this.app.quizzes.map(quiz => quiz.deck)
+        ])].filter(deck => deck && deck.trim() !== '').sort();
+        
+        // List of all datalist IDs that need deck suggestions
+        const datalistIds = [
+            'deck-suggestions',           // Add flashcard modal
+            'quiz-deck-suggestions',      // Add quiz modal
+            'edit-quiz-deck-suggestions'  // Edit quiz modal
+        ];
+        
+        // Populate each datalist
+        datalistIds.forEach(datalistId => {
+            const datalist = document.getElementById(datalistId);
+            if (datalist) {
+                // Clear existing options
+                datalist.innerHTML = '';
+                
+                // Add deck suggestions as options
+                allDecks.forEach(deck => {
+                    const option = document.createElement('option');
+                    option.value = deck;
+                    datalist.appendChild(option);
+                });
+            }
         });
     }
 

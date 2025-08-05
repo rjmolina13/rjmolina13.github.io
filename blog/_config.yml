@@ -1,0 +1,55 @@
+# Jekyll Configuration for QuizWhiz Blog
+
+title: QuizWhiz Blog
+description: Updates, releases, and news about QuizWhiz - the modern flashcard and quiz application
+baseurl: "/blog"
+url: "https://rjmolina13.github.io"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /:year/:month/:day/:title/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "QuizWhiz Team"
+
+# Social links
+github_username: rjmolina13
+
+# Google Analytics (optional)
+# google_analytics: UA-XXXXXXXX-X
+
+# SEO settings
+seo:
+  name: QuizWhiz
+  links:
+    - https://github.com/rjmolina13/rjmolina13.github.io
+    - https://rjmolina13.github.io/quizwhiz/

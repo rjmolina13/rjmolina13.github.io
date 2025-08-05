@@ -1,0 +1,263 @@
+name: QuizWhiz Auto Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'quizwhiz/**'
+  workflow_dispatch:
+
+jobs:
+  auto-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for changelog generation
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Extract current version
+      id: current_version
+      run: |
+        # Extract version from main.js
+        CURRENT_VERSION=$(grep -o 'this\.version = "[^"]*"' quizwhiz/js/main.js | sed 's/this\.version = "\([^"]*\)"/\1/')
+        echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        echo "Current version: $CURRENT_VERSION"
+    
+    - name: Get previous version from git
+      id: previous_version
+      run: |
+        # Get the previous commit's version
+        git checkout HEAD~1 -- quizwhiz/js/main.js 2>/dev/null || echo "No previous version found"
+        if [ -f quizwhiz/js/main.js ]; then
+          PREV_VERSION=$(grep -o 'this\.version = "[^"]*"' quizwhiz/js/main.js | sed 's/this\.version = "\([^"]*\)"/\1/' || echo "unknown")
+        else
+          PREV_VERSION="unknown"
+        fi
+        git checkout HEAD -- quizwhiz/js/main.js
+        echo "previous_version=$PREV_VERSION" >> $GITHUB_OUTPUT
+        echo "Previous version: $PREV_VERSION"
+    
+    - name: Check if version changed
+      id: version_check
+      run: |
+        if [ "${{ steps.current_version.outputs.current_version }}" != "${{ steps.previous_version.outputs.previous_version }}" ]; then
+          echo "version_changed=true" >> $GITHUB_OUTPUT
+          echo "Version changed from ${{ steps.previous_version.outputs.previous_version }} to ${{ steps.current_version.outputs.current_version }}"
+        else
+          echo "version_changed=false" >> $GITHUB_OUTPUT
+          echo "Version unchanged: ${{ steps.current_version.outputs.current_version }}"
+        fi
+    
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Get commits since last version tag or last 10 commits if no tags
+        LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+        if [ -n "$LAST_TAG" ]; then
+          COMMITS=$(git log $LAST_TAG..HEAD --oneline --grep="quizwhiz" --grep="QuizWhiz" --grep="quiz" -i -- quizwhiz/ | head -20)
+        else
+          COMMITS=$(git log --oneline -10 -- quizwhiz/)
+        fi
+        
+        # Generate changelog content
+        CHANGELOG="## What's Changed\n\n"
+        if [ -n "$COMMITS" ]; then
+          while IFS= read -r commit; do
+            if [ -n "$commit" ]; then
+              CHANGELOG="$CHANGELOG- $commit\n"
+            fi
+          done <<< "$COMMITS"
+        else
+          CHANGELOG="$CHANGELOG- Minor updates and improvements\n"
+        fi
+        
+        # Save changelog to file
+        echo -e "$CHANGELOG" > changelog.md
+        
+        # Set output for use in other steps
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        echo -e "$CHANGELOG" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Generate file diff summary
+      id: file_diff
+      run: |
+        # Get list of changed files in quizwhiz directory
+        CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- quizwhiz/ | head -20)
+        
+        DIFF_SUMMARY="## Files Changed\n\n"
+        if [ -n "$CHANGED_FILES" ]; then
+          while IFS= read -r file; do
+            if [ -n "$file" ]; then
+              # Get file stats
+              STATS=$(git diff --stat HEAD~1 HEAD -- "$file" | tail -1 | sed 's/.*|//' | xargs)
+              DIFF_SUMMARY="$DIFF_SUMMARY- \`$file\` ($STATS)\n"
+            fi
+          done <<< "$CHANGED_FILES"
+        else
+          DIFF_SUMMARY="$DIFF_SUMMARY- No files changed\n"
+        fi
+        
+        echo "diff_summary<<EOF" >> $GITHUB_OUTPUT
+        echo -e "$DIFF_SUMMARY" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Update README with version info
+      run: |
+        # Update README with current version and timestamp
+        CURRENT_DATE=$(date '+%Y-%m-%d %H:%M:%S UTC')
+        VERSION="${{ steps.current_version.outputs.current_version }}"
+        
+        # Create or update version section in README
+        if grep -q "## Version Information" quizwhiz/README.md; then
+          # Update existing version section
+          sed -i "/## Version Information/,/^## /c\
+## Version Information\n\n- **Current Version:** v$VERSION\n- **Last Updated:** $CURRENT_DATE\n- **Auto-generated:** This section is automatically updated by GitHub Actions\n\n## " quizwhiz/README.md
+        else
+          # Add version section before the last section
+          sed -i '/^## 🤝 Contributing/i\
+## Version Information\n\n- **Current Version:** v'$VERSION'\n- **Last Updated:** '$CURRENT_DATE'\n- **Auto-generated:** This section is automatically updated by GitHub Actions\n' quizwhiz/README.md
+        fi
+    
+    - name: Commit README changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        if git diff --quiet quizwhiz/README.md; then
+          echo "No changes to README"
+        else
+          git add quizwhiz/README.md
+          git commit -m "docs: auto-update QuizWhiz README with version ${{ steps.current_version.outputs.current_version }}"
+          git push
+        fi
+    
+    - name: Create release (if version changed)
+      if: steps.version_check.outputs.version_changed == 'true'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: quizwhiz-v${{ steps.current_version.outputs.current_version }}
+        release_name: QuizWhiz v${{ steps.current_version.outputs.current_version }}
+        body: |
+          # QuizWhiz v${{ steps.current_version.outputs.current_version }}
+          
+          🎉 **New version of QuizWhiz is now available!**
+          
+          **Version:** v${{ steps.current_version.outputs.current_version }}
+          **Previous Version:** v${{ steps.previous_version.outputs.previous_version }}
+          **Release Date:** $(date '+%Y-%m-%d')
+          
+          ${{ steps.changelog.outputs.changelog }}
+          
+          ${{ steps.file_diff.outputs.diff_summary }}
+          
+          ## 🚀 Try it now
+          
+          Visit the live application: [QuizWhiz](https://rjmolina13.github.io/quizwhiz/)
+          
+          ## 📥 Download
+          
+          You can download the source code or clone the repository to run locally.
+          
+          ---
+          
+          *This release was automatically generated by GitHub Actions*
+        draft: false
+        prerelease: false
+    
+    - name: Create blog post (if version changed)
+      if: steps.version_check.outputs.version_changed == 'true'
+      run: |
+        # Create blog post for the new release
+        POST_DATE=$(date '+%Y-%m-%d')
+        POST_FILENAME="blog/_posts/$POST_DATE-quizwhiz-v${{ steps.current_version.outputs.current_version }}-release.md"
+        
+        mkdir -p blog/_posts
+        
+        cat > "$POST_FILENAME" << 'EOF'
+        ---
+        layout: post
+        title: "QuizWhiz v${{ steps.current_version.outputs.current_version }} Released"
+        date: $POST_DATE
+        categories: [releases, quizwhiz]
+        tags: [quizwhiz, release, update]
+        ---
+        
+        # QuizWhiz v${{ steps.current_version.outputs.current_version }} is Now Available! 🎉
+        
+        We're excited to announce the release of QuizWhiz v${{ steps.current_version.outputs.current_version }}! This update brings new features, improvements, and bug fixes to enhance your learning experience.
+        
+        ## 📊 Version Details
+        
+        - **New Version:** v${{ steps.current_version.outputs.current_version }}
+        - **Previous Version:** v${{ steps.previous_version.outputs.previous_version }}
+        - **Release Date:** $POST_DATE
+        
+        ${{ steps.changelog.outputs.changelog }}
+        
+        ${{ steps.file_diff.outputs.diff_summary }}
+        
+        ## 🚀 What's QuizWhiz?
+        
+        QuizWhiz is a modern, feature-rich online flashcard and quiz application built with vanilla HTML, CSS, and JavaScript. It's perfect for students, educators, and anyone looking to enhance their learning experience.
+        
+        ### Key Features:
+        - Interactive flashcards with smooth animations
+        - Multiple choice quizzes with customizable options
+        - Deck organization and difficulty levels
+        - Progress tracking and statistics
+        - Responsive design for all devices
+        - Local storage with import/export capabilities
+        
+        ## 🔗 Try It Now
+        
+        Ready to boost your learning? Try QuizWhiz now:
+        
+        **[Launch QuizWhiz →](https://rjmolina13.github.io/quizwhiz/)**
+        
+        ## 💻 For Developers
+        
+        QuizWhiz is open source! Check out the code, contribute, or fork it for your own projects:
+        
+        - **Repository:** [GitHub](https://github.com/rjmolina13/rjmolina13.github.io/tree/main/quizwhiz)
+        - **Documentation:** Available in the README
+        - **Issues & Feedback:** [GitHub Issues](https://github.com/rjmolina13/rjmolina13.github.io/issues)
+        
+        ## 🙏 Feedback Welcome
+        
+        We'd love to hear your thoughts on this release! Whether you've found a bug, have a feature request, or just want to share how QuizWhiz has helped your learning journey, please don't hesitate to reach out.
+        
+        Happy studying! 📚✨
+        
+        ---
+        
+        *This post was automatically generated from the GitHub release.*
+        EOF
+        
+        # Commit the blog post
+        git add "$POST_FILENAME"
+        git commit -m "blog: add QuizWhiz v${{ steps.current_version.outputs.current_version }} release post"
+        git push
+    
+    - name: Summary
+      run: |
+        echo "🎉 QuizWhiz Auto-Release Workflow Complete!"
+        echo "📊 Current Version: v${{ steps.current_version.outputs.current_version }}"
+        echo "📝 README Updated: ✅"
+        if [ "${{ steps.version_check.outputs.version_changed }}" = "true" ]; then
+          echo "🚀 New Release Created: ✅"
+          echo "📰 Blog Post Created: ✅"
+        else
+          echo "ℹ️  No version change detected - skipped release creation"
+        fi

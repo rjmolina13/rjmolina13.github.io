@@ -352,7 +352,7 @@ class FlashcardManager {
     }
 
     editFlashcard(id, updates) {
-        const flashcard = this.app.flashcards.find(card => card.id === id);
+        const flashcard = this.app.flashcards.find(card => card.id == id);
         if (flashcard) {
             Object.assign(flashcard, updates);
             this.app.dataManager.saveData();
@@ -714,20 +714,39 @@ class FlashcardManager {
     }
 
     openEditFlashcardModal(cardId) {
+        console.log('flashcard-manager openEditFlashcardModal called with cardId:', cardId);
         const card = this.app.flashcards.find(c => c.id == cardId);
-        if (!card) return;
+        if (!card) {
+            console.log('Flashcard not found for id:', cardId);
+            return;
+        }
         
         // Populate the edit modal with current values
-        document.getElementById('edit-question').value = card.question;
-        document.getElementById('edit-answer').value = card.answer;
-        document.getElementById('edit-deck').value = card.deck;
-        document.getElementById('edit-difficulty').value = card.difficulty;
+        const questionInput = document.getElementById('edit-question-input');
+        const answerInput = document.getElementById('edit-answer-input');
+        const deckInput = document.getElementById('edit-deck-name');
+        const difficultySelect = document.getElementById('edit-difficulty-select');
+        const form = document.getElementById('edit-flashcard-form');
+        
+        console.log('Form elements found:', {
+            questionInput: !!questionInput,
+            answerInput: !!answerInput,
+            deckInput: !!deckInput,
+            difficultySelect: !!difficultySelect,
+            form: !!form
+        });
+        
+        if (questionInput) questionInput.value = card.question;
+        if (answerInput) answerInput.value = card.answer;
+        if (deckInput) deckInput.value = card.deck;
+        if (difficultySelect) difficultySelect.value = card.difficulty;
         
         // Store the card ID for saving
-        document.getElementById('edit-flashcard-form').dataset.cardId = cardId;
+        if (form) form.dataset.cardId = cardId;
         
         // Show the modal
-        document.getElementById('edit-flashcard-modal').style.display = 'block';
+        console.log('Opening edit flashcard modal');
+        this.app.uiManager.openModal('edit-flashcard-modal');
     }
 
     saveEditedFlashcard() {
@@ -735,10 +754,10 @@ class FlashcardManager {
         const cardId = form.dataset.cardId;
         
         const updates = {
-            question: document.getElementById('edit-question').value.trim(),
-            answer: document.getElementById('edit-answer').value.trim(),
-            deck: document.getElementById('edit-deck').value.trim(),
-            difficulty: document.getElementById('edit-difficulty').value
+            question: document.getElementById('edit-question-input').value.trim(),
+            answer: document.getElementById('edit-answer-input').value.trim(),
+            deck: document.getElementById('edit-deck-name').value.trim(),
+            difficulty: document.getElementById('edit-difficulty-select').value
         };
         
         if (!updates.question || !updates.answer) {
@@ -750,11 +769,15 @@ class FlashcardManager {
         this.closeEditFlashcardModal();
         this.renderFlashcardManagement();
         this.updateFlashcardFilters();
+        
+        // Refresh the content page if we're on it
+        if (this.app.contentManager && this.app.contentManager.displayFlashcards) {
+            this.app.contentManager.displayFlashcards();
+        }
     }
 
     closeEditFlashcardModal() {
-        document.getElementById('edit-flashcard-modal').style.display = 'none';
-        document.getElementById('edit-flashcard-form').reset();
+        this.app.uiManager.closeModal('edit-flashcard-modal');
     }
 
     initializeFlashcards() {

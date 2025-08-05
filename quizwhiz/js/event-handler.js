@@ -19,6 +19,9 @@ class EventHandler {
         // Flashcard events
         this.setupFlashcardEvents();
         
+        // Content page events
+        this.setupContentEvents();
+        
         // Quiz events
         this.setupQuizEvents();
         
@@ -144,12 +147,7 @@ class EventHandler {
             });
         }
 
-        const openAddQuizBtn = document.getElementById('open-add-quiz-modal');
-        if (openAddQuizBtn) {
-            openAddQuizBtn.addEventListener('click', () => {
-                this.app.uiManager.openModal('add-quiz-modal');
-            });
-        }
+        // Add quiz modal button is handled in setupQuizModalEvents()
 
         // Add flashcard modal
         const addFlashcardForm = document.getElementById('add-flashcard-form');
@@ -182,6 +180,24 @@ class EventHandler {
             addQuizForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.handleSaveQuiz();
+            });
+        }
+
+        // Edit flashcard modal
+        const editFlashcardForm = document.getElementById('edit-flashcard-form');
+        if (editFlashcardForm) {
+            editFlashcardForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.app.flashcardManager.saveEditedFlashcard();
+            });
+        }
+
+        // Edit quiz modal
+        const editQuizForm = document.getElementById('edit-quiz-form');
+        if (editQuizForm) {
+            editQuizForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleSaveEditedQuiz();
             });
         }
 
@@ -411,7 +427,7 @@ class EventHandler {
 
         // Form Error Modal
         const closeFormError = document.getElementById('close-form-error-modal');
-        const okFormError = document.getElementById('ok-form-error');
+        const okFormError = document.getElementById('close-form-error');
 
         if (closeFormError) {
             closeFormError.addEventListener('click', () => {
@@ -461,13 +477,13 @@ class EventHandler {
         // in flashcard-manager.js through onChange callbacks
 
         // Flashcard search
-        const searchInput = document.getElementById('flashcard-search');
+        const searchInput = document.getElementById('manage-search');
         if (searchInput) {
             let searchTimeout;
             searchInput.addEventListener('input', (e) => {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    this.app.flashcardManager.searchFlashcards(e.target.value);
+                    this.app.contentManager.displayFlashcards();
                 }, 300);
             });
         }
@@ -576,29 +592,29 @@ class EventHandler {
 
     setupFlashcardManagementEvents() {
         // Flashcard management search
-        const managementSearch = document.getElementById('flashcard-search');
+        const managementSearch = document.getElementById('manage-search');
         if (managementSearch) {
             let searchTimeout;
             managementSearch.addEventListener('input', (e) => {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    this.app.flashcardManager.handleFlashcardSearch();
+                    this.app.contentManager.displayFlashcards();
                 }, 300);
             });
         }
 
         // Flashcard management filters
-        const deckFilter = document.getElementById('flashcard-deck-filter');
+        const deckFilter = document.getElementById('manage-deck-filter');
         if (deckFilter) {
             deckFilter.addEventListener('change', () => {
-                this.app.flashcardManager.handleFlashcardFilter();
+                this.app.contentManager.displayFlashcards();
             });
         }
 
-        const difficultyFilter = document.getElementById('flashcard-difficulty-filter');
+        const difficultyFilter = document.getElementById('manage-difficulty-filter');
         if (difficultyFilter) {
             difficultyFilter.addEventListener('change', () => {
-                this.app.flashcardManager.handleFlashcardFilter();
+                this.app.contentManager.displayFlashcards();
             });
         }
 
@@ -671,6 +687,65 @@ class EventHandler {
                 }
             }
         });
+    }
+
+    setupContentEvents() {
+        // Refresh flashcard list button
+        const refreshFlashcardBtn = document.getElementById('refresh-flashcard-list');
+        if (refreshFlashcardBtn) {
+            refreshFlashcardBtn.addEventListener('click', () => {
+                this.app.contentManager.displayFlashcards();
+            });
+        }
+
+        // Refresh quiz list button
+        const refreshQuizBtn = document.getElementById('refresh-quiz-list');
+        if (refreshQuizBtn) {
+            refreshQuizBtn.addEventListener('click', () => {
+                this.app.contentManager.displayQuizzes();
+            });
+        }
+
+        // Quiz search
+        const quizSearch = document.getElementById('manage-quiz-search');
+        if (quizSearch) {
+            let searchTimeout;
+            quizSearch.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.app.contentManager.displayQuizzes();
+                }, 300);
+            });
+        }
+
+        // Flashcard search
+        const flashcardSearch = document.getElementById('manage-search');
+        if (flashcardSearch) {
+            let searchTimeout;
+            flashcardSearch.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.app.contentManager.displayFlashcards();
+                }, 300);
+            });
+        }
+
+        // Quiz select all button
+        const selectAllQuizzesBtn = document.getElementById('select-all-quizzes');
+        if (selectAllQuizzesBtn) {
+            selectAllQuizzesBtn.addEventListener('click', () => {
+                this.app.contentManager.toggleSelectAllQuizzes();
+                this.updateContentBulkActionButtons();
+            });
+        }
+
+        // Quiz bulk delete button
+        const deleteSelectedQuizzesBtn = document.getElementById('delete-selected-quizzes-btn');
+        if (deleteSelectedQuizzesBtn) {
+            deleteSelectedQuizzesBtn.addEventListener('click', () => {
+                this.app.contentManager.deleteSelectedQuizzes();
+            });
+        }
     }
 
     // Helper method to ensure flashcard mouse tracking is reinitialized when flashcards are updated
@@ -975,7 +1050,7 @@ class EventHandler {
 
     setupQuizModalEvents() {
         // Add quiz modal
-        const addQuizBtn = document.getElementById('add-quiz-btn');
+        const addQuizBtn = document.getElementById('open-add-quiz-modal');
         const addQuizModal = document.getElementById('add-quiz-modal');
         const addQuizForm = document.getElementById('add-quiz-form');
         const cancelAddQuizBtn = document.getElementById('cancel-add-quiz');
@@ -1000,16 +1075,90 @@ class EventHandler {
             });
         }
 
-        // Edit quiz events
+        // Unified content management events with performance optimizations
         document.addEventListener('click', (e) => {
+            // Quiz edit button
             if (e.target.classList.contains('edit-quiz-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
                 const quizId = e.target.dataset.quizId;
+                
+                // Prevent multiple rapid clicks
+                if (e.target.disabled) return;
+                e.target.disabled = true;
+                
+                // Add visual feedback
+                e.target.classList.add('processing');
+                
+                setTimeout(() => {
+                    if (e.target) {
+                        e.target.disabled = false;
+                        e.target.classList.remove('processing');
+                    }
+                }, 1000);
+                
                 this.openEditQuizModal(quizId);
+                return;
             }
             
+            // Quiz delete button
             if (e.target.classList.contains('delete-quiz-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
                 const quizId = e.target.dataset.quizId;
+                
+                // Prevent multiple rapid clicks
+                if (e.target.disabled) return;
+                e.target.disabled = true;
+                
+                setTimeout(() => {
+                    if (e.target) e.target.disabled = false;
+                }, 500);
+                
                 this.handleDeleteQuiz(quizId);
+                return;
+            }
+            
+            // Flashcard edit button
+            if (e.target.classList.contains('edit-flashcard-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const cardId = e.target.dataset.cardId;
+                
+                // Prevent multiple rapid clicks
+                if (e.target.disabled) return;
+                e.target.disabled = true;
+                
+                // Add visual feedback
+                e.target.classList.add('processing');
+                
+                setTimeout(() => {
+                    if (e.target) {
+                        e.target.disabled = false;
+                        e.target.classList.remove('processing');
+                    }
+                }, 1000);
+                
+                this.openEditFlashcardModal(cardId);
+                return;
+            }
+            
+            // Flashcard delete button
+            if (e.target.classList.contains('delete-flashcard-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const cardId = e.target.dataset.cardId;
+                
+                // Prevent multiple rapid clicks
+                if (e.target.disabled) return;
+                e.target.disabled = true;
+                
+                setTimeout(() => {
+                    if (e.target) e.target.disabled = false;
+                }, 500);
+                
+                this.handleDeleteFlashcard(cardId);
+                return;
             }
         });
 
@@ -1030,9 +1179,9 @@ class EventHandler {
         }
 
         // Quiz search and filters in content page
-        const quizContentSearch = document.getElementById('quiz-content-search');
-        const quizContentDeckFilter = document.getElementById('quiz-content-deck-filter');
-        const quizContentDifficultyFilter = document.getElementById('quiz-content-difficulty-filter');
+        const quizContentSearch = document.getElementById('manage-quiz-search');
+        const quizContentDeckFilter = document.getElementById('manage-quiz-deck-filter');
+        const quizContentDifficultyFilter = document.getElementById('manage-quiz-difficulty-filter');
         
         if (quizContentSearch) {
             let searchTimeout;
@@ -1067,32 +1216,33 @@ class EventHandler {
          }
          
          if (modal) {
-             modal.style.display = 'block';
-             document.body.style.overflow = 'hidden';
-         }
+            this.app.uiManager.openModal('add-quiz-modal');
+        }
      }
 
      closeQuizModal() {
-         const addModal = document.getElementById('add-quiz-modal');
-         const editModal = document.getElementById('edit-quiz-modal');
-         
-         if (addModal) {
-             addModal.style.display = 'none';
-         }
-         
-         if (editModal) {
-             editModal.style.display = 'none';
-         }
-         
-         document.body.style.overflow = 'auto';
+         // Use UI manager for consistent modal state management
+         this.app.uiManager.closeModal('add-quiz-modal');
+         this.app.uiManager.closeModal('edit-quiz-modal');
      }
 
      handleSaveQuiz() {
          const addForm = document.getElementById('add-quiz-form');
          const editForm = document.getElementById('edit-quiz-form');
-         const currentForm = addForm && addForm.offsetParent !== null ? addForm : editForm;
          
-         if (!currentForm) return;
+         // Simplified form detection - check if add modal is open
+         const addModal = document.getElementById('add-quiz-modal');
+         const editModal = document.getElementById('edit-quiz-modal');
+         
+         const addModalOpen = addModal && (addModal.classList.contains('show') || addModal.style.display === 'block');
+         const editModalOpen = editModal && (editModal.classList.contains('show') || editModal.style.display === 'block');
+         
+         // Prioritize add form if add modal is open, otherwise use edit form
+         const currentForm = (addModalOpen && addForm) ? addForm : (editModalOpen && editForm) ? editForm : addForm;
+         
+         if (!currentForm) {
+             return;
+         }
          
          const formData = new FormData(currentForm);
          
@@ -1114,8 +1264,10 @@ class EventHandler {
              difficulty: formData.get('quiz-difficulty')
          };
          
-         // Validate required fields
-         if (!quizData.deck || !quizData.question || !quizData.correctAnswer) {
+         // Validate required fields - check for empty strings and whitespace
+         if (!quizData.deck || !quizData.deck.trim() || 
+             !quizData.question || !quizData.question.trim() || 
+             !quizData.correctAnswer || !quizData.correctAnswer.trim()) {
              this.showFormErrorModal('Please fill in all required fields.');
              return;
          }
@@ -1147,32 +1299,71 @@ class EventHandler {
              }
          }
          
+         // Close modal and refresh display
          this.closeQuizModal();
+         
+         // Refresh the quiz list if we're on the content page
+         if (this.app.contentManager && this.app.contentManager.displayQuizzes) {
+             this.app.contentManager.displayQuizzes();
+         }
+         
+         // Show success message
+         this.app.showToast('Quiz question added successfully!', 'success');
      }
 
      openEditQuizModal(quizId) {
+         console.log('openEditQuizModal called with quizId:', quizId);
          const quiz = this.app.quizzes.find(q => q.id === quizId);
-         if (!quiz) return;
+         if (!quiz) {
+             console.log('Quiz not found for id:', quizId);
+             this.app.showToast('Quiz not found', 'error');
+             return;
+         }
          
          const modal = document.getElementById('edit-quiz-modal');
          const form = document.getElementById('edit-quiz-form');
+         console.log('Modal element found:', !!modal, 'Form element found:', !!form);
          
-         if (form) {
+         if (!modal) {
+             console.error('Edit quiz modal not found in DOM!');
+             this.app.showToast('Modal not available', 'error');
+             return;
+         }
+         
+         if (!form) {
+             console.error('Edit quiz form not found in DOM!');
+             this.app.showToast('Form not available', 'error');
+             return;
+         }
+         
+         try {
              // Populate form with quiz data
-             form.querySelector('[name="quiz-id"]').value = quiz.id;
-             form.querySelector('[name="quiz-deck"]').value = quiz.deck;
-             form.querySelector('[name="quiz-question"]').value = quiz.question;
-             form.querySelector('[name="quiz-correct-answer"]').value = quiz.correctAnswer;
-             form.querySelector('[name="quiz-wrong-answer-1"]').value = quiz.wrongAnswers[0] || '';
-             form.querySelector('[name="quiz-wrong-answer-2"]').value = quiz.wrongAnswers[1] || '';
-             form.querySelector('[name="quiz-wrong-answer-3"]').value = quiz.wrongAnswers[2] || '';
-             form.querySelector('[name="quiz-difficulty"]').value = quiz.difficulty;
+             const idField = form.querySelector('[name="quiz-id"]');
+             const deckField = form.querySelector('[name="quiz-deck"]');
+             const questionField = form.querySelector('[name="quiz-question"]');
+             const correctAnswerField = form.querySelector('[name="quiz-correct-answer"]');
+             const wrongAnswersField = form.querySelector('[name="quiz-wrong-answers"]');
+             const difficultyField = form.querySelector('[name="quiz-difficulty"]');
+             
+             if (idField) idField.value = quiz.id;
+             if (deckField) deckField.value = quiz.deck || '';
+             if (questionField) questionField.value = quiz.question || '';
+             if (correctAnswerField) correctAnswerField.value = quiz.correctAnswer || '';
+             if (wrongAnswersField) wrongAnswersField.value = (quiz.wrongAnswers || []).join('\n');
+             if (difficultyField) difficultyField.value = quiz.difficulty || 'medium';
+             
+             console.log('Form populated successfully');
+         } catch (error) {
+             console.error('Error populating form:', error);
+             this.app.showToast('Error loading quiz data', 'error');
+             return;
          }
          
-         if (modal) {
-             modal.style.display = 'block';
-             document.body.style.overflow = 'hidden';
-         }
+         // Use setTimeout to ensure DOM is ready
+         setTimeout(() => {
+             console.log('Opening edit quiz modal');
+             this.app.uiManager.openModal('edit-quiz-modal');
+         }, 50);
      }
 
      handleDeleteQuiz(quizId) {
@@ -1183,6 +1374,44 @@ class EventHandler {
              // Fallback for other pages
              this.pendingDeleteQuizId = quizId;
              this.app.uiManager.openModal('delete-quiz-modal');
+         }
+     }
+
+     handleSaveEditedQuiz() {
+         const form = document.getElementById('edit-quiz-form');
+         if (!form) return;
+
+         const formData = new FormData(form);
+         const quizId = formData.get('quiz-id');
+         const wrongAnswersText = formData.get('quiz-wrong-answers');
+         const wrongAnswers = wrongAnswersText ? wrongAnswersText.split('\n').filter(answer => answer.trim()) : [];
+
+         const updates = {
+             deck: formData.get('quiz-deck').trim(),
+             question: formData.get('quiz-question').trim(),
+             correctAnswer: formData.get('quiz-correct-answer').trim(),
+             wrongAnswers: wrongAnswers,
+             difficulty: formData.get('quiz-difficulty')
+         };
+
+         if (!updates.question || !updates.correctAnswer) {
+             this.app.showToast('Question and correct answer are required', 'error');
+             return;
+         }
+
+         // Find and update the quiz
+         const quizIndex = this.app.quizzes.findIndex(q => q.id == quizId);
+         if (quizIndex !== -1) {
+             Object.assign(this.app.quizzes[quizIndex], updates);
+             this.app.dataManager.saveData();
+             this.app.showToast('Quiz updated successfully', 'success');
+             
+             // Refresh the content if we're on the content page
+             if (this.app.contentManager && this.app.contentManager.displayQuizzes) {
+                 this.app.contentManager.displayQuizzes();
+             }
+             
+             this.app.uiManager.closeModal('edit-quiz-modal');
          }
      }
 
@@ -1241,6 +1470,94 @@ class EventHandler {
             this.pendingDeleteQuizId = null;
         }
         this.app.uiManager.closeModal('delete-quiz-modal');
+    }
+
+    openEditFlashcardModal(cardId) {
+        try {
+            // Validate cardId
+            if (!cardId) {
+                if (this.app.showToast) {
+                    this.app.showToast('Invalid flashcard ID', 'error');
+                }
+                return;
+            }
+
+            // Check if flashcard exists
+            const flashcard = this.app.flashcards.find(card => card.id == cardId);
+            if (!flashcard) {
+                if (this.app.showToast) {
+                    this.app.showToast('Flashcard not found', 'error');
+                }
+                return;
+            }
+
+            // Check if flashcard manager is available
+            if (!this.app.flashcardManager || !this.app.flashcardManager.openEditFlashcardModal) {
+                if (this.app.showToast) {
+                    this.app.showToast('Flashcard manager not available', 'error');
+                }
+                return;
+            }
+
+            // Check if modal elements exist
+            const modal = document.getElementById('edit-flashcard-modal');
+            const form = document.getElementById('edit-flashcard-form');
+            if (!modal || !form) {
+                if (this.app.showToast) {
+                    this.app.showToast('Edit flashcard modal not found', 'error');
+                }
+                return;
+            }
+
+            // Use setTimeout to ensure DOM readiness
+            setTimeout(() => {
+                this.app.flashcardManager.openEditFlashcardModal(cardId);
+            }, 50);
+
+        } catch (error) {
+            console.error('Error opening edit flashcard modal:', error);
+            if (this.app.showToast) {
+                this.app.showToast('Failed to open edit modal', 'error');
+            }
+        }
+    }
+
+    handleDeleteFlashcard(cardId) {
+        try {
+            // Validate cardId
+            if (!cardId) {
+                if (this.app.showToast) {
+                    this.app.showToast('Invalid flashcard ID', 'error');
+                }
+                return;
+            }
+
+            // Check if flashcard exists
+            const flashcard = this.app.flashcards.find(card => card.id == cardId);
+            if (!flashcard) {
+                if (this.app.showToast) {
+                    this.app.showToast('Flashcard not found', 'error');
+                }
+                return;
+            }
+
+            // Use the content manager's delete method which already has custom modal
+            if (this.app.contentManager && this.app.contentManager.deleteFlashcard) {
+                this.app.contentManager.deleteFlashcard(cardId);
+            } else if (this.app.flashcardManager && this.app.flashcardManager.deleteFlashcard) {
+                // Fallback to flashcard manager
+                this.app.flashcardManager.deleteFlashcard(cardId);
+            } else {
+                if (this.app.showToast) {
+                    this.app.showToast('Delete functionality not available', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Error deleting flashcard:', error);
+            if (this.app.showToast) {
+                this.app.showToast('Failed to delete flashcard', 'error');
+            }
+        }
     }
 
      setupMixedModeEvents() {

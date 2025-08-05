@@ -217,10 +217,9 @@
     padding: 1.5rem;
     border-bottom: 1px solid var(--border-color);
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    /* gap: 1.5rem */
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .modal-header h2 {

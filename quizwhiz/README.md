@@ -285,6 +285,47 @@ If you encounter any issues or have questions:
 - [ ] Deck templates and categories
 - [ ] Study session timer
 
+## Version Information
+
+- **Current Version:** v3.5
+- **Last Updated:** 2024-12-19 00:00:00 UTC
+- **Auto-generated:** This section is automatically updated by GitHub Actions
+
+## 🚀 Automated Releases
+
+QuizWhiz now features a fully automated release system! Here's what happens automatically:
+
+### 🤖 When You Update QuizWhiz
+- **Version Detection**: Automatically detects version changes
+- **README Updates**: Updates this file with current version info
+- **GitHub Releases**: Creates releases with changelogs and file diffs
+- **Blog Posts**: Generates release announcement posts
+
+### 📝 For Developers
+To create a new release:
+
+1. **Update version using the script:**
+   ```bash
+   cd quizwhiz
+   node scripts/update-version.js 3.6.0
+   ```
+
+2. **Edit CHANGELOG.md** with your changes
+
+3. **Commit and push:**
+   ```bash
+   git add .
+   git commit -m "chore: bump version to 3.6.0"
+   git push
+   ```
+
+4. **GitHub Actions handles the rest!**
+   - Creates GitHub release
+   - Updates README
+   - Generates blog post
+
+See [Release Process Documentation](docs/RELEASE_PROCESS.md) for detailed instructions.
+
 ### Version History
 - **v1.0.0** - Initial release with core features
 - **v1.1.0** - Added dark theme and keyboard shortcuts

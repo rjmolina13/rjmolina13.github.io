@@ -4,8 +4,11 @@
 class QuizWhizApp {
     constructor() {
         // App version information
-        this.version = "3.5";
-        this.lastUpdated = "2025-07-27";
+        this.version = "3.7";
+        this.lastUpdated = "2025-08-05";
+        
+        // Expose version globally for footer
+        window.APP_VERSION = this.version;
         
         this.flashcards = [];
         this.quizzes = [];

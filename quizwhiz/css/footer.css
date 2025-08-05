@@ -1,0 +1,166 @@
+/* Global Footer Styles */
+
+.global-footer {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 0.25rem 0.5rem;
+    margin-top: auto;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.footer-left a {
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.footer-left a:hover {
+    color: white;
+    border-bottom-color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-1px);
+}
+
+.footer-right {
+    display: flex;
+    align-items: left;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.version-text {
+    background: linear-gradient(
+        45deg,
+        #a5b4fc,
+        #c4b5fd,
+        #e0e7ff
+    );
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 4s ease-in-out infinite;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.made-with {
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    /* align-items: left; */
+    /* gap: 0.25rem; */
+}
+
+.heart {
+    color: #ff6b6b;
+    animation: heartbeat 2s ease-in-out infinite;
+    font-size: 1.1em;
+    margin-left: 0.25rem;
+}
+
+/* Gradient animation */
+@keyframes gradientShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Heart animation */
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .footer-left,
+    .footer-right {
+        font-size: 0.8rem;
+    }
+    
+    .version-text {
+        font-size: 0.9rem;
+    }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .version-text {
+        animation: none;
+        background: white;
+        -webkit-background-clip: unset;
+        -webkit-text-fill-color: unset;
+        background-clip: unset;
+    }
+    
+    .heart {
+        animation: none;
+    }
+    
+    .footer-left a:hover {
+        transform: none;
+    }
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .global-footer {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+[data-theme="dark"] .footer-left a {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="dark"] .footer-left a:hover {
+    color: white;
+}
+
+/* Ensure footer sticks to bottom */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+}
