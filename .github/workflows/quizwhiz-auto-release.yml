@@ -120,12 +120,10 @@ jobs:
         # Create or update version section in README
         if grep -q "## Version Information" quizwhiz/README.md; then
           # Update existing version section
-          sed -i "/## Version Information/,/^## /c\
-## Version Information\n\n- **Current Version:** v$VERSION\n- **Last Updated:** $CURRENT_DATE\n- **Auto-generated:** This section is automatically updated by GitHub Actions\n\n## " quizwhiz/README.md
+          sed -i "/## Version Information/,/^## /c\\\n## Version Information\\n\\n- **Current Version:** v$VERSION\\n- **Last Updated:** $CURRENT_DATE\\n- **Auto-generated:** This section is automatically updated by GitHub Actions\\n\\n## " quizwhiz/README.md
         else
           # Add version section before the last section
-          sed -i '/^## 🤝 Contributing/i\
-## Version Information\n\n- **Current Version:** v'$VERSION'\n- **Last Updated:** '$CURRENT_DATE'\n- **Auto-generated:** This section is automatically updated by GitHub Actions\n' quizwhiz/README.md
+          sed -i '/^## 🤝 Contributing/i\\\n## Version Information\\n\\n- **Current Version:** v'$VERSION'\\n- **Last Updated:** '$CURRENT_DATE'\\n- **Auto-generated:** This section is automatically updated by GitHub Actions\\n' quizwhiz/README.md
         fi
     
     - name: Commit README changes
@@ -185,11 +183,11 @@ jobs:
         
         mkdir -p blog/_posts
         
-        cat > "$POST_FILENAME" << 'EOF'
+        cat > "$POST_FILENAME" << EOF
         ---
         layout: post
         title: "QuizWhiz v${{ steps.current_version.outputs.current_version }} Released"
-        date: $POST_DATE
+        date: \$POST_DATE
         categories: [releases, quizwhiz]
         tags: [quizwhiz, release, update]
         ---
@@ -202,7 +200,7 @@ jobs:
         
         - **New Version:** v${{ steps.current_version.outputs.current_version }}
         - **Previous Version:** v${{ steps.previous_version.outputs.previous_version }}
-        - **Release Date:** $POST_DATE
+        - **Release Date:** \$POST_DATE
         
         ${{ steps.changelog.outputs.changelog }}
         
