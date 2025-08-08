@@ -288,10 +288,11 @@ If you encounter any issues or have questions:
 
 
 
+
 ## Version Information
 
-- **Current Version:** v3.7
-- **Last Updated:** 2025-08-08 19:37:55 UTC
+- **Current Version:** v3.8
+- **Last Updated:** 2025-08-08 21:02:12 UTC
 - **Auto-generated:** This section is automatically updated by GitHub Actions
 
 ## 
