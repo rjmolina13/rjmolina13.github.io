@@ -32,13 +32,24 @@ class FlashcardManager {
         this.currentIndex = Math.max(0, Math.min(index, this.filteredFlashcards.length - 1));
         const flashcard = this.filteredFlashcards[this.currentIndex];
         
+        // Ensure flashcard has a difficulty value (fallback for older flashcards)
+        if (!flashcard.difficulty) {
+            flashcard.difficulty = 'medium';
+            // Update the original flashcard in the app data - use loose equality for ID comparison
+            const originalCard = this.app.flashcards.find(card => card.id == flashcard.id);
+            if (originalCard) {
+                originalCard.difficulty = 'medium';
+                this.app.dataManager.saveData();
+            }
+        }
+        
         document.getElementById('flashcard-content').innerHTML = `
             <div class="flashcard ${this.app.settings.animations ? 'animate' : ''}" id="current-flashcard">
                 <div class="flashcard-inner" onclick="app.flashcardManager.flipCard()">
                     <div class="flashcard-front">
                         <div class="flashcard-header">
                             <span class="deck-badge">${flashcard.deck}</span>
-                            <span class="difficulty-badge difficulty-${flashcard.difficulty}">${flashcard.difficulty}</span>
+                            <span class="difficulty-badge difficulty-${flashcard.difficulty || 'medium'}">${flashcard.difficulty || 'medium'}</span>
                         </div>
                         <div class="flashcard-question">
                             ${flashcard.question}
@@ -74,6 +85,15 @@ class FlashcardManager {
         if (this.app.settings.autoFlip > 0) {
             setTimeout(() => this.flipCard(), this.app.settings.autoFlip * 1000);
         }
+        
+        // Ensure flashcard gets focus for keyboard navigation
+        setTimeout(() => {
+            const flashcardContainer = document.getElementById('current-flashcard');
+            if (flashcardContainer) {
+                flashcardContainer.setAttribute('tabindex', '0');
+                flashcardContainer.focus();
+            }
+        }, 50);
     }
 
     flipCard() {
@@ -101,13 +121,24 @@ class FlashcardManager {
         this.currentIndex = Math.max(0, Math.min(this.currentIndex, this.filteredFlashcards.length - 1));
         const flashcard = this.filteredFlashcards[this.currentIndex];
         
+        // Ensure flashcard has a difficulty value (fallback for older flashcards)
+        if (!flashcard.difficulty) {
+            flashcard.difficulty = 'medium';
+            // Update the original flashcard in the app data
+            const originalCard = this.app.flashcards.find(card => card.id === flashcard.id);
+            if (originalCard) {
+                originalCard.difficulty = 'medium';
+                this.app.dataManager.saveData();
+            }
+        }
+        
         document.getElementById('flashcard-content').innerHTML = `
             <div class="flashcard ${this.app.settings.animations ? 'animate' : ''}" id="current-flashcard">
                 <div class="flashcard-inner" onclick="app.flashcardManager.flipCard()">
                     <div class="flashcard-front">
                         <div class="flashcard-header">
                             <span class="deck-badge">${flashcard.deck}</span>
-                            <span class="difficulty-badge difficulty-${flashcard.difficulty}">${flashcard.difficulty}</span>
+                            <span class="difficulty-badge difficulty-${flashcard.difficulty || 'medium'}">${flashcard.difficulty || 'medium'}</span>
                         </div>
                         <div class="flashcard-question">
                             ${flashcard.question}
@@ -221,9 +252,9 @@ class FlashcardManager {
 
         const difficulties = [
             { value: 'all', text: 'All Difficulties', icon: '<i class="fas fa-smile"></i>' },
-            { value: 'easy', text: 'Easy', icon: '<i class="fas fa-smile difficulty-easy"></i>' },
-            { value: 'medium', text: 'Medium', icon: '<i class="fas fa-meh difficulty-medium"></i>' },
-            { value: 'hard', text: 'Hard', icon: '<i class="fas fa-frown difficulty-hard"></i>' }
+            { value: 'easy', text: 'Easy', icon: '<i class="fas fa-smile difficulty-icon difficulty-easy"></i>' },
+            { value: 'medium', text: 'Medium', icon: '<i class="fas fa-meh difficulty-icon difficulty-medium"></i>' },
+            { value: 'hard', text: 'Hard', icon: '<i class="fas fa-frown difficulty-icon difficulty-hard"></i>' }
         ];
         
         // Clear existing options
@@ -363,7 +394,8 @@ class FlashcardManager {
     }
 
     deleteFlashcard(id) {
-        const index = this.app.flashcards.findIndex(card => card.id === id);
+        // Use loose equality to handle string/number ID mismatches
+        const index = this.app.flashcards.findIndex(card => card.id == id);
         if (index !== -1) {
             this.app.flashcards.splice(index, 1);
             this.app.dataManager.saveData();
@@ -556,7 +588,7 @@ class FlashcardManager {
                             <span>${card.deck}</span>
                         </div>
                         <div class="flashcard-difficulty">
-                            <span class="difficulty-badge difficulty-${card.difficulty}">${card.difficulty}</span>
+                            <span class="difficulty-badge difficulty-${card.difficulty || 'medium'}">${card.difficulty || 'medium'}</span>
                         </div>
                         <div class="flashcard-stats">
                             <i class="fas fa-eye"></i>
@@ -812,6 +844,22 @@ class FlashcardManager {
             // Update counter for empty state
             this.updateFlashcardCounter();
         }
+        
+        // Focus management: Set focus to flashcard container instead of dropdown
+        setTimeout(() => {
+            const flashcardContainer = document.getElementById('current-flashcard');
+            const flashcardContent = document.getElementById('flashcard-content');
+            
+            if (flashcardContainer) {
+                // Make the flashcard container focusable and focus it
+                flashcardContainer.setAttribute('tabindex', '0');
+                flashcardContainer.focus();
+            } else if (flashcardContent) {
+                // Fallback to flashcard content container
+                flashcardContent.setAttribute('tabindex', '0');
+                flashcardContent.focus();
+            }
+        }, 100);
     }
 
 

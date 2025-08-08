@@ -1,5 +1,4 @@
-/* Quiz Whiz - Main CSS File */
-/* This file imports all modular CSS components */
+/* Quiz Whiz - Main CSS File | Central import file that loads all modular CSS components in correct order for the entire application */
 
 /* Import all CSS modules in the correct order */
 @import url('./variables.css');
@@ -7,8 +6,6 @@
 @import url('./navigation.css');
 @import url('./layout.css');
 @import url('./buttons.css');
-@import url('./flashcards.css');
-@import url('./quiz.css');
 @import url('./forms.css');
 @import url('./components.css');
 @import url('./settings.css');

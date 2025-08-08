@@ -5,7 +5,7 @@ All notable changes to QuizWhiz will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2025-01-05
+## [3.7.0] - 2025-08-09
 
 ### Fixed
 - **Quiz Management**: Fixed "Add Quiz Question" button becoming unresponsive after form submission
@@ -28,13 +28,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Content Display**: Enhanced flashcard and quiz filtering logic for better user experience
 - **Code Quality**: Added `truncateText` utility method for better display formatting
 - **Modal Management**: Improved modal closing consistency using UI manager methods
+- **User Feedback**: Added comprehensive toast notifications for all quiz and flashcard operations
+  - Added success toast for flashcard updates: "Flashcard updated successfully!"
+  - Added success toast for quiz updates: "Quiz updated successfully!"
+  - Added success toast for quiz deletion: "Quiz deleted successfully!"
+  - Enhanced bulk delete operations with proper count tracking and success/error messages
+  - Added error handling toasts for failed delete operations
 
 ### Technical
 - Updated multiple JavaScript files to ensure proper element ID references
 - Streamlined event handler management to prevent conflicts
 - Improved search debouncing for better performance
 
-## [3.5.0] - 2024-12-19
+## [3.5.0] - 2025-08-05
 
 ### Added
 - Automated release workflow with GitHub Actions

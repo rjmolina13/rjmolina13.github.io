@@ -63,7 +63,7 @@ class ContentManager {
                             <span>${card.deck}</span>
                         </div>
                         <div class="flashcard-difficulty">
-                            <span class="difficulty-badge difficulty-${card.difficulty}">${card.difficulty}</span>
+                            <span class="difficulty-badge difficulty-${card.difficulty || 'medium'}">${card.difficulty || 'medium'}</span>
                         </div>
                         <div class="flashcard-stats">
                             <i class="fas fa-eye"></i>
@@ -235,7 +235,8 @@ class ContentManager {
 
     // Update existing flashcard
     updateFlashcard(cardId, flashcardData) {
-        const index = this.app.flashcards.findIndex(card => card.id === cardId);
+        // Use loose equality to handle string/number ID mismatches
+        const index = this.app.flashcards.findIndex(card => card.id == cardId);
         if (index !== -1) {
             this.app.flashcards[index] = {
                 ...this.app.flashcards[index],
@@ -245,6 +246,7 @@ class ContentManager {
             this.app.dataManager.saveData();
             this.displayFlashcards();
             this.updateDeckOptions();
+            this.app.showToast('Flashcard updated successfully!', 'success');
         }
     }
 
@@ -263,12 +265,17 @@ class ContentManager {
     
     confirmDeleteFlashcard() {
         if (this.pendingDeleteFlashcardId) {
-            const index = this.app.flashcards.findIndex(card => card.id === this.pendingDeleteFlashcardId);
+            // Use loose equality to handle string/number ID mismatches
+            const index = this.app.flashcards.findIndex(card => card.id == this.pendingDeleteFlashcardId);
             if (index !== -1) {
                 this.app.flashcards.splice(index, 1);
                 this.app.dataManager.saveData();
                 this.displayFlashcards();
                 this.updateDeckOptions();
+                this.app.showToast('Flashcard deleted successfully!', 'success');
+            } else {
+                console.error('Flashcard not found for deletion. ID:', this.pendingDeleteFlashcardId);
+                this.app.showToast('Failed to delete flashcard - not found', 'error');
             }
             this.pendingDeleteFlashcardId = null;
         }
@@ -301,6 +308,7 @@ class ContentManager {
             this.app.dataManager.saveData();
             this.displayQuizzes();
             this.updateDeckOptions();
+            this.app.showToast('Quiz updated successfully!', 'success');
         }
     }
 
@@ -325,6 +333,9 @@ class ContentManager {
                 this.app.dataManager.saveData();
                 this.displayQuizzes();
                 this.updateDeckOptions();
+                this.app.showToast('Quiz deleted successfully!', 'success');
+            } else {
+                this.app.showToast('Failed to delete quiz - not found', 'error');
             }
             this.pendingDeleteQuizId = null;
         }
@@ -356,14 +367,26 @@ class ContentManager {
     confirmBulkDeleteFlashcards() {
         if (this.pendingDeleteFlashcardIds && this.pendingDeleteFlashcardIds.length > 0) {
             const deleteCount = this.pendingDeleteFlashcardIds.length;
-            this.app.flashcards = this.app.flashcards.filter(card => !this.pendingDeleteFlashcardIds.includes(card.id));
+            const initialCount = this.app.flashcards.length;
+            
+            // Use loose equality to handle string/number ID mismatches
+            this.app.flashcards = this.app.flashcards.filter(card => 
+                !this.pendingDeleteFlashcardIds.some(id => card.id == id)
+            );
+            
+            const actualDeleteCount = initialCount - this.app.flashcards.length;
+            
             this.app.dataManager.saveData();
             this.displayFlashcards();
             this.updateDeckOptions();
             
             // Show success message and update flashcard display if on flashcard page
             if (this.app.showToast) {
-                this.app.showToast(`Deleted ${deleteCount} flashcard(s)`, 'success');
+                if (actualDeleteCount > 0) {
+                    this.app.showToast(`Deleted ${actualDeleteCount} flashcard(s)`, 'success');
+                } else {
+                    this.app.showToast('No flashcards were deleted - IDs not found', 'warning');
+                }
             }
             if (this.app.flashcardManager && this.app.flashcardManager.showFlashcard) {
                 this.app.flashcardManager.showFlashcard(0);
@@ -398,10 +421,24 @@ class ContentManager {
     
     confirmBulkDeleteQuizzes() {
         if (this.pendingDeleteQuizIds && this.pendingDeleteQuizIds.length > 0) {
+            const deleteCount = this.pendingDeleteQuizIds.length;
+            const initialCount = this.app.quizzes.length;
+            
             this.app.quizzes = this.app.quizzes.filter(quiz => !this.pendingDeleteQuizIds.includes(quiz.id));
+            
+            const actualDeleteCount = initialCount - this.app.quizzes.length;
+            
             this.app.dataManager.saveData();
             this.displayQuizzes();
             this.updateDeckOptions();
+            
+            // Show success message
+            if (actualDeleteCount > 0) {
+                this.app.showToast(`Deleted ${actualDeleteCount} quiz(es)`, 'success');
+            } else {
+                this.app.showToast('No quizzes were deleted - IDs not found', 'warning');
+            }
+            
             this.pendingDeleteQuizIds = null;
         }
         this.app.uiManager.closeModal('bulk-delete-quizzes-modal');

@@ -1,4 +1,4 @@
-/* Quiz Whiz - Flashcard Styles */
+/* Quiz Whiz - Flashcard Styles | Dedicated styles for flashcards page including card animations, difficulty filters, and study mode interactions */
 
 /* Difficulty Feature Control */
 body[data-difficulty-enabled="false"] #difficulty-filter-container {
@@ -14,15 +14,16 @@ body[data-difficulty-enabled="false"] #difficulty-filter-container {
 }
 
 /* Difficulty icon colors - keep these specific to flashcards */
-.difficulty-easy {
+/* Note: These styles are for difficulty icons, not badges */
+.difficulty-icon.difficulty-easy {
     color: #10b981 !important;
 }
 
-.difficulty-medium {
+.difficulty-icon.difficulty-medium {
     color: #f59e0b !important;
 }
 
-.difficulty-hard {
+.difficulty-icon.difficulty-hard {
     color: #ef4444 !important;
 }
 
@@ -145,6 +146,19 @@ body[data-difficulty-enabled="false"] #difficulty-filter-container {
 
 .flashcard-inner:focus {
     outline: none;
+}
+
+/* Focus styles for flashcard container when focused via keyboard navigation */
+#current-flashcard:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+    border-radius: var(--border-radius);
+}
+
+#flashcard-content:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 4px;
+    border-radius: var(--border-radius);
 }
 
 .flip-button:focus {
@@ -357,7 +371,7 @@ body[data-difficulty-enabled="false"] #difficulty-filter-container {
 .card-content p,
 .flashcard-question,
 .flashcard-answer {
-    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+    font-size: clamp(2rem, 3vw, 2rem);
     font-weight: 500;
     line-height: 1.6;
     word-wrap: break-word;

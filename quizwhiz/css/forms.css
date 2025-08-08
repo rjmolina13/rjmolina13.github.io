@@ -1,4 +1,4 @@
-/* Quiz Whiz - Forms and Upload Styles */
+/* Quiz Whiz - Forms and Upload Styles | Form components, file uploads, and custom dropdowns primarily used in content and settings pages */
 
 /* Upload Styles */
 .upload-container {
@@ -231,9 +231,9 @@
 
 .select-dropdown {
     position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+    /* top: 100%;
+    left: 0; */
+    width: 100%;
     background: var(--surface-color);
     border: 1px solid var(--primary-color);
     border-top: none;

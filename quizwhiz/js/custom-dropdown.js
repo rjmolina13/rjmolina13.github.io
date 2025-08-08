@@ -137,8 +137,8 @@ class CustomDropdown {
         this.isOpen = false;
         this.dropdown.classList.add('hidden');
         this.selectButton.setAttribute('aria-expanded', 'false');
+        this.selectButton.blur(); // Remove focus from the button
         this.focusedIndex = -1;
-        this.selectButton.focus();
     }
     
     navigateDown() {

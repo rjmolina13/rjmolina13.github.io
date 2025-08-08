@@ -1,6 +1,4 @@
-/* Quiz Whiz - CSS Variables and Theming */
-
-/* CSS Variables for Theming */
+/* Quiz Whiz - CSS Variables and Theming | Global color schemes, spacing, typography, and theme definitions used across all pages */
 :root {
     --primary-color: #6366f1;
     --primary-dark: #5856eb;

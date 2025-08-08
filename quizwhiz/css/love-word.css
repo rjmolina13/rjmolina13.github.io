@@ -1,4 +1,4 @@
-/* --- The Magic 'love-word' Span --- */ 
+/* Quiz Whiz - Love Word Animation | Special animated text effect for the word 'love' with hearts, primarily used on home and about pages */ 
 .love-word { 
     position: relative; /* This is crucial for positioning the hearts */ 
     background: linear-gradient(45deg, #fe015c, #ff7ccc); /* Gradient background from dark to light pink */ 

@@ -16,6 +16,8 @@ class DataManager {
 
             if (savedFlashcards) {
                 this.app.flashcards = JSON.parse(savedFlashcards);
+                // Migrate flashcards without difficulty values
+                this.migrateFlashcardDifficulties();
             }
             if (savedQuizzes) {
                 this.app.quizzes = JSON.parse(savedQuizzes);
@@ -29,9 +31,29 @@ class DataManager {
             
             // Load and update study streak data
             this.loadAndUpdateStreakData(savedStreakData);
+            
+            // Ensure all flashcards have difficulty values after loading
+            this.migrateFlashcardDifficulties();
         } catch (error) {
             console.error('Error loading data:', error);
             this.app.showToast('Error loading saved data', 'error');
+        }
+    }
+
+    // Migration function to ensure all flashcards have difficulty values
+    migrateFlashcardDifficulties() {
+        let migrated = false;
+        
+        this.app.flashcards.forEach(card => {
+            if (!card.difficulty) {
+                card.difficulty = 'medium';
+                migrated = true;
+            }
+        });
+        
+        // Save data if any cards were migrated
+        if (migrated) {
+            this.saveData();
         }
     }
 

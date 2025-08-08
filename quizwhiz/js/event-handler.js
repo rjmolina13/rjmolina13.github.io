@@ -108,11 +108,15 @@ class EventHandler {
                         }
                     }, 300);
                     
-                    // Prevent default behavior to avoid unwanted page scrolling
-                    // Only prevent default if the click target is not an interactive element
-                    // and if it's not within a settings-group or other content areas
-                    const isInteractiveElement = e.target.closest('button, input, select, textarea, a[href], [tabindex], [contenteditable="true"], .setting-item, .settings-group, .content-section');
-                    if (!isInteractiveElement) {
+                    // Only prevent default for specific cases to avoid interfering with normal page behavior
+                    // Prevent default only if clicking on dropdown-related elements that might cause unwanted behavior
+                    const isDropdownRelated = e.target.closest('.nav-dropdown, .dropdown-toggle, .dropdown-content');
+                    const isCustomDropdown = e.target.closest('.custom-dropdown, .custom-select, .select-button, .select-dropdown');
+                    const isEmptySpace = e.target === document.body || e.target === document.documentElement;
+                    
+                    // Only prevent default for nav dropdown-related clicks or empty space clicks
+                    // Exclude custom dropdown containers to avoid conflicts
+                    if ((isDropdownRelated || isEmptySpace) && !isCustomDropdown) {
                         e.preventDefault();
                     }
                 }

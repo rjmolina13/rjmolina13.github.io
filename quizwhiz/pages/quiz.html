@@ -225,32 +225,37 @@
                     </div>
                     <div class="card-content">
                         <div class="results-summary">
-                            <div class="score-display">
-                                <h4>Final Score</h4>
-                                <p class="score-text">
-                                    <span id="final-score">0</span> / <span id="total-questions-answered">0</span>
-                                    (<span id="score-percentage">0%</span>)
-                                </p>
+                            <div class="results-left-column">
+                                <div class="score-display">
+                                    <h4>Final Score</h4>
+                                    <p class="score-text">
+                                        <span id="final-score">0</span> / <span id="total-questions-answered">0</span>
+                                        <span id="score-percentage-wrapper">(<span id="score-percentage">0%</span>)</span>
+                                    </p>
+                                </div>
+                                <div class="results-breakdown">
+                                    <div class="result-item correct">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Correct: <span id="correct-answers-count">0</span></span>
+                                    </div>
+                                    <div class="result-item incorrect">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span>Incorrect: <span id="incorrect-answers-count">0</span></span>
+                                    </div>
+                                    <div id="final-time-display" class="result-item time hidden">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Time: <span id="final-time">00:00</span></span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="inspirational-quote">
-                                <blockquote id="quote-text">
-                                    <!-- Quote will be populated dynamically -->
-                                </blockquote>
-                                <cite id="quote-author"><!-- Author will be populated dynamically --></cite>
-                            </div>
-                            <div class="results-breakdown">
-                                <div class="result-item correct">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Correct: <span id="correct-answers-count">0</span></span>
+                            <div class="results-right-column">
+                                <div class="inspirational-quote">
+                                    <blockquote id="quote-text">
+                                        <!-- Quote will be populated dynamically -->
+                                    </blockquote>
+                                    <cite id="quote-author"><!-- Author will be populated dynamically --></cite>
                                 </div>
-                                <div class="result-item incorrect">
-                                    <i class="fas fa-times-circle"></i>
-                                    <span>Incorrect: <span id="incorrect-answers-count">0</span></span>
-                                </div>
-                                <div id="final-time-display" class="result-item time hidden">
-                                    <i class="fas fa-clock"></i>
-                                    <span>Time: <span id="final-time">00:00</span></span>
-                                </div>
+                                <!-- Quiz statistics will be dynamically inserted here -->
                             </div>
                         </div>
                         <div id="mistakes-summary" class="mistakes-section">
@@ -262,6 +267,9 @@
                     </div>
                     <div class="card-footer">
                         <div class="results-actions">
+                            <button id="create-flashcards-btn" class="btn btn-success" style="display: none;">
+                                <i class="fas fa-layer-group"></i> Create Flashcards
+                            </button>
                             <button id="retake-quiz-btn" class="btn btn-primary">
                                 <i class="fas fa-redo"></i> Retake Quiz
                             </button>

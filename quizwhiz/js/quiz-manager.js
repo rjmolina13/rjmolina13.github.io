@@ -141,6 +141,13 @@ class QuizManager {
                 this.newQuiz();
             });
         }
+
+        const createFlashcardsBtn = document.getElementById('create-flashcards-btn');
+        if (createFlashcardsBtn) {
+            createFlashcardsBtn.addEventListener('click', () => {
+                this.createFlashcardsFromMistakes();
+            });
+        }
     }
 
     setupKeyboardNavigation() {
@@ -1129,6 +1136,7 @@ class QuizManager {
         const finalScore = document.getElementById('final-score');
         const totalAnswered = document.getElementById('total-questions-answered');
         const scorePercentage = document.getElementById('score-percentage');
+        const scorePercentageWrapper = document.getElementById('score-percentage-wrapper');
         const correctCount = document.getElementById('correct-answers-count');
         const incorrectCount = document.getElementById('incorrect-answers-count');
         const finalTimeDisplay = document.getElementById('final-time-display');
@@ -1152,7 +1160,7 @@ class QuizManager {
         this.displayQuizStatistics();
         
         // Apply color classes based on percentage
-        const scoreElements = [finalScore, totalAnswered, scorePercentage];
+        const scoreElements = [finalScore, totalAnswered, scorePercentageWrapper];
         const scoreClass = this.getScoreColorClass(percentage);
         
         scoreElements.forEach(element => {
@@ -1212,11 +1220,19 @@ class QuizManager {
         
         // Hide mistakes section if no mistakes
         const mistakesSection = document.getElementById('mistakes-summary');
+        const createFlashcardsBtn = document.getElementById('create-flashcards-btn');
+        
         if (mistakesSection) {
             if (mistakesList.children.length === 0) {
                 mistakesSection.style.display = 'none';
+                if (createFlashcardsBtn) {
+                    createFlashcardsBtn.style.display = 'none';
+                }
             } else {
                 mistakesSection.style.display = 'block';
+                if (createFlashcardsBtn) {
+                    createFlashcardsBtn.style.display = 'inline-flex';
+                }
             }
         }
     }
@@ -1339,6 +1355,59 @@ class QuizManager {
         if (results) results.classList.add('hidden');
         if (navigation) navigation.classList.add('hidden');
         if (quizSetupInfo) quizSetupInfo.classList.add('hidden');
+    }
+
+    createFlashcardsFromMistakes() {
+        if (!this.currentQuiz || !this.currentQuiz.questions) {
+            this.app.showToast('No quiz data available to create flashcards.', 'error');
+            return;
+        }
+
+        const mistakes = [];
+        this.currentQuiz.questions.forEach((question, index) => {
+            const userAnswer = this.currentQuiz.answers[index];
+            if (userAnswer && userAnswer !== question.correctAnswer) {
+                mistakes.push(question);
+            }
+        });
+
+        if (mistakes.length === 0) {
+            this.app.showToast('No mistakes found to create flashcards from.', 'info');
+            return;
+        }
+
+        let createdCount = 0;
+        const deckName = `Quiz Mistakes - ${new Date().toLocaleDateString()}`;
+
+        mistakes.forEach(question => {
+            try {
+                // Create flashcard with question as front and correct answer as back
+                this.app.flashcardManager.addFlashcard(
+                    question.question,
+                    question.correctAnswer,
+                    deckName,
+                    question.difficulty || 'medium'
+                );
+                createdCount++;
+            } catch (error) {
+                console.error('Error creating flashcard:', error);
+            }
+        });
+
+        if (createdCount > 0) {
+            this.app.showToast(
+                `Successfully created ${createdCount} flashcard${createdCount > 1 ? 's' : ''} from your mistakes!`,
+                'success'
+            );
+            
+            // Hide the create flashcards button after successful creation
+            const createFlashcardsBtn = document.getElementById('create-flashcards-btn');
+            if (createFlashcardsBtn) {
+                createFlashcardsBtn.style.display = 'none';
+            }
+        } else {
+            this.app.showToast('Failed to create flashcards. Please try again.', 'error');
+        }
     }
 
     resetQuiz() {
@@ -1493,10 +1562,10 @@ class QuizManager {
                 statsContainer.id = 'quiz-statistics';
                 statsContainer.className = 'quiz-statistics';
                 
-                // Insert after results breakdown
-                const resultsBreakdown = document.querySelector('.results-breakdown');
-                if (resultsBreakdown && resultsBreakdown.parentNode) {
-                    resultsBreakdown.parentNode.insertBefore(statsContainer, resultsBreakdown.nextSibling);
+                // Insert into the right column
+                const rightColumn = document.querySelector('.results-right-column');
+                if (rightColumn) {
+                    rightColumn.appendChild(statsContainer);
                 }
             }
             

@@ -1,4 +1,4 @@
-/* Quiz Whiz - Utilities, Animations, and Responsive Design */
+/* Quiz Whiz - Utilities and Responsive Design | Helper classes, animations, responsive breakpoints, and utility styles used across all pages */
 
 /* Mixed Study Mode Styles */
 .mixed-controls {
@@ -139,6 +139,7 @@
 .results-summary {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
+    max-height: 390px;
 }
 
 .result-item {

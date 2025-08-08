@@ -1,4 +1,4 @@
-/* Quiz Whiz - Settings, Data Actions, and Special Components */
+/* Quiz Whiz - Settings and Special Components | Settings page styles, data actions, dropdown navigation, and about page components */
 
 /* Settings Styles */
 .settings-container {
@@ -60,6 +60,19 @@
     font-size: 1rem;
     width: 16px;
     text-align: center;
+}
+
+/* Theme selector specific styling */
+#theme-selector-container {
+    min-width: auto;
+    width: auto;
+    max-width: 200px;
+}
+
+#theme-selector-container .select-dropdown {
+    min-width: 110px;
+    width: 110px;
+    max-width: 130px;
 }
 
 .import-description {
@@ -336,6 +349,7 @@
     position: relative;
     transition: all 0.2s ease;
     border: 2px solid transparent;
+    padding-right: 2.5rem; /* Increased right padding for wider arrow area */
 }
 
 .dropdown-toggle:hover,
@@ -347,8 +361,11 @@
 
 .dropdown-toggle .fa-chevron-down {
     transition: transform 0.2s ease;
-    margin-left: 0.5rem;
-    font-size: 0.8em;
+    margin-left: 0.75rem; /* Increased margin for better spacing */
+    font-size: 1em; /* Increased arrow size */
+    padding: 0.25rem; /* Added padding around arrow for larger click area */
+    min-width: 1.5rem; /* Minimum width for arrow area */
+    text-align: center;
 }
 
 .nav-dropdown:hover .dropdown-toggle .fa-chevron-down {
@@ -358,7 +375,7 @@
 .dropdown-content {
     display: none;
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 4px); /* Reduced gap for easier hover transition */
     left: 50%;
     transform: translateX(-50%);
     background: var(--surface-color);
@@ -372,6 +389,9 @@
     visibility: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(10px);
+    /* Add invisible bridge area to prevent dropdown from closing */
+    margin-top: -4px;
+    padding-top: calc(0.75rem + 4px);
 }
 
 [data-theme="dark"] .dropdown-content {
@@ -469,6 +489,41 @@
     display: block;
     opacity: 1;
     visibility: visible;
+}
+
+/* Add hover delay to prevent accidental closing */
+.nav-dropdown {
+    transition: all 0.1s ease;
+}
+
+.nav-dropdown:hover {
+    transition-delay: 0.1s; /* Small delay before showing dropdown */
+}
+
+/* Expand hover area around dropdown toggle */
+.nav-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    z-index: -1;
+    pointer-events: auto;
+}
+
+/* Ensure dropdown stays open with expanded hover area */
+.nav-dropdown:hover .dropdown-content {
+    transition-delay: 0s; /* No delay when showing */
+}
+
+/* Add delay when hiding dropdown */
+.nav-dropdown .dropdown-content {
+    transition-delay: 0.2s; /* Delay before hiding */
+}
+
+.nav-dropdown:hover .dropdown-content {
+    transition-delay: 0s; /* Override delay when hovering */
 }
 
 @keyframes fadeInDown {
