@@ -524,7 +524,7 @@ class MixedManager {
         });
 
         if (created > 0) {
-            this.app.showToast(`Created ${created} flashcards from mistakes`, 'success');
+            this.app.showToast(`Created ${created} flashcard${created !== 1 ? 's' : ''} from mistakes`, 'success');
         } else {
             this.app.showToast('No new flashcards created (duplicates avoided)', 'info');
         }

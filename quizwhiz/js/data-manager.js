@@ -370,6 +370,10 @@ class DataManager {
         // Close the modal first
         this.app.uiManager.closeModal('clear-data-modal');
         
+        // Count flashcards and quizzes before clearing
+        const flashcardCount = this.app.flashcards.length;
+        const quizCount = this.app.quizzes.length;
+        
         // Clear all localStorage items that start with 'quizwhiz_'
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
@@ -411,7 +415,14 @@ class DataManager {
         }
         
         this.app.updateUI();
-        this.app.showToast(`All data cleared successfully (${keysToRemove.length} items removed)`, 'success');
+        
+        // Show specific clear message with counts
+        const parts = [];
+        if (flashcardCount > 0) parts.push(`${flashcardCount} flashcard${flashcardCount !== 1 ? 's' : ''}`);
+        if (quizCount > 0) parts.push(`${quizCount} quiz${quizCount !== 1 ? 'zes' : ''}`);
+        const message = parts.length > 0 ? `Successfully cleared ${parts.join(' and ')}` : 'All data cleared successfully';
+        
+        this.app.showToast(message, 'success');
     }
 
     importData() {
@@ -871,8 +882,8 @@ class DataManager {
             const parts = [];
             if (flashcardCount > 0) parts.push(`${flashcardCount} flashcard${flashcardCount !== 1 ? 's' : ''}`);
             if (quizCount > 0) parts.push(`${quizCount} quiz${quizCount !== 1 ? 'zes' : ''}`);
-            const action = mode === 'replace' ? 'Replaced with' : 'Imported';
-            const message = parts.length > 0 ? `${action} ${parts.join(' and ')} from JSON` : `${action} data from JSON`;
+            const action = mode === 'replace' ? 'Successfully imported' : 'Successfully appended';
+            const message = parts.length > 0 ? `${action} ${parts.join(' and ')}` : `${action} data`;
             
             this.app.showToast(message, 'success');
         } else {
@@ -955,12 +966,12 @@ class DataManager {
         this.app.updateUI();
         
         // Show specific import message
-        let message = 'Successfully imported backup';
+        let message = 'Successfully appended backup data';
         if (flashcardCount > 0 || quizCount > 0) {
             const parts = [];
             if (flashcardCount > 0) parts.push(`${flashcardCount} flashcard${flashcardCount !== 1 ? 's' : ''}`);
             if (quizCount > 0) parts.push(`${quizCount} quiz${quizCount !== 1 ? 'zes' : ''}`);
-            message = `Successfully appended ${parts.join(' and ')} to existing data`;
+            message = `Successfully appended ${parts.join(' and ')}`;
         }
         
         this.app.showToast(message, 'success');
@@ -1001,8 +1012,9 @@ class DataManager {
         }
         this.saveData();
         this.app.updateUI();
-        const action = mode === 'replace' ? 'Replaced with' : 'Imported';
-        this.app.showToast(`${action} ${importedCards.length} flashcards from XML`, 'success');
+        const action = mode === 'replace' ? 'Successfully imported' : 'Successfully appended';
+        const count = importedCards.length;
+        this.app.showToast(`${action} ${count} flashcard${count !== 1 ? 's' : ''}`, 'success');
     }
 
     async parseCSV(file, mode = 'merge') {
@@ -1042,8 +1054,9 @@ class DataManager {
         }
         this.saveData();
         this.app.updateUI();
-        const action = mode === 'replace' ? 'Replaced with' : 'Imported';
-        this.app.showToast(`${action} ${importedCards.length} flashcards from CSV`, 'success');
+        const action = mode === 'replace' ? 'Successfully imported' : 'Successfully appended';
+        const count = importedCards.length;
+        this.app.showToast(`${action} ${count} flashcard${count !== 1 ? 's' : ''}`, 'success');
     }
 
     parseCSVLine(line) {
@@ -1079,8 +1092,9 @@ class DataManager {
         }
         this.saveData();
         this.app.updateUI();
-        const action = mode === 'replace' ? 'Replaced with' : 'Imported';
-        this.app.showToast(`${action} ${flashcards.length} flashcards from text`, 'success');
+        const action = mode === 'replace' ? 'Successfully imported' : 'Successfully appended';
+        const count = flashcards.length;
+        this.app.showToast(`${action} ${count} flashcard${count !== 1 ? 's' : ''}`, 'success');
     }
 
     async parsePDF(file, mode = 'merge') {
@@ -1104,8 +1118,9 @@ class DataManager {
             }
             this.saveData();
             this.app.updateUI();
-            const action = mode === 'replace' ? 'Replaced with' : 'Imported';
-            this.app.showToast(`${action} ${flashcards.length} flashcards from PDF`, 'success');
+            const action = mode === 'replace' ? 'Successfully imported' : 'Successfully appended';
+            const count = flashcards.length;
+            this.app.showToast(`${action} ${count} flashcard${count !== 1 ? 's' : ''}`, 'success');
         } catch (error) {
             throw new Error('Failed to parse PDF: ' + error.message);
         }
@@ -1136,8 +1151,9 @@ class DataManager {
             }
             this.saveData();
             this.app.updateUI();
-            const action = mode === 'replace' ? 'Replaced with' : 'Imported';
-            this.app.showToast(`${action} ${flashcards.length} flashcards from DOCX`, 'success');
+            const action = mode === 'replace' ? 'Successfully imported' : 'Successfully appended';
+            const count = flashcards.length;
+            this.app.showToast(`${action} ${count} flashcard${count !== 1 ? 's' : ''}`, 'success');
         } catch (error) {
             throw new Error('Failed to parse DOCX: ' + error.message);
         }

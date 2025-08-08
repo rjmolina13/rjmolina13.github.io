@@ -383,7 +383,7 @@ class ContentManager {
             // Show success message and update flashcard display if on flashcard page
             if (this.app.showToast) {
                 if (actualDeleteCount > 0) {
-                    this.app.showToast(`Deleted ${actualDeleteCount} flashcard(s)`, 'success');
+                    this.app.showToast(`Deleted ${actualDeleteCount} flashcard${actualDeleteCount !== 1 ? 's' : ''}`, 'success');
                 } else {
                     this.app.showToast('No flashcards were deleted - IDs not found', 'warning');
                 }
@@ -434,7 +434,7 @@ class ContentManager {
             
             // Show success message
             if (actualDeleteCount > 0) {
-                this.app.showToast(`Deleted ${actualDeleteCount} quiz(es)`, 'success');
+                this.app.showToast(`Deleted ${actualDeleteCount} quiz${actualDeleteCount !== 1 ? 'zes' : ''}`, 'success');
             } else {
                 this.app.showToast('No quizzes were deleted - IDs not found', 'warning');
             }
