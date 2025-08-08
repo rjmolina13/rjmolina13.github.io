@@ -5,9 +5,45 @@ All notable changes to QuizWhiz will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.0] - 2025-08-09
+
+### Fixed
+- **Data Import**: Fixed JSON import merge behavior to properly append individual items instead of replacing entire arrays
+  - Modified `importAllLocalStorageData` method to merge flashcards and quizzes with existing data
+  - Import now appends new items to existing `quizwhiz_quizzes` and `quizwhiz_flashcards` arrays
+  - Updated success message to indicate "appended to existing data" for clarity
+  - Non-array data (settings, stats) continues to be replaced as expected
+- **Mobile Navigation**: Implemented responsive hamburger menu for mobile devices
+  - Added hamburger menu button with animated lines
+  - Created collapsible navigation menu for screens ≤768px
+  - Implemented smooth slideDown animation for mobile dropdowns
+  - Added proper ARIA attributes for accessibility
+  - Enhanced mobile menu behavior with outside click and resize event handling
+- **Footer Version Display**: Fixed version not displaying in footer on about.html page
+  - Resolved duplicate ID conflict between about page content and footer elements
+  - Changed about page version element ID from `app-version` to `about-app-version`
+  - Enhanced footer-loader.js with robust retry mechanism for version updates
+  - Added proper version population for both footer and about page version information
+  - Ensured consistent "v3.8" display across all pages including about.html
+
+### Enhanced
+- **User Feedback**: Added comprehensive toast notifications for all quiz and flashcard operations
+  - Added success toast for flashcard updates: "Flashcard updated successfully!"
+  - Added success toast for quiz updates: "Quiz updated successfully!"
+  - Added success toast for quiz deletion: "Quiz deleted successfully!"
+  - Enhanced bulk delete operations with proper count tracking and success/error messages
+  - Added error handling toasts for failed delete operations
+- **Mobile UX**: Improved mobile navigation experience with intuitive hamburger menu
+- **Responsive Design**: Enhanced mobile layout with proper navigation collapse and expansion
+
 ## [3.7.0] - 2025-08-09
 
 ### Fixed
+- **Data Import**: Fixed JSON import merge behavior to properly append individual items instead of replacing entire arrays
+  - Modified `importAllLocalStorageData` method to merge flashcards and quizzes with existing data
+  - Import now appends new items to existing `quizwhiz_quizzes` and `quizwhiz_flashcards` arrays
+  - Updated success message to indicate "appended to existing data" for clarity
+  - Non-array data (settings, stats) continues to be replaced as expected
 - **Quiz Management**: Fixed "Add Quiz Question" button becoming unresponsive after form submission
   - Corrected button ID mismatch between HTML (`open-add-quiz-modal`) and JavaScript (`add-quiz-btn`)
   - Removed duplicate event listeners that were causing conflicts

@@ -4,8 +4,8 @@
 class QuizWhizApp {
     constructor() {
         // App version information
-        this.version = "3.7";
-        this.lastUpdated = "2025-08-05";
+        this.version = "3.8";
+        this.lastUpdated = "2025-08-09";
         
         // Expose version globally for footer
         window.APP_VERSION = this.version;

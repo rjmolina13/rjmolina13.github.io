@@ -75,8 +75,35 @@ class FooterLoader {
      */
     updateAppVersion() {
         const versionElement = document.getElementById('app-version');
-        if (versionElement && window.APP_VERSION) {
-            versionElement.textContent = window.APP_VERSION;
+        
+        if (versionElement) {
+            // Try to get version from window.APP_VERSION first
+            if (window.APP_VERSION) {
+                versionElement.textContent = window.APP_VERSION;
+            } else if (window.app && window.app.version) {
+                // Fallback to app instance version
+                versionElement.textContent = window.app.version;
+            } else {
+                // If neither is available, try multiple times with increasing delays
+                let attempts = 0;
+                const maxAttempts = 5;
+                
+                const tryUpdate = () => {
+                    attempts++;
+                    if (window.APP_VERSION) {
+                        versionElement.textContent = window.APP_VERSION;
+                    } else if (window.app && window.app.version) {
+                        versionElement.textContent = window.app.version;
+                    } else if (attempts < maxAttempts) {
+                        setTimeout(tryUpdate, attempts * 100);
+                    } else {
+                        // Fallback to hardcoded version if all else fails
+                        versionElement.textContent = '3.8';
+                    }
+                };
+                
+                setTimeout(tryUpdate, 100);
+            }
         }
     }
 
@@ -88,6 +115,13 @@ class FooterLoader {
             this.updateCurrentYear();
             this.updateAppVersion();
         }
+    }
+
+    /**
+     * Force update the app version (useful when app is initialized after footer)
+     */
+    refreshVersion() {
+        this.updateAppVersion();
     }
 
     /**

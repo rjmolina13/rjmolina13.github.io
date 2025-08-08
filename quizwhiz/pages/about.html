@@ -12,7 +12,6 @@
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/footer.css">
 </head>
 <body>
     <div class="app-container">
@@ -30,7 +29,7 @@
                     <div class="equal-height-grid">
                         <div class="about-card version-info">
                             <h3><i class="fas fa-info-circle"></i> Version Information</h3>
-                            <p><strong>Version:</strong> <span id="app-version">Loading...</span></p>
+                            <p><strong>Version:</strong> <span id="about-app-version">Loading...</span></p>
                             <p><strong>Last Updated:</strong> <span id="last-updated">Loading...</span></p>
                             <p><strong>Storage Used:</strong> <span id="storage-usage">Calculating...</span></p>
                         </div>
@@ -181,6 +180,24 @@
             if (app.uiManager) {
                 app.uiManager.showSection('about');
             }
+            
+            // Update about page version info
+            const aboutVersionElement = document.getElementById('about-app-version');
+            if (aboutVersionElement && window.APP_VERSION) {
+                aboutVersionElement.textContent = window.APP_VERSION;
+            }
+            
+            const lastUpdatedElement = document.getElementById('last-updated');
+            if (lastUpdatedElement && app.lastUpdated) {
+                lastUpdatedElement.textContent = app.lastUpdated;
+            }
+            
+            // Refresh footer version after app initialization
+            setTimeout(() => {
+                if (window.footerLoader && typeof window.footerLoader.refreshVersion === 'function') {
+                    window.footerLoader.refreshVersion();
+                }
+            }, 100);
         });
     </script>
 </body>

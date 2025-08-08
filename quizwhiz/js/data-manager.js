@@ -896,17 +896,40 @@ class DataManager {
             // Only import keys that start with 'quizwhiz_'
             if (key.startsWith('quizwhiz_')) {
                 try {
-                    const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
-                    localStorage.setItem(key, stringValue);
+                    // Handle array data (flashcards and quizzes) with merge/append logic
+                    if ((key === 'quizwhiz_flashcards' || key === 'quizwhiz_quizzes') && Array.isArray(value)) {
+                        const existingData = localStorage.getItem(key);
+                        let mergedData = [];
+                        
+                        if (existingData) {
+                            try {
+                                const existing = JSON.parse(existingData);
+                                if (Array.isArray(existing)) {
+                                    mergedData = [...existing];
+                                }
+                            } catch (error) {
+                                console.warn(`Failed to parse existing ${key}:`, error);
+                            }
+                        }
+                        
+                        // Append new items to existing data
+                        mergedData.push(...value);
+                        localStorage.setItem(key, JSON.stringify(mergedData));
+                        
+                        // Count imported items
+                        if (key === 'quizwhiz_flashcards') {
+                            flashcardCount = value.length;
+                        } else if (key === 'quizwhiz_quizzes') {
+                            quizCount = value.length;
+                        }
+                    } else {
+                        // Handle non-array data (settings, stats, etc.) - replace as before
+                        const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+                        localStorage.setItem(key, stringValue);
+                    }
+                    
                     importedKeys.push(key);
                     importedItems++;
-                    
-                    // Count flashcards and quizzes
-                    if (key === 'quizwhiz_flashcards' && Array.isArray(value)) {
-                        flashcardCount = value.length;
-                    } else if (key === 'quizwhiz_quizzes' && Array.isArray(value)) {
-                        quizCount = value.length;
-                    }
                 } catch (error) {
                     console.warn(`Failed to import localStorage key: ${key}`, error);
                 }
@@ -937,7 +960,7 @@ class DataManager {
             const parts = [];
             if (flashcardCount > 0) parts.push(`${flashcardCount} flashcard${flashcardCount !== 1 ? 's' : ''}`);
             if (quizCount > 0) parts.push(`${quizCount} quiz${quizCount !== 1 ? 'zes' : ''}`);
-            message = `Successfully imported ${parts.join(' and ')}`;
+            message = `Successfully appended ${parts.join(' and ')} to existing data`;
         }
         
         this.app.showToast(message, 'success');
