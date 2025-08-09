@@ -175,78 +175,78 @@ jobs:
         prerelease: false
     
     # - name: Create blog post (if version changed)
-      if: steps.version_check.outputs.version_changed == 'true'
-      run: |
-        # Create blog post for the new release
-        POST_DATE=$(date '+%Y-%m-%d')
-        POST_FILENAME="blog/_posts/$POST_DATE-quizwhiz-v${{ steps.current_version.outputs.current_version }}-release.md"
+    #   if: steps.version_check.outputs.version_changed == 'true'
+    #   run: |
+    #     # Create blog post for the new release
+    #     POST_DATE=$(date '+%Y-%m-%d')
+    #     POST_FILENAME="blog/_posts/$POST_DATE-quizwhiz-v${{ steps.current_version.outputs.current_version }}-release.md"
         
-        mkdir -p blog/_posts
+    #     mkdir -p blog/_posts
         
-        cat > "$POST_FILENAME" << EOF
-        ---
-        layout: post
-        title: "QuizWhiz v${{ steps.current_version.outputs.current_version }} Released"
-        date: \$POST_DATE
-        categories: [releases, quizwhiz]
-        tags: [quizwhiz, release, update]
-        ---
+    #     cat > "$POST_FILENAME" << EOF
+    #     ---
+    #     layout: post
+    #     title: "QuizWhiz v${{ steps.current_version.outputs.current_version }} Released"
+    #     date: \$POST_DATE
+    #     categories: [releases, quizwhiz]
+    #     tags: [quizwhiz, release, update]
+    #     ---
         
-        # QuizWhiz v${{ steps.current_version.outputs.current_version }} is Now Available! 🎉
+    #     # QuizWhiz v${{ steps.current_version.outputs.current_version }} is Now Available! 🎉
         
-        We're excited to announce the release of QuizWhiz v${{ steps.current_version.outputs.current_version }}! This update brings new features, improvements, and bug fixes to enhance your learning experience.
+    #     We're excited to announce the release of QuizWhiz v${{ steps.current_version.outputs.current_version }}! This update brings new features, improvements, and bug fixes to enhance your learning experience.
         
-        ## 📊 Version Details
+    #     ## 📊 Version Details
         
-        - **New Version:** v${{ steps.current_version.outputs.current_version }}
-        - **Previous Version:** v${{ steps.previous_version.outputs.previous_version }}
-        - **Release Date:** \$POST_DATE
+    #     - **New Version:** v${{ steps.current_version.outputs.current_version }}
+    #     - **Previous Version:** v${{ steps.previous_version.outputs.previous_version }}
+    #     - **Release Date:** \$POST_DATE
         
-        ${{ steps.changelog.outputs.changelog }}
+    #     ${{ steps.changelog.outputs.changelog }}
         
-        ${{ steps.file_diff.outputs.diff_summary }}
+    #     ${{ steps.file_diff.outputs.diff_summary }}
         
-        ## 🚀 What's QuizWhiz?
+    #     ## 🚀 What's QuizWhiz?
         
-        QuizWhiz is a modern, feature-rich online flashcard and quiz application built with vanilla HTML, CSS, and JavaScript. It's perfect for students, educators, and anyone looking to enhance their learning experience.
+    #     QuizWhiz is a modern, feature-rich online flashcard and quiz application built with vanilla HTML, CSS, and JavaScript. It's perfect for students, educators, and anyone looking to enhance their learning experience.
         
-        ### Key Features:
-        - Interactive flashcards with smooth animations
-        - Multiple choice quizzes with customizable options
-        - Deck organization and difficulty levels
-        - Progress tracking and statistics
-        - Responsive design for all devices
-        - Local storage with import/export capabilities
+    #     ### Key Features:
+    #     - Interactive flashcards with smooth animations
+    #     - Multiple choice quizzes with customizable options
+    #     - Deck organization and difficulty levels
+    #     - Progress tracking and statistics
+    #     - Responsive design for all devices
+    #     - Local storage with import/export capabilities
         
-        ## 🔗 Try It Now
+    #     ## 🔗 Try It Now
         
-        Ready to boost your learning? Try QuizWhiz now:
+    #     Ready to boost your learning? Try QuizWhiz now:
         
-        **[Launch QuizWhiz →](https://rjmolina13.github.io/quizwhiz/)**
+    #     **[Launch QuizWhiz →](https://rjmolina13.github.io/quizwhiz/)**
         
-        ## 💻 For Developers
+    #     ## 💻 For Developers
         
-        QuizWhiz is open source! Check out the code, contribute, or fork it for your own projects:
+    #     QuizWhiz is open source! Check out the code, contribute, or fork it for your own projects:
         
-        - **Repository:** [GitHub](https://github.com/rjmolina13/rjmolina13.github.io/tree/main/quizwhiz)
-        - **Documentation:** Available in the README
-        - **Issues & Feedback:** [GitHub Issues](https://github.com/rjmolina13/rjmolina13.github.io/issues)
+    #     - **Repository:** [GitHub](https://github.com/rjmolina13/rjmolina13.github.io/tree/main/quizwhiz)
+    #     - **Documentation:** Available in the README
+    #     - **Issues & Feedback:** [GitHub Issues](https://github.com/rjmolina13/rjmolina13.github.io/issues)
         
-        ## 🙏 Feedback Welcome
+    #     ## 🙏 Feedback Welcome
         
-        We'd love to hear your thoughts on this release! Whether you've found a bug, have a feature request, or just want to share how QuizWhiz has helped your learning journey, please don't hesitate to reach out.
+    #     We'd love to hear your thoughts on this release! Whether you've found a bug, have a feature request, or just want to share how QuizWhiz has helped your learning journey, please don't hesitate to reach out.
         
-        Happy studying! 📚✨
+    #     Happy studying! 📚✨
         
-        ---
+    #     ---
         
-        *This post was automatically generated from the GitHub release.*
-        EOF
+    #     *This post was automatically generated from the GitHub release.*
+    #     EOF
         
-        # Commit the blog post
-        git add "$POST_FILENAME"
-        git commit -m "blog: add QuizWhiz v${{ steps.current_version.outputs.current_version }} release post"
-        git push
+    #     # Commit the blog post
+    #     git add "$POST_FILENAME"
+    #     git commit -m "blog: add QuizWhiz v${{ steps.current_version.outputs.current_version }} release post"
+    #     git push
     
     - name: Summary
       run: |
