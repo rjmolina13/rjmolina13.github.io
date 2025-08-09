@@ -5,6 +5,24 @@ All notable changes to QuizWhiz will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.2] - 2025-08-09
+
+### Fixed
+- **Deck Rename Modal**: Fixed modal centering issue in Content Management page
+  - Updated JavaScript to use class-based modal display (`classList.add('show')`) instead of direct style manipulation
+  - Fixed modal not being properly centered horizontally and vertically
+  - Updated all modal close handlers to use consistent class-based approach
+  - Ensured proper CSS flexbox centering is applied when modal is shown
+- **UI Alignment**: Fixed alignment issues in Manage Quizzes and Manage Flashcards sections
+  - Removed unnecessary margin from deck-filter-container causing misalignment
+  - Updated rename button styling to match other form elements (padding, border-radius, font-size)
+  - Ensured consistent alignment of search bar, dropdowns, and buttons in the same row
+
+### Enhanced
+- **Deck Management**: Improved visual consistency of deck rename functionality
+  - Rename buttons now properly align with select dropdowns and other controls
+  - Enhanced button styling for better integration with existing UI components
+
 ## [3.8.1] - 2025-08-09
 
 ### Enhanced

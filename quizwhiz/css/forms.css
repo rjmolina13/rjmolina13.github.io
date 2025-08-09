@@ -507,3 +507,16 @@
         align-items: center;
     }
 }
+
+/* Readonly Input Styles */
+.readonly-input {
+    background-color: var(--surface-color) !important;
+    color: var(--text-secondary) !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+}
+
+.readonly-input:focus {
+    border-color: var(--border-color) !important;
+    box-shadow: none !important;
+}

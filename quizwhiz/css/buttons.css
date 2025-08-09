@@ -169,3 +169,42 @@
     transform: none;
     box-shadow: none;
 }
+
+/* Deck Filter Container and Rename Button */
+.deck-filter-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.deck-filter-container select {
+    flex: 1;
+}
+
+.btn-rename {
+    background: var(--surface-color);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: auto;
+    font-size: 0.875rem;
+}
+
+.btn-rename:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-light);
+}
+
+.btn-rename i {
+    font-size: 0.875rem;
+}

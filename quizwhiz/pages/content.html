@@ -62,9 +62,14 @@
                             <div class="management-controls">
                                 <div class="search-filter-bar">
                                     <input type="text" id="manage-quiz-search" placeholder="Search quiz questions..." class="search-input">
-                                    <select id="manage-quiz-deck-filter" class="deck-filter">
-                                        <option value="">All Decks</option>
-                                    </select>
+                                    <div class="deck-filter-container">
+                                        <select id="manage-quiz-deck-filter" class="deck-filter">
+                                            <option value="">All Decks</option>
+                                        </select>
+                                        <button id="rename-quiz-deck-btn" class="btn-rename" title="Rename selected deck">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                                    </div>
                                     <select id="manage-quiz-difficulty-filter" class="difficulty-filter">
                                         <option value="">All Difficulties</option>
                                         <option value="easy">Easy</option>
@@ -116,9 +121,14 @@
                             <div class="management-controls">
                                 <div class="search-filter-bar">
                                     <input type="text" id="manage-search" placeholder="Search flashcards..." class="search-input">
-                                    <select id="manage-deck-filter" class="deck-filter">
-                                        <option value="">All Decks</option>
-                                    </select>
+                                    <div class="deck-filter-container">
+                                        <select id="manage-deck-filter" class="deck-filter">
+                                            <option value="">All Decks</option>
+                                        </select>
+                                        <button id="rename-flashcard-deck-btn" class="btn-rename" title="Rename selected deck">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                                    </div>
                                     <select id="manage-difficulty-filter" class="difficulty-filter">
                                         <option value="">All Difficulties</option>
                                         <option value="easy">Easy</option>
@@ -500,6 +510,36 @@
                         <i class="fas fa-check"></i> OK
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Deck Modal -->
+    <div id="rename-deck-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Rename Deck</h2>
+                <span class="close" id="close-rename-deck-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="rename-deck-form">
+                    <div class="form-group">
+                        <label for="current-deck-name">Current Deck Name:</label>
+                        <input type="text" id="current-deck-name" readonly class="readonly-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-deck-name">New Deck Name:</label>
+                        <input type="text" id="new-deck-name" placeholder="Enter new deck name" required autocomplete="off">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancel-rename-deck" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Rename Deck
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

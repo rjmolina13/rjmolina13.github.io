@@ -10,6 +10,7 @@ class ContentManager {
         this.displayFlashcards();
         this.displayQuizzes();
         this.updateDeckOptions();
+        this.initializeRenameDeckButtons();
     }
 
     // Display flashcards in content management
@@ -217,6 +218,156 @@ class ContentManager {
         
         // Update deck suggestions for all modals
         this.app.uiManager.populateAllDeckSuggestions();
+    }
+
+    // Deck rename functionality
+    initializeRenameDeckButtons() {
+        // Initialize rename buttons for flashcard deck filter
+        const flashcardRenameBtn = document.getElementById('rename-flashcard-deck-btn');
+        if (flashcardRenameBtn) {
+            flashcardRenameBtn.addEventListener('click', () => {
+                const deckFilter = document.getElementById('manage-deck-filter');
+                if (deckFilter && deckFilter.value) {
+                    this.openRenameDeckModal(deckFilter.value);
+                } else {
+                    this.app.uiManager.showToast('Please select a deck to rename', 'warning');
+                }
+            });
+        }
+
+        // Initialize rename buttons for quiz deck filter
+        const quizRenameBtn = document.getElementById('rename-quiz-deck-btn');
+        if (quizRenameBtn) {
+            quizRenameBtn.addEventListener('click', () => {
+                const deckFilter = document.getElementById('manage-quiz-deck-filter');
+                if (deckFilter && deckFilter.value) {
+                    this.openRenameDeckModal(deckFilter.value);
+                } else {
+                    this.app.uiManager.showToast('Please select a deck to rename', 'warning');
+                }
+            });
+        }
+
+        // Initialize rename deck modal
+        this.initializeRenameDeckModal();
+    }
+
+    openRenameDeckModal(currentDeckName) {
+        const modal = document.getElementById('rename-deck-modal');
+        const currentDeckInput = document.getElementById('current-deck-name');
+        const newDeckInput = document.getElementById('new-deck-name');
+        
+        if (modal && currentDeckInput && newDeckInput) {
+            currentDeckInput.value = currentDeckName;
+            newDeckInput.value = '';
+            modal.classList.add('show');
+            newDeckInput.focus();
+        }
+    }
+
+    initializeRenameDeckModal() {
+        const modal = document.getElementById('rename-deck-modal');
+        const closeBtn = document.getElementById('close-rename-deck-modal');
+        const cancelBtn = document.getElementById('cancel-rename-deck');
+        const form = document.getElementById('rename-deck-form');
+
+        // Close modal handlers
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('show');
+            });
+        }
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                modal.classList.remove('show');
+            });
+        }
+
+        // Click outside to close
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        }
+
+        // Form submission
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleRenameDeck();
+            });
+        }
+    }
+
+    handleRenameDeck() {
+        const currentDeckName = document.getElementById('current-deck-name').value;
+        const newDeckName = document.getElementById('new-deck-name').value.trim();
+        
+        if (!newDeckName) {
+            this.app.uiManager.showToast('Please enter a new deck name', 'error');
+            return;
+        }
+
+        if (currentDeckName === newDeckName) {
+            this.app.uiManager.showToast('New deck name must be different from current name', 'warning');
+            return;
+        }
+
+        // Check if new deck name already exists
+        const allDecks = [...new Set([
+            ...this.app.flashcards.map(card => card.deck),
+            ...this.app.quizzes.map(quiz => quiz.deck)
+        ])].filter(deck => deck);
+
+        if (allDecks.includes(newDeckName)) {
+            this.app.uiManager.showToast('A deck with this name already exists', 'error');
+            return;
+        }
+
+        // Rename deck in flashcards
+        let flashcardCount = 0;
+        this.app.flashcards.forEach(card => {
+            if (card.deck === currentDeckName) {
+                card.deck = newDeckName;
+                flashcardCount++;
+            }
+        });
+
+        // Rename deck in quizzes
+        let quizCount = 0;
+        this.app.quizzes.forEach(quiz => {
+            if (quiz.deck === currentDeckName) {
+                quiz.deck = newDeckName;
+                quizCount++;
+            }
+        });
+
+        // Save changes
+        this.app.dataManager.saveFlashcards();
+        this.app.dataManager.saveQuizzes();
+
+        // Update UI
+        this.updateDeckOptions();
+        this.displayFlashcards();
+        this.displayQuizzes();
+
+        // Close modal
+        document.getElementById('rename-deck-modal').classList.remove('show');
+
+        // Show success message
+        const totalItems = flashcardCount + quizCount;
+        const flashcardText = flashcardCount === 1 ? 'flashcard' : 'flashcards';
+        const quizText = quizCount === 1 ? 'quiz' : 'quizzes';
+        
+        let message = `Deck renamed successfully! Updated ${flashcardCount} ${flashcardText}`;
+        if (quizCount > 0) {
+            message += ` and ${quizCount} ${quizText}`;
+        }
+        
+        this.app.uiManager.showToast(message, 'success');
     }
 
     // Add new flashcard
