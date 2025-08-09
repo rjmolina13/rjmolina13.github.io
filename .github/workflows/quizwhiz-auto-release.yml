@@ -174,7 +174,7 @@ jobs:
         draft: false
         prerelease: false
     
-    - name: Create blog post (if version changed)
+    # - name: Create blog post (if version changed)
       if: steps.version_check.outputs.version_changed == 'true'
       run: |
         # Create blog post for the new release
