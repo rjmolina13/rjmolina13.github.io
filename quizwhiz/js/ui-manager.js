@@ -736,13 +736,31 @@ class UIManager {
         const selector = document.getElementById('quiz-deck-selector');
         if (!selector) return;
 
-        const decks = ['all', ...new Set(this.app.quizzes.map(quiz => quiz.deck))];
-        
-        selector.innerHTML = decks.map(deck => 
-            `<option value="${deck}">
-                ${deck === 'all' ? 'All Decks' : deck}
-            </option>`
-        ).join('');
+        // Get unique deck names from quizzes
+        const decks = [...new Set(this.app.quizzes.map(quiz => quiz.deck))]
+            .filter(deck => deck && deck.trim() !== '')
+            .sort();
+
+        // Count items per deck
+        const deckCounts = {};
+        decks.forEach(deck => {
+            deckCounts[deck] = this.app.quizzes.filter(quiz => quiz.deck === deck).length;
+        });
+
+        // Store current selection
+        const currentValue = selector.value;
+        const totalQuizzes = this.app.quizzes.length;
+
+        // Update selector with counts
+        selector.innerHTML = `
+            <option value="all">All Decks (${totalQuizzes} quizzes)</option>
+            ${decks.map(deck => `<option value="${deck}">${deck} (${deckCounts[deck]} quizzes)</option>`).join('')}
+        `;
+
+        // Restore selection if it still exists
+        if (decks.includes(currentValue) || currentValue === 'all') {
+            selector.value = currentValue;
+        }
     }
 
     // Stat Card Interaction Methods

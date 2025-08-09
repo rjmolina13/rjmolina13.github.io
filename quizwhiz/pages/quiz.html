@@ -54,7 +54,7 @@
                         <div class="card-content">
                             <form id="quiz-setup-form">
                                 <div class="form-group">
-                                    <label for="num-questions">Number of Questions:</label>
+                                    <label for="num-questions"><i class="fas fa-hashtag"></i> Number of Questions:</label>
                                     <div class="question-count-selector">
                                         <button type="button" class="btn btn-secondary" data-count="5">5</button>
                                         <button type="button" class="btn btn-secondary active" data-count="10">10</button>
@@ -67,7 +67,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="quiz-deck-selector">Deck:</label>
+                                    <label for="quiz-deck-selector"><i class="fas fa-layer-group"></i> Deck:</label>
                                     <select id="quiz-deck-selector" class="form-control">
                                         <option value="all">All Decks</option>
                                         <!-- Options populated dynamically by JS -->
@@ -75,20 +75,20 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Difficulty:</label>
+                                    <label><i class="fas fa-signal"></i> Difficulty:</label>
                                     <div class="difficulty-selector">
-                                        <button type="button" class="btn btn-secondary active" data-difficulty="all">All</button>
-                                        <button type="button" class="btn btn-secondary" data-difficulty="easy">Easy</button>
-                                        <button type="button" class="btn btn-secondary" data-difficulty="medium">Medium</button>
-                                        <button type="button" class="btn btn-secondary" data-difficulty="hard">Hard</button>
+                                        <button type="button" class="btn btn-secondary active" data-difficulty="all"><i class="fas fa-list"></i> All</button>
+                                        <button type="button" class="btn btn-secondary" data-difficulty="easy"><i class="fas fa-star"></i> Easy</button>
+                                        <button type="button" class="btn btn-secondary" data-difficulty="medium"><i class="fas fa-star-half-alt"></i> Medium</button>
+                                        <button type="button" class="btn btn-secondary" data-difficulty="hard"><i class="fas fa-fire"></i> Hard</button>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Quiz Mode:</label>
+                                    <label><i class="fas fa-cog"></i> Quiz Mode:</label>
                                     <div class="quiz-mode-selector">
-                                        <button type="button" class="btn btn-secondary active" data-mode="normal">Normal</button>
-                                        <button type="button" class="btn btn-secondary" data-mode="timed">Timed</button>
+                                        <button type="button" class="btn btn-secondary active" data-mode="normal"><i class="fas fa-play"></i> Normal</button>
+                                        <button type="button" class="btn btn-secondary" data-mode="timed"><i class="fas fa-clock"></i> Timed</button>
                                     </div>
                                 </div>
 
@@ -149,7 +149,7 @@
                                     <li><kbd>←</kbd> <kbd>→</kbd> Navigate between questions</li>
                                     <li><kbd>Enter</kbd> Submit your answer</li>
                                     <li><kbd>Esc</kbd> End quiz early</li>
-                                    <li><kbd>←</kbd> <kbd>→</kbd> Navigate between choices</li>
+                                    <li><kbd>↑</kbd> <kbd>↓</kbd> Navigate between choices</li>
                                 </ul>
                             </div>
                         </div>

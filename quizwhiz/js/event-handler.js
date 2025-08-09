@@ -612,6 +612,7 @@ class EventHandler {
         if (deckFilter) {
             deckFilter.addEventListener('change', () => {
                 this.app.contentManager.displayFlashcards();
+                this.app.contentManager.updateDeckOptions();
             });
         }
 
@@ -619,6 +620,7 @@ class EventHandler {
         if (difficultyFilter) {
             difficultyFilter.addEventListener('change', () => {
                 this.app.contentManager.displayFlashcards();
+                this.app.contentManager.updateDeckOptions();
             });
         }
 
@@ -671,6 +673,9 @@ class EventHandler {
             }
             // Individual quiz checkboxes
             if (e.target.classList.contains('quiz-checkbox')) {
+                if (this.app.contentManager && this.app.contentManager.toggleQuizSelection) {
+                    this.app.contentManager.toggleQuizSelection(e.target.dataset.id);
+                }
                 this.updateContentBulkActionButtons();
             }
         });
@@ -699,6 +704,7 @@ class EventHandler {
         if (refreshFlashcardBtn) {
             refreshFlashcardBtn.addEventListener('click', () => {
                 this.app.contentManager.displayFlashcards();
+                this.app.contentManager.updateDeckOptions();
             });
         }
 
@@ -707,6 +713,7 @@ class EventHandler {
         if (refreshQuizBtn) {
             refreshQuizBtn.addEventListener('click', () => {
                 this.app.contentManager.displayQuizzes();
+                this.app.contentManager.updateDeckOptions();
             });
         }
 
@@ -1200,12 +1207,14 @@ class EventHandler {
         if (quizContentDeckFilter) {
             quizContentDeckFilter.addEventListener('change', () => {
                 this.app.contentManager.displayQuizzes();
+                this.app.contentManager.updateDeckOptions();
             });
         }
         
         if (quizContentDifficultyFilter) {
             quizContentDifficultyFilter.addEventListener('change', () => {
                 this.app.contentManager.displayQuizzes();
+                this.app.contentManager.updateDeckOptions();
             });
         }
      }

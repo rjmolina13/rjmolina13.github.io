@@ -59,10 +59,17 @@
     font-size: 0.875rem;
 }
 
-.btn:disabled {
+.btn:disabled,
+.btn.disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none !important;
+}
+
+.btn:disabled:hover,
+.btn.disabled:hover {
+    transform: none !important;
+    box-shadow: none;
 }
 
 /* Difficulty buttons */
@@ -207,4 +214,22 @@
 
 .btn-rename i {
     font-size: 0.875rem;
+}
+
+.btn-rename:disabled,
+.btn-rename.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--surface-color);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.btn-rename:disabled:hover,
+.btn-rename.disabled:hover {
+    background: var(--surface-color);
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+    transform: none;
+    box-shadow: none;
 }

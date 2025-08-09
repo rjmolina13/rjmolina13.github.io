@@ -5,6 +5,21 @@ All notable changes to QuizWhiz will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.9] - 2025-08-10
+
+### Added
+- **Deck Deletion**: Implemented deck deletion functionality with confirmation modal
+  - Added delete buttons to content management UI for both quizzes and flashcards
+  - Implemented confirmation modal to prevent accidental deletions
+  - Enhanced deck selector with item counts for better visibility
+  - Improved button states and disabled styling for better UX
+
+### Enhanced
+- **Code Organization**: Improved codebase cleanliness by removing unused feature references
+- **UI Improvements**: Enhanced deck selector styling and button state management
+  - Better visual feedback for disabled states
+  - Improved spacing and alignment in content management interface
+
 ## [3.8.2] - 2025-08-09
 
 ### Fixed

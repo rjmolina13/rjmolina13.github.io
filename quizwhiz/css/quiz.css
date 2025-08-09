@@ -549,7 +549,7 @@
       .quiz-setup-sidebar {
           min-width: unset;
           max-width: unset;
-          order: -1;
+          order: 1;
           border-left: none;
           border-top: 1px solid var(--border-color);
       }

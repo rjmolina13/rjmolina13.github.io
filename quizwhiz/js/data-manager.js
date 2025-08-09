@@ -5,6 +5,25 @@ class DataManager {
         this.app = app;
     }
 
+    // Import quiz data from external sources
+    // TODO: Previously used for Google Form extraction
+    async importQuizData(quizzes) {
+        if (!Array.isArray(quizzes)) {
+            throw new Error('Invalid quiz data format');
+        }
+
+        // Add imported quizzes to existing data
+        this.app.quizzes.push(...quizzes);
+        
+        // Save updated data
+        this.saveData();
+        
+        // Update UI
+        this.app.updateUI();
+        
+        return quizzes.length;
+    }
+
     // Data Management
     loadData() {
         try {

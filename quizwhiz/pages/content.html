@@ -67,8 +67,11 @@
                                             <option value="">All Decks</option>
                                         </select>
                                         <button id="rename-quiz-deck-btn" class="btn-rename" title="Rename selected deck">
-                            <i class="fas fa-edit"></i>
-                        </button>
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button id="delete-quiz-deck-btn" class="btn-rename" title="Delete selected deck">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                     <select id="manage-quiz-difficulty-filter" class="difficulty-filter">
                                         <option value="">All Difficulties</option>
@@ -126,8 +129,11 @@
                                             <option value="">All Decks</option>
                                         </select>
                                         <button id="rename-flashcard-deck-btn" class="btn-rename" title="Rename selected deck">
-                            <i class="fas fa-edit"></i>
-                        </button>
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button id="delete-flashcard-deck-btn" class="btn-rename" title="Delete selected deck">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                     <select id="manage-difficulty-filter" class="difficulty-filter">
                                         <option value="">All Difficulties</option>
@@ -433,7 +439,32 @@
         </div>
     </div>
 
-    <!-- Bulk Delete Quizzes Confirmation Modal -->
+    <!-- Delete Deck Modal -->
+    <div id="delete-deck-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-trash"></i> Delete Deck</h2>
+                <span class="close" id="close-delete-deck-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="warning-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Are you sure you want to delete the deck "<span id="deck-to-delete"></span>"?</p>
+                    <p><strong>This action cannot be undone. All items in this deck will be permanently deleted.</strong></p>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-delete-deck" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" id="confirm-delete-deck" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Deck
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Delete Confirmation Modal -->
     <div id="bulk-delete-quizzes-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
