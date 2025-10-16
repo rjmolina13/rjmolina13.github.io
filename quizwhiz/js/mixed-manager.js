@@ -594,15 +594,19 @@ class MixedManager {
             timer: null
         };
 
-        // Reset UI
-        document.getElementById('mixed-setup').style.display = 'block';
-        document.getElementById('mixed-session').style.display = 'none';
-        document.getElementById('mixed-results').style.display = 'none';
+        // Reset UI - use correct element IDs from HTML
+        const mixedControls = document.querySelector('.mixed-controls');
+        const mixedSession = document.getElementById('mixed-session');
+        const mixedResults = document.getElementById('mixed-results');
+        
+        if (mixedControls) mixedControls.style.display = 'block';
+        if (mixedSession) mixedSession.style.display = 'none';
+        if (mixedResults) mixedResults.style.display = 'none';
         
         // Reset timer display
         const timerElement = document.getElementById('mixed-timer');
         if (timerElement) {
-            timerElement.textContent = '10:00';
+            timerElement.textContent = '15:00';
             timerElement.classList.remove('warning');
         }
     }
@@ -620,6 +624,26 @@ class MixedManager {
         ).join('');
     }
 
+    // Initialize Mixed Mode
+    initializeMixed() {
+        // Initialize mixed mode UI and event listeners
+        this.updateMixedDeckSelector();
+        
+        // Set up event listeners for mixed mode controls
+        const startButton = document.getElementById('start-mixed-btn');
+        if (startButton) {
+            startButton.addEventListener('click', () => {
+                const deck = document.getElementById('mixed-deck-selector')?.value || 'all';
+                const duration = parseInt(document.getElementById('mixed-duration')?.value) || 10;
+                const flashcardRatio = parseInt(document.getElementById('mixed-flashcard-ratio')?.value) || 50;
+                this.startMixedMode(deck, duration, flashcardRatio);
+            });
+        }
+        
+        // Reset to setup view
+        this.resetMixedMode();
+    }
+
     // Mixed Mode Statistics
     getMixedStats() {
         const totalSessions = this.app.stats.totalMixedSessions || 0;
@@ -633,7 +657,7 @@ class MixedManager {
     }
 }
 
-// Export for use in main app
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = MixedManager;
+// Make MixedManager available globally
+if (typeof window !== 'undefined') {
+    window.MixedManager = MixedManager;
 }

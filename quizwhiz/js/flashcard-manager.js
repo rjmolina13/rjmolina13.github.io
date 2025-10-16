@@ -15,8 +15,23 @@ class FlashcardManager {
     showFlashcard(index = 0) {
         this.filteredFlashcards = this.getFilteredFlashcards();
         
+        // Try common containers first
+        let el = document.getElementById('flashcard-content')
+              || document.querySelector('#flashcard-view')
+              || document.querySelector('#page-root .guard-content #flashcard-content')
+              || document.querySelector('#page-root .guard-content #flashcard-view');
+
+        // If missing, create a container so we never crash
+        if (!el) {
+            const parent = document.querySelector('#page-root .guard-content') || document.getElementById('page-root') || document.body;
+            el = document.createElement('div');
+            el.id = 'flashcard-content';
+            parent.appendChild(el);
+            console.warn('[Flashcards] Created missing #flashcard-content container on the fly');
+        }
+        
         if (this.filteredFlashcards.length === 0) {
-            document.getElementById('flashcard-content').innerHTML = `
+            el.innerHTML = `
                 <div class="no-flashcards">
                     <i class="fas fa-inbox"></i>
                     <h3>No flashcards available</h3>
@@ -43,7 +58,7 @@ class FlashcardManager {
             }
         }
         
-        document.getElementById('flashcard-content').innerHTML = `
+        el.innerHTML = `
             <div class="flashcard ${this.app.settings.animations ? 'animate' : ''}" id="current-flashcard">
                 <div class="flashcard-inner" onclick="app.flashcardManager.flipCard()">
                     <div class="flashcard-front">
@@ -361,53 +376,86 @@ class FlashcardManager {
     }
 
     // Flashcard CRUD Operations
-    addFlashcard(question, answer, deck = 'General', difficulty = 'medium') {
-        const newFlashcard = {
-            id: Date.now() + Math.random(),
-            question: question.trim(),
-            answer: answer.trim(),
-            deck: deck.trim(),
-            difficulty,
-            created: new Date().toISOString(),
-            lastReviewed: null,
-            reviewCount: 0
-        };
+    async addFlashcard(question, answer, deck = 'General', difficulty = 'medium') {
+        try {
+            const newFlashcard = {
+                question: question.trim(),
+                answer: answer.trim(),
+                deck: deck.trim(),
+                difficulty,
+                created: new Date().toISOString(),
+                lastReviewed: null,
+                reviewCount: 0
+            };
 
-        this.app.flashcards.push(newFlashcard);
-        this.app.dataManager.saveData();
-        this.app.updateUI();
-        this.updateFlashcardCounter();
-        this.app.showToast('Flashcard added successfully!', 'success');
-        
-        return newFlashcard;
-    }
-
-    editFlashcard(id, updates) {
-        const flashcard = this.app.flashcards.find(card => card.id == id);
-        if (flashcard) {
-            Object.assign(flashcard, updates);
-            this.app.dataManager.saveData();
+            // Save to Supabase
+            const savedFlashcard = await this.app.supabaseDataService.saveFlashcard(newFlashcard);
+            
+            // Update local array
+            this.app.flashcards.push(savedFlashcard);
             this.app.updateUI();
             this.updateFlashcardCounter();
-            this.app.showToast('Flashcard updated successfully!', 'success');
+            this.app.showToast('Flashcard added successfully!', 'success');
+            
+            return savedFlashcard;
+        } catch (error) {
+            console.error('Error adding flashcard:', error);
+            this.app.showToast('Failed to add flashcard. Please try again.', 'error');
+            throw error;
         }
     }
 
-    deleteFlashcard(id) {
-        // Use loose equality to handle string/number ID mismatches
-        const index = this.app.flashcards.findIndex(card => card.id == id);
-        if (index !== -1) {
-            this.app.flashcards.splice(index, 1);
-            this.app.dataManager.saveData();
-            this.app.updateUI();
-            this.updateFlashcardCounter();
-            this.app.showToast('Flashcard deleted successfully!', 'success');
-            
-            // Adjust current index if necessary
-            if (this.currentIndex >= this.filteredFlashcards.length - 1) {
-                this.currentIndex = Math.max(0, this.filteredFlashcards.length - 2);
+    async editFlashcard(id, updates) {
+        try {
+            const flashcard = this.app.flashcards.find(card => card.id == id);
+            if (flashcard) {
+                // Prepare updated data
+                const updatedData = {
+                    ...flashcard,
+                    ...updates,
+                    updated: new Date().toISOString()
+                };
+                
+                // Save to Supabase
+                const savedFlashcard = await this.app.supabaseDataService.saveFlashcard(updatedData);
+                
+                // Update local array
+                Object.assign(flashcard, savedFlashcard);
+                this.app.updateUI();
+                this.updateFlashcardCounter();
+                this.app.showToast('Flashcard updated successfully!', 'success');
             }
-            this.showFlashcard(this.currentIndex);
+        } catch (error) {
+            console.error('Error updating flashcard:', error);
+            this.app.showToast('Failed to update flashcard. Please try again.', 'error');
+            throw error;
+        }
+    }
+
+    async deleteFlashcard(id) {
+        try {
+            // Use loose equality to handle string/number ID mismatches
+            const index = this.app.flashcards.findIndex(card => card.id == id);
+            if (index !== -1) {
+                // Delete from Supabase
+                await this.app.supabaseDataService.deleteFlashcard(id);
+                
+                // Remove from local array
+                this.app.flashcards.splice(index, 1);
+                this.app.updateUI();
+                this.updateFlashcardCounter();
+                this.app.showToast('Flashcard deleted successfully!', 'success');
+                
+                // Adjust current index if necessary
+                if (this.currentIndex >= this.filteredFlashcards.length - 1) {
+                    this.currentIndex = Math.max(0, this.filteredFlashcards.length - 2);
+                }
+                this.showFlashcard(this.currentIndex);
+            }
+        } catch (error) {
+            console.error('Error deleting flashcard:', error);
+            this.app.showToast('Failed to delete flashcard. Please try again.', 'error');
+            throw error;
         }
     }
 
@@ -484,37 +532,59 @@ class FlashcardManager {
     }
 
     // Bulk Operations
-    bulkUpdateDifficulty(cardIds, difficulty) {
-        let updated = 0;
-        cardIds.forEach(id => {
-            const card = this.app.flashcards.find(c => c.id === id);
-            if (card) {
-                card.difficulty = difficulty;
-                updated++;
+    async bulkUpdateDifficulty(cardIds, difficulty) {
+        try {
+            let updated = 0;
+            const updatePromises = [];
+            
+            cardIds.forEach(id => {
+                const card = this.app.flashcards.find(c => c.id === id);
+                if (card) {
+                    card.difficulty = difficulty;
+                    card.updated = new Date().toISOString();
+                    updatePromises.push(this.app.supabaseDataService.saveFlashcard(card));
+                    updated++;
+                }
+            });
+            
+            if (updated > 0) {
+                // Wait for all updates to complete
+                await Promise.all(updatePromises);
+                this.app.updateUI();
+                this.app.showToast(`Updated ${updated} flashcards`, 'success');
             }
-        });
-        
-        if (updated > 0) {
-            this.app.dataManager.saveData();
-            this.app.updateUI();
-            this.app.showToast(`Updated ${updated} flashcards`, 'success');
+        } catch (error) {
+            console.error('Error bulk updating difficulty:', error);
+            this.app.showToast('Failed to update flashcards. Please try again.', 'error');
+            throw error;
         }
     }
 
-    bulkMoveToDeck(cardIds, deck) {
-        let moved = 0;
-        cardIds.forEach(id => {
-            const card = this.app.flashcards.find(c => c.id === id);
-            if (card) {
-                card.deck = deck;
-                moved++;
+    async bulkMoveToDeck(cardIds, deck) {
+        try {
+            let moved = 0;
+            const updatePromises = [];
+            
+            cardIds.forEach(id => {
+                const card = this.app.flashcards.find(c => c.id === id);
+                if (card) {
+                    card.deck = deck;
+                    card.updated = new Date().toISOString();
+                    updatePromises.push(this.app.supabaseDataService.saveFlashcard(card));
+                    moved++;
+                }
+            });
+            
+            if (moved > 0) {
+                // Wait for all updates to complete
+                await Promise.all(updatePromises);
+                this.app.updateUI();
+                this.app.showToast(`Moved ${moved} flashcards to ${deck}`, 'success');
             }
-        });
-        
-        if (moved > 0) {
-            this.app.dataManager.saveData();
-            this.app.updateUI();
-            this.app.showToast(`Moved ${moved} flashcards to ${deck}`, 'success');
+        } catch (error) {
+            console.error('Error bulk moving to deck:', error);
+            this.app.showToast('Failed to move flashcards. Please try again.', 'error');
+            throw error;
         }
     }
 
@@ -746,10 +816,10 @@ class FlashcardManager {
     }
 
     openEditFlashcardModal(cardId) {
-        console.log('flashcard-manager openEditFlashcardModal called with cardId:', cardId);
+        if (this.app.debugMode) window.debugLog?.info('flashcardManager', 'flashcard-manager openEditFlashcardModal called with cardId:', cardId);
         const card = this.app.flashcards.find(c => c.id == cardId);
         if (!card) {
-            console.log('Flashcard not found for id:', cardId);
+            window.debugLog?.warn('flashcardManager', 'Flashcard not found for id:', cardId);
             return;
         }
         
@@ -760,7 +830,7 @@ class FlashcardManager {
         const difficultySelect = document.getElementById('edit-difficulty-select');
         const form = document.getElementById('edit-flashcard-form');
         
-        console.log('Form elements found:', {
+        if (this.app.debugMode) window.debugLog?.info('flashcardManager', 'Form elements found:', {
             questionInput: !!questionInput,
             answerInput: !!answerInput,
             deckInput: !!deckInput,
@@ -777,7 +847,7 @@ class FlashcardManager {
         if (form) form.dataset.cardId = cardId;
         
         // Show the modal
-        console.log('Opening edit flashcard modal');
+        if (this.app.debugMode) window.debugLog?.info('flashcardManager', 'Opening edit flashcard modal');
         this.app.uiManager.openModal('edit-flashcard-modal');
     }
 
@@ -865,7 +935,7 @@ class FlashcardManager {
 
 }
 
-// Export for use in main app
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = FlashcardManager;
+// Make FlashcardManager available globally
+if (typeof window !== 'undefined') {
+    window.FlashcardManager = FlashcardManager;
 }

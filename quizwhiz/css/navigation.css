@@ -17,20 +17,25 @@
     justify-self: start;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: clamp(0.5rem, 2vw, 0.75rem);
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 2vw, 1rem);
     color: white;
 }
 
 .nav-brand h1 {
     margin: 0;
     color: white;
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .nav-brand i {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     color: rgba(255, 255, 255, 0.9);
+    flex-shrink: 0;
 }
 
 .nav-menu {
@@ -43,11 +48,14 @@
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: rgba(255, 255, 255, 0.9);
-    padding: 0.75rem 1.5rem;
+    padding: 1.5rem 1.5rem;
     border-radius: var(--border-radius);
     font-weight: 500;
     cursor: pointer;
     transition: var(--transition);
+    min-height: 44px;
+    height: 44px;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -226,34 +234,50 @@ input:checked + .theme-slider:before {
 /* Mobile responsive styles */
 @media (max-width: 768px) {
     .navbar {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: auto 1fr auto;
         padding: 1rem;
         position: relative;
+        gap: 1rem;
     }
     
     .mobile-menu-toggle {
         display: flex;
+        justify-self: start;
+        order: 1;
+    }
+    
+    .nav-brand {
+        justify-self: center;
+        order: 2;
+    }
+    
+    .auth-section {
+        justify-self: end;
+        order: 3;
     }
     
     .nav-menu {
-        position: absolute;
-        top: 100%;
+        position: fixed;
+        top: 0;
         left: 0;
-        right: 0;
+        bottom: 0;
+        width: 280px;
         background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         flex-direction: column;
         gap: 0;
         padding: 1rem;
+        padding-top: 5rem;
         box-shadow: var(--shadow-lg);
-        transform: translateY(-100%);
+        transform: translateX(-100%);
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
-        z-index: 100;
+        z-index: 1000;
+        overflow-y: auto;
     }
     
     .nav-menu.active {
-        transform: translateY(0);
+        transform: translateX(0);
         opacity: 1;
         visibility: visible;
     }
@@ -268,6 +292,31 @@ input:checked + .theme-slider:before {
     
     .nav-dropdown {
         width: 100%;
+    }
+    
+    /* Sidebar backdrop overlay */
+    .nav-menu::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: -1;
+    }
+    
+    .nav-menu.active::before {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Prevent body scroll when sidebar is open */
+    body.sidebar-open {
+        overflow: hidden;
     }
     
     .nav-dropdown .dropdown-content {
@@ -300,12 +349,9 @@ input:checked + .theme-slider:before {
         padding: 0.75rem 1rem;
         margin-bottom: 0.25rem;
         background: rgba(255, 255, 255, 0.05);
-    }
-    
-    .user-profile {
-        position: absolute;
-        top: 1rem;
-        right: 4rem;
+        min-height: 40px;
+        height: 40px;
+        box-sizing: border-box;
     }
     
     .user-dropdown-content {
@@ -313,4 +359,451 @@ input:checked + .theme-slider:before {
         left: auto;
         min-width: 200px;
     }
+    
+    /* Ensure user menu is visible and properly positioned */
+    .user-menu {
+        position: relative;
+    }
+    
+    .user-dropdown {
+        position: relative;
+    }
+}
+
+/* Auth Section Styles */
+.auth-section {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.auth-buttons .btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+    z-index: 1;
+    min-width: 80px;
+    text-align: center;
+}
+
+.auth-buttons .btn > * {
+    position: relative;
+    z-index: 2;
+}
+
+.auth-buttons .btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle 150px at var(--mouse-x) var(--mouse-y),
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.05) 40%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.auth-buttons .btn:hover::after {
+    opacity: 1;
+}
+
+.auth-buttons .btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.auth-buttons .btn:active {
+    transform: translateY(0);
+}
+
+.auth-buttons .btn i {
+    font-size: 1.1rem;
+}
+
+.auth-buttons .btn span {
+    font-size: 0.85rem;
+    line-height: 1;
+    font-weight: 500;
+}
+
+/* Reduced motion preferences for auth buttons */
+@media (prefers-reduced-motion: reduce) {
+    .auth-buttons .btn {
+        transition: none;
+    }
+    
+    .auth-buttons .btn::after {
+        display: none;
+    }
+    
+    .auth-buttons .btn:hover {
+        transform: none;
+    }
+}
+
+/* Auth Container - Nav-btn Style */
+.auth-container {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+    overflow: hidden;
+    height: 48px;
+}
+
+.auth-container:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.auth-option {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 500;
+    min-width: 70px;
+    flex: 1;
+}
+
+.auth-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.auth-option i {
+    font-size: 1.1rem;
+}
+
+.auth-option span {
+    font-size: 0.85rem;
+    line-height: 1;
+    font-weight: 500;
+}
+
+.auth-divider {
+    width: 1px;
+    height: 60%;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 0;
+}
+
+/* Auth buttons now use unified nav-btn styling */
+
+/* Compact mobile design */
+@media (max-width: 768px) {
+    .auth-buttons {
+        gap: 0.25rem;
+    }
+    
+    .auth-buttons .btn {
+        padding: 0.5rem 1rem;
+        min-width: 70px;
+    }
+    
+    .auth-buttons .btn span {
+        font-size: 0.8rem;
+    }
+    
+    .auth-container {
+        height: 40px;
+    }
+    
+    .auth-option {
+        padding: 0.5rem 0.75rem;
+        min-width: 60px;
+    }
+    
+    .auth-option span {
+        font-size: 0.8rem;
+    }
+    
+    .auth-option i {
+        font-size: 1rem;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .navbar {
+        padding: 0.75rem;
+    }
+    
+    .nav-brand h1 {
+        font-size: clamp(1rem, 3.5vw, 1.4rem);
+    }
+    
+    .nav-brand i {
+        font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+    }
+    
+    .nav-menu {
+        width: 260px;
+        padding: 0.75rem;
+        padding-top: 4rem;
+    }
+    
+    .nav-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        min-height: 40px;
+        height: 40px;
+    }
+    
+    .auth-buttons {
+        gap: 0.5rem;
+    }
+    
+    .auth-buttons .btn {
+        padding: 0.5rem 0.75rem;
+        min-width: 60px;
+        min-height: 40px;
+        height: 40px;
+    }
+    
+    .auth-buttons .btn span {
+        font-size: 0.75rem;
+    }
+    
+    .auth-buttons .btn i {
+        font-size: 1rem;
+    }
+    
+    .auth-container {
+        height: 36px;
+    }
+    
+    .auth-option {
+        padding: 0.4rem 0.6rem;
+        min-width: 50px;
+    }
+    
+    .auth-option span {
+        font-size: 0.75rem;
+    }
+    
+    .auth-option i {
+        font-size: 0.9rem;
+    }
+}
+
+/* Large tablets and small desktops */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .nav-brand h1 {
+        font-size: clamp(1.4rem, 3vw, 1.6rem);
+    }
+    
+    .nav-btn {
+        padding: 0.75rem 1.25rem;
+    }
+}
+
+/* Dark theme adjustments - auth buttons inherit nav-btn dark theme styles */
+
+/* User Menu Styles */
+.user-menu {
+    position: relative;
+}
+
+.user-dropdown {
+    position: relative;
+}
+
+.user-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    height: 44px;
+    box-sizing: border-box;
+}
+
+.user-dropdown-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
+}
+
+.username {
+    font-size: 0.9rem;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-dropdown-content {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 
+                0 4px 16px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    min-width: 160px;
+    width: 160px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.user-dropdown.active .user-dropdown-content {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.9rem;
+    text-align: left;
+    position: relative;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary-color);
+    transform: translateX(2px);
+}
+
+.dropdown-item:first-child {
+    border-radius: 12px 12px 0 0;
+}
+
+.dropdown-item:last-child {
+    border-radius: 0 0 12px 12px;
+}
+
+.dropdown-item i {
+    width: 16px;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0.5rem 0;
+}
+
+/* Theme Toggle Button */
+.icon-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-right: 1rem;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.icon-btn i {
+    font-size: 1.1rem;
+}
+
+/* Hidden utility class */
+.hidden {
+    display: none !important;
+}
+
+/* Auth pending state - prevent flash of logged-out UI */
+.navbar-root.auth-pending .auth-buttons,
+.navbar-root.auth-pending .user-menu {
+    display: none !important;
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .user-dropdown-content {
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                0 4px 16px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
 }

@@ -6,7 +6,7 @@ class CustomCheckbox {
     constructor(containerId, options = {}) {
         this.container = document.getElementById(containerId);
         if (!this.container) {
-            console.error(`Custom checkbox container with id '${containerId}' not found`);
+            window.debugLog?.error('customCheckbox', `Custom checkbox container with id '${containerId}' not found`);
             return;
         }
         
@@ -271,9 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     CustomCheckbox.initializeAll();
 });
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CustomCheckbox;
-} else {
+// Make CustomCheckbox available globally
+if (typeof window !== 'undefined') {
     window.CustomCheckbox = CustomCheckbox;
 }

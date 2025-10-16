@@ -34,14 +34,17 @@ class EventHandler {
         // File upload events
         this.setupFileEvents();
         
-        // Settings events
-        this.setupSettingsEvents();
+        // Settings events - NOTE: This will be called later when settings UI is loaded
+        // this.setupSettingsEvents();
         
         // Keyboard shortcuts
         this.setupKeyboardShortcuts();
         
         // Window events
         this.setupWindowEvents();
+        
+        // Data action events for stat cards
+        this.setupDataActionEvents();
     }
 
     setupNavigationEvents() {
@@ -127,8 +130,35 @@ class EventHandler {
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
         if (mobileMenuToggle) {
             mobileMenuToggle.addEventListener('click', () => {
-                const nav = document.querySelector('.nav');
-                nav.classList.toggle('mobile-open');
+                const navMenu = document.querySelector('.nav-menu');
+                const body = document.body;
+                const isActive = navMenu.classList.contains('active');
+                
+                if (isActive) {
+                    navMenu.classList.remove('active');
+                    body.classList.remove('sidebar-open');
+                    mobileMenuToggle.classList.remove('active');
+                    mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                } else {
+                    navMenu.classList.add('active');
+                    body.classList.add('sidebar-open');
+                    mobileMenuToggle.classList.add('active');
+                    mobileMenuToggle.setAttribute('aria-expanded', 'true');
+                }
+            });
+            
+            // Close sidebar when clicking on backdrop
+            document.addEventListener('click', (e) => {
+                const navMenu = document.querySelector('.nav-menu');
+                const isClickInsideMenu = navMenu.contains(e.target);
+                const isClickOnToggle = mobileMenuToggle.contains(e.target);
+                
+                if (!isClickInsideMenu && !isClickOnToggle && navMenu.classList.contains('active')) {
+                    navMenu.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                    mobileMenuToggle.classList.remove('active');
+                    mobileMenuToggle.setAttribute('aria-expanded', 'false');
+                }
             });
         }
     }
@@ -1325,26 +1355,26 @@ class EventHandler {
      }
 
      openEditQuizModal(quizId) {
-         console.log('openEditQuizModal called with quizId:', quizId);
+         if (this.app.debugMode) window.debugLog?.info('eventHandler', 'openEditQuizModal called with quizId:', quizId);
          const quiz = this.app.quizzes.find(q => q.id === quizId);
          if (!quiz) {
-             console.log('Quiz not found for id:', quizId);
+             if (this.app.debugMode) window.debugLog?.warn('eventHandler', 'Quiz not found for id:', quizId);
              this.app.showToast('Quiz not found', 'error');
              return;
          }
          
          const modal = document.getElementById('edit-quiz-modal');
          const form = document.getElementById('edit-quiz-form');
-         console.log('Modal element found:', !!modal, 'Form element found:', !!form);
+         if (this.app.debugMode) window.debugLog?.info('eventHandler', 'Modal element found:', !!modal, 'Form element found:', !!form);
          
          if (!modal) {
-             console.error('Edit quiz modal not found in DOM!');
+             window.debugLog?.error('eventHandler', 'Edit quiz modal not found in DOM!');
              this.app.showToast('Modal not available', 'error');
              return;
          }
          
          if (!form) {
-             console.error('Edit quiz form not found in DOM!');
+             window.debugLog?.error('eventHandler', 'Edit quiz form not found in DOM!');
              this.app.showToast('Form not available', 'error');
              return;
          }
@@ -1365,16 +1395,16 @@ class EventHandler {
              if (wrongAnswersField) wrongAnswersField.value = (quiz.wrongAnswers || []).join('\n');
              if (difficultyField) difficultyField.value = quiz.difficulty || 'medium';
              
-             console.log('Form populated successfully');
+             if (this.app.debugMode) window.debugLog?.info('eventHandler', 'Form populated successfully');
          } catch (error) {
-             console.error('Error populating form:', error);
+             window.debugLog?.error('eventHandler', 'Error populating form:', error);
              this.app.showToast('Error loading quiz data', 'error');
              return;
          }
          
          // Use setTimeout to ensure DOM is ready
          setTimeout(() => {
-             console.log('Opening edit quiz modal');
+             if (this.app.debugMode) window.debugLog?.info('eventHandler', 'Opening edit quiz modal');
              this.app.uiManager.openModal('edit-quiz-modal');
          }, 50);
      }
@@ -1528,7 +1558,7 @@ class EventHandler {
             }, 50);
 
         } catch (error) {
-            console.error('Error opening edit flashcard modal:', error);
+            window.debugLog?.error('eventHandler', 'Error opening edit flashcard modal:', error);
             if (this.app.showToast) {
                 this.app.showToast('Failed to open edit modal', 'error');
             }
@@ -1566,7 +1596,7 @@ class EventHandler {
                 }
             }
         } catch (error) {
-            console.error('Error deleting flashcard:', error);
+            window.debugLog?.error('eventHandler', 'Error deleting flashcard:', error);
             if (this.app.showToast) {
                 this.app.showToast('Failed to delete flashcard', 'error');
             }
@@ -1640,10 +1670,30 @@ class EventHandler {
 
         // Settings page file input
         const settingsFileInput = document.getElementById('settings-file-input');
-        if (settingsFileInput) {
+        const settingsOwnsHandlers = !!document.body.dataset.settingsHandlers; // set in settings.html
+        
+        if (settingsFileInput && !settingsOwnsHandlers) {
             settingsFileInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) {
-                    this.app.dataManager.processFile(e.target.files[0]);
+                console.log('DEBUG: File input change event triggered');
+                console.log('DEBUG: Files selected:', e.target.files ? e.target.files.length : 0);
+                
+                if (e.target.files && e.target.files.length > 0) {
+                    // Use the settings page specific file processing function
+                    console.log('DEBUG: Checking for processFilesWithConfirmation function in file input');
+                    console.log('DEBUG: typeof processFilesWithConfirmation:', typeof processFilesWithConfirmation);
+                    console.log('DEBUG: window.processFilesWithConfirmation:', typeof window.processFilesWithConfirmation);
+                    
+                    if (typeof processFilesWithConfirmation === 'function') {
+                        console.log('DEBUG: Calling processFilesWithConfirmation from file input (global scope)');
+                        processFilesWithConfirmation(Array.from(e.target.files));
+                    } else if (typeof window.processFilesWithConfirmation === 'function') {
+                        console.log('DEBUG: Calling processFilesWithConfirmation from file input (window object)');
+                        window.processFilesWithConfirmation(Array.from(e.target.files));
+                    } else {
+                        console.log('DEBUG: processFilesWithConfirmation not found in file input, using fallback');
+                        // Fallback to unified data manager
+                        this.app.dataManager.processFile(e.target.files[0]);
+                    }
                 }
             });
         }
@@ -1673,7 +1723,7 @@ class EventHandler {
 
         // Settings page file upload area drag and drop
         const settingsFileUploadArea = document.getElementById('settings-file-upload-area');
-        if (settingsFileUploadArea && settingsFileInput) {
+        if (settingsFileUploadArea && settingsFileInput && !settingsOwnsHandlers) {
             settingsFileUploadArea.addEventListener('click', (e) => {
                 // Prevent default behavior and event bubbling
                 e.preventDefault();
@@ -1703,10 +1753,30 @@ class EventHandler {
                 e.preventDefault();
                 settingsFileUploadArea.classList.remove('drag-over');
                 
+                console.log('DEBUG: Drop event triggered on settings file upload area');
                 const files = Array.from(e.dataTransfer.files);
-                files.forEach(file => {
-                    this.app.dataManager.processFile(file);
-                });
+                console.log('DEBUG: Files dropped:', files.length);
+                
+                if (files.length > 0) {
+                    // Use the settings page specific file processing function
+                    console.log('DEBUG: Checking for processFilesWithConfirmation function');
+                    console.log('DEBUG: typeof processFilesWithConfirmation:', typeof processFilesWithConfirmation);
+                    console.log('DEBUG: window.processFilesWithConfirmation:', typeof window.processFilesWithConfirmation);
+                    
+                    if (typeof processFilesWithConfirmation === 'function') {
+                        console.log('DEBUG: Calling processFilesWithConfirmation from global scope');
+                        processFilesWithConfirmation(files);
+                    } else if (typeof window.processFilesWithConfirmation === 'function') {
+                        console.log('DEBUG: Calling processFilesWithConfirmation from window object');
+                        window.processFilesWithConfirmation(files);
+                    } else {
+                        console.log('DEBUG: processFilesWithConfirmation not found, using fallback');
+                        // Fallback to unified data manager
+                        files.forEach(file => {
+                            this.app.dataManager.processFile(file);
+                        });
+                    }
+                }
             });
         }
 
@@ -1732,19 +1802,46 @@ class EventHandler {
     }
 
     setupSettingsEvents() {
+        console.log('🔧 setupSettingsEvents called');
+        
         // Theme selector - Initialize custom dropdown
         const themeSelectorContainer = document.getElementById('theme-selector-container');
+        console.log('🔧 Theme selector container found:', !!themeSelectorContainer);
+        
         if (themeSelectorContainer) {
-            this.themeDropdown = new CustomDropdown('theme-selector-container');
-            this.themeDropdown.onChange((value) => {
-                this.app.settings.theme = value;
-                this.app.uiManager.changeTheme(value);
-                this.app.dataManager.saveData();
-            });
+            console.log('🔧 Initializing CustomDropdown for theme selector');
             
-            // Set initial value
-            this.themeDropdown.setValue(this.app.settings.theme, true);
-        }
+            // Check if CustomDropdown class is available
+            if (typeof CustomDropdown === 'undefined') {
+                console.error('🔧 CustomDropdown class not available');
+                return;
+            }
+            
+            try {
+                this.themeDropdown = new CustomDropdown('theme-selector-container');
+                console.log('🔧 CustomDropdown initialized successfully');
+                
+                this.themeDropdown.onChange((value) => {
+                    console.log('🔧 Theme dropdown value changed to:', value);
+                    this.app.settings.theme = value;
+                    this.app.uiManager.changeTheme(value);
+                    this.app.dataManager.saveData();
+                });
+                
+                // Set initial value
+                const currentTheme = this.app.settings.theme || 'auto';
+                console.log('🔧 Setting initial theme value:', currentTheme);
+                this.themeDropdown.setValue(currentTheme, true);
+            } catch (error) {
+                console.error('🔧 Error initializing CustomDropdown:', error);
+            }
+        } else {
+             console.warn('🔧 Theme selector container not found, retrying in 500ms');
+             // Retry after a short delay in case the DOM isn't fully ready
+             setTimeout(() => {
+                 this.setupSettingsEvents();
+             }, 500);
+         }
         
         // Initialize custom checkboxes (only if CustomCheckbox is available)
         if (typeof CustomCheckbox !== 'undefined') {
@@ -1825,6 +1922,30 @@ class EventHandler {
                 this.app.updateUI(); // Update storage info after clearing data
             });
         }
+
+        // Use a small delay to ensure DOM is fully loaded
+        setTimeout(() => {
+            const deleteAccountBtn = document.getElementById('delete-account-btn');
+            console.log('Looking for Delete Account button...');
+            console.log('Button element:', deleteAccountBtn);
+            
+            if (deleteAccountBtn) {
+                console.log('Delete Account button found, adding event listener');
+                deleteAccountBtn.addEventListener('click', (e) => {
+                    console.log('Delete Account button clicked!');
+                    e.preventDefault();
+                    if (this.app.authManager && this.app.authManager.confirmDeleteAccount) {
+                        this.app.authManager.confirmDeleteAccount();
+                    } else {
+                        console.error('AuthManager or confirmDeleteAccount method not available');
+                    }
+                });
+            } else {
+                console.log('Delete Account button not found in DOM');
+                console.log('Available buttons with delete in ID:', 
+                    Array.from(document.querySelectorAll('[id*="delete"]')).map(el => el.id));
+            }
+        }, 100);
     }
 
     setupKeyboardShortcuts() {
@@ -1932,6 +2053,34 @@ class EventHandler {
 
         window.addEventListener('offline', () => {
             this.app.uiManager.showToast('You are offline. Data will be saved locally.', 'warning');
+        });
+    }
+
+    setupDataActionEvents() {
+        // Handle clicks on elements with data-action attributes (like stat cards)
+        document.addEventListener('click', (e) => {
+            const actionElement = e.target.closest('[data-action]');
+            if (actionElement) {
+                e.preventDefault();
+                const action = actionElement.getAttribute('data-action');
+                const target = actionElement.getAttribute('data-target');
+                
+                if (action === 'navigate' && target) {
+                    // Navigate to a different section/page
+                    if (target === 'flashcards') {
+                        window.location.href = 'flashcards.html';
+                    } else if (target === 'quiz') {
+                        window.location.href = 'quiz.html';
+                    } else if (this.app && this.app.showSection) {
+                        this.app.showSection(target);
+                    }
+                } else if (action === 'modal' && target) {
+                    // Open a modal
+                    if (this.app && this.app.uiManager) {
+                        this.app.uiManager.openModal(target);
+                    }
+                }
+            }
         });
     }
 
@@ -2330,7 +2479,7 @@ function reviewMixedMistakes() {
     }
 }
 
-// Export for use in main app
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = EventHandler;
+// Make EventHandler available globally
+if (typeof window !== 'undefined') {
+    window.EventHandler = EventHandler;
 }

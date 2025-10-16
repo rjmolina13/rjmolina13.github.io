@@ -558,33 +558,53 @@ class ContentManager {
     }
 
     // Add new flashcard
-    addFlashcard(flashcardData) {
-        const newCard = {
-            id: Date.now().toString(),
-            ...flashcardData,
-            createdAt: new Date().toISOString()
-        };
-        
-        this.app.flashcards.push(newCard);
-        this.app.dataManager.saveData();
-        this.displayFlashcards();
-        this.updateDeckOptions();
+    async addFlashcard(flashcardData) {
+        try {
+            const newCard = {
+                ...flashcardData,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to Supabase
+            const savedCard = await this.app.supabaseDataService.saveFlashcard(newCard);
+            
+            // Update local array
+            this.app.flashcards.push(savedCard);
+            this.displayFlashcards();
+            this.updateDeckOptions();
+            this.app.showToast('Flashcard added successfully!', 'success');
+        } catch (error) {
+            console.error('Error adding flashcard:', error);
+            this.app.showToast('Failed to add flashcard. Please try again.', 'error');
+            throw error;
+        }
     }
 
     // Update existing flashcard
-    updateFlashcard(cardId, flashcardData) {
-        // Use loose equality to handle string/number ID mismatches
-        const index = this.app.flashcards.findIndex(card => card.id == cardId);
-        if (index !== -1) {
-            this.app.flashcards[index] = {
-                ...this.app.flashcards[index],
-                ...flashcardData,
-                updatedAt: new Date().toISOString()
-            };
-            this.app.dataManager.saveData();
-            this.displayFlashcards();
-            this.updateDeckOptions();
-            this.app.showToast('Flashcard updated successfully!', 'success');
+    async updateFlashcard(cardId, flashcardData) {
+        try {
+            // Use loose equality to handle string/number ID mismatches
+            const index = this.app.flashcards.findIndex(card => card.id == cardId);
+            if (index !== -1) {
+                const updatedData = {
+                    ...this.app.flashcards[index],
+                    ...flashcardData,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                // Save to Supabase
+                const savedCard = await this.app.supabaseDataService.saveFlashcard(updatedData);
+                
+                // Update local array
+                this.app.flashcards[index] = savedCard;
+                this.displayFlashcards();
+                this.updateDeckOptions();
+                this.app.showToast('Flashcard updated successfully!', 'success');
+            }
+        } catch (error) {
+            console.error('Error updating flashcard:', error);
+            this.app.showToast('Failed to update flashcard. Please try again.', 'error');
+            throw error;
         }
     }
 
@@ -601,19 +621,27 @@ class ContentManager {
         this.app.uiManager.openModal('delete-flashcard-modal');
     }
     
-    confirmDeleteFlashcard() {
+    async confirmDeleteFlashcard() {
         if (this.pendingDeleteFlashcardId) {
-            // Use loose equality to handle string/number ID mismatches
-            const index = this.app.flashcards.findIndex(card => card.id == this.pendingDeleteFlashcardId);
-            if (index !== -1) {
-                this.app.flashcards.splice(index, 1);
-                this.app.dataManager.saveData();
-                this.displayFlashcards();
-                this.updateDeckOptions();
-                this.app.showToast('Flashcard deleted successfully!', 'success');
-            } else {
-                console.error('Flashcard not found for deletion. ID:', this.pendingDeleteFlashcardId);
-                this.app.showToast('Failed to delete flashcard - not found', 'error');
+            try {
+                // Use loose equality to handle string/number ID mismatches
+                const index = this.app.flashcards.findIndex(card => card.id == this.pendingDeleteFlashcardId);
+                if (index !== -1) {
+                    // Delete from Supabase
+                    await this.app.supabaseDataService.deleteFlashcard(this.pendingDeleteFlashcardId);
+                    
+                    // Remove from local array
+                    this.app.flashcards.splice(index, 1);
+                    this.displayFlashcards();
+                    this.updateDeckOptions();
+                    this.app.showToast('Flashcard deleted successfully!', 'success');
+                } else {
+                    window.debugLog?.error('contentManager', 'Flashcard not found for deletion. ID:', this.pendingDeleteFlashcardId);
+                    this.app.showToast('Failed to delete flashcard - not found', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting flashcard:', error);
+                this.app.showToast('Failed to delete flashcard. Please try again.', 'error');
             }
             this.pendingDeleteFlashcardId = null;
         }
@@ -621,32 +649,52 @@ class ContentManager {
     }
 
     // Add new quiz
-    addQuiz(quizData) {
-        const newQuiz = {
-            id: Date.now().toString(),
-            ...quizData,
-            createdAt: new Date().toISOString()
-        };
-        
-        this.app.quizzes.push(newQuiz);
-        this.app.dataManager.saveData();
-        this.displayQuizzes();
-        this.updateDeckOptions();
+    async addQuiz(quizData) {
+        try {
+            const newQuiz = {
+                ...quizData,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to Supabase
+            const savedQuiz = await this.app.supabaseDataService.saveQuiz(newQuiz);
+            
+            // Update local array
+            this.app.quizzes.push(savedQuiz);
+            this.displayQuizzes();
+            this.updateDeckOptions();
+            this.app.showToast('Quiz added successfully!', 'success');
+        } catch (error) {
+            console.error('Error adding quiz:', error);
+            this.app.showToast('Failed to add quiz. Please try again.', 'error');
+            throw error;
+        }
     }
 
     // Update existing quiz
-    updateQuiz(quizId, quizData) {
-        const index = this.app.quizzes.findIndex(quiz => quiz.id === quizId);
-        if (index !== -1) {
-            this.app.quizzes[index] = {
-                ...this.app.quizzes[index],
-                ...quizData,
-                updatedAt: new Date().toISOString()
-            };
-            this.app.dataManager.saveData();
-            this.displayQuizzes();
-            this.updateDeckOptions();
-            this.app.showToast('Quiz updated successfully!', 'success');
+    async updateQuiz(quizId, quizData) {
+        try {
+            const index = this.app.quizzes.findIndex(quiz => quiz.id === quizId);
+            if (index !== -1) {
+                const updatedData = {
+                    ...this.app.quizzes[index],
+                    ...quizData,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                // Save to Supabase
+                const savedQuiz = await this.app.supabaseDataService.saveQuiz(updatedData);
+                
+                // Update local array
+                this.app.quizzes[index] = savedQuiz;
+                this.displayQuizzes();
+                this.updateDeckOptions();
+                this.app.showToast('Quiz updated successfully!', 'success');
+            }
+        } catch (error) {
+            console.error('Error updating quiz:', error);
+            this.app.showToast('Failed to update quiz. Please try again.', 'error');
+            throw error;
         }
     }
 
@@ -663,17 +711,25 @@ class ContentManager {
         this.app.uiManager.openModal('delete-quiz-modal');
     }
     
-    confirmDeleteQuiz() {
+    async confirmDeleteQuiz() {
         if (this.pendingDeleteQuizId) {
-            const index = this.app.quizzes.findIndex(quiz => quiz.id === this.pendingDeleteQuizId);
-            if (index !== -1) {
-                this.app.quizzes.splice(index, 1);
-                this.app.dataManager.saveData();
-                this.displayQuizzes();
-                this.updateDeckOptions();
-                this.app.showToast('Quiz deleted successfully!', 'success');
-            } else {
-                this.app.showToast('Failed to delete quiz - not found', 'error');
+            try {
+                const index = this.app.quizzes.findIndex(quiz => quiz.id === this.pendingDeleteQuizId);
+                if (index !== -1) {
+                    // Delete from Supabase
+                    await this.app.supabaseDataService.deleteQuiz(this.pendingDeleteQuizId);
+                    
+                    // Remove from local array
+                    this.app.quizzes.splice(index, 1);
+                    this.displayQuizzes();
+                    this.updateDeckOptions();
+                    this.app.showToast('Quiz deleted successfully!', 'success');
+                } else {
+                    this.app.showToast('Failed to delete quiz - not found', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting quiz:', error);
+                this.app.showToast('Failed to delete quiz. Please try again.', 'error');
             }
             this.pendingDeleteQuizId = null;
         }
@@ -702,29 +758,38 @@ class ContentManager {
         this.app.uiManager.openModal('bulk-delete-flashcards-modal');
     }
     
-    confirmBulkDeleteFlashcards() {
+    async confirmBulkDeleteFlashcards() {
         if (this.pendingDeleteFlashcardIds && this.pendingDeleteFlashcardIds.length > 0) {
             const deleteCount = this.pendingDeleteFlashcardIds.length;
             const initialCount = this.app.flashcards.length;
             
-            // Use loose equality to handle string/number ID mismatches
-            this.app.flashcards = this.app.flashcards.filter(card => 
-                !this.pendingDeleteFlashcardIds.some(id => card.id == id)
-            );
-            
-            const actualDeleteCount = initialCount - this.app.flashcards.length;
-            
-            this.app.dataManager.saveData();
-            this.displayFlashcards();
-            this.updateDeckOptions();
-            
-            // Show success message and update flashcard display if on flashcard page
-            if (this.app.showToast) {
-                if (actualDeleteCount > 0) {
-                    this.app.showToast(`Deleted ${actualDeleteCount} flashcard${actualDeleteCount !== 1 ? 's' : ''}`, 'success');
-                } else {
-                    this.app.showToast('No flashcards were deleted - IDs not found', 'warning');
+            try {
+                // Delete from Supabase
+                for (const cardId of this.pendingDeleteFlashcardIds) {
+                    await this.app.supabaseDataService.deleteFlashcard(cardId);
                 }
+                
+                // Use loose equality to handle string/number ID mismatches
+                this.app.flashcards = this.app.flashcards.filter(card => 
+                    !this.pendingDeleteFlashcardIds.some(id => card.id == id)
+                );
+                
+                const actualDeleteCount = initialCount - this.app.flashcards.length;
+                
+                this.displayFlashcards();
+                this.updateDeckOptions();
+                
+                // Show success message and update flashcard display if on flashcard page
+                if (this.app.showToast) {
+                    if (actualDeleteCount > 0) {
+                        this.app.showToast(`Deleted ${actualDeleteCount} flashcard${actualDeleteCount !== 1 ? 's' : ''}`, 'success');
+                    } else {
+                        this.app.showToast('No flashcards were deleted - IDs not found', 'warning');
+                    }
+                }
+            } catch (error) {
+                console.error('Error deleting flashcards:', error);
+                this.app.showToast('Failed to delete flashcards. Please try again.', 'error');
             }
             // Don't call showFlashcard on content management page
             
@@ -755,24 +820,34 @@ class ContentManager {
         this.app.uiManager.openModal('bulk-delete-quizzes-modal');
     }
     
-    confirmBulkDeleteQuizzes() {
+    async confirmBulkDeleteQuizzes() {
         if (this.pendingDeleteQuizIds && this.pendingDeleteQuizIds.length > 0) {
             const deleteCount = this.pendingDeleteQuizIds.length;
             const initialCount = this.app.quizzes.length;
             
-            this.app.quizzes = this.app.quizzes.filter(quiz => !this.pendingDeleteQuizIds.includes(quiz.id));
-            
-            const actualDeleteCount = initialCount - this.app.quizzes.length;
-            
-            this.app.dataManager.saveData();
-            this.displayQuizzes();
-            this.updateDeckOptions();
-            
-            // Show success message
-            if (actualDeleteCount > 0) {
-                this.app.showToast(`Deleted ${actualDeleteCount} quiz${actualDeleteCount !== 1 ? 'zes' : ''}`, 'success');
-            } else {
-                this.app.showToast('No quizzes were deleted - IDs not found', 'warning');
+            try {
+                // Delete from Supabase
+                for (const quizId of this.pendingDeleteQuizIds) {
+                    await this.app.supabaseDataService.deleteQuiz(quizId);
+                }
+                
+                // Remove from local array
+                this.app.quizzes = this.app.quizzes.filter(quiz => !this.pendingDeleteQuizIds.includes(quiz.id));
+                
+                const actualDeleteCount = initialCount - this.app.quizzes.length;
+                
+                this.displayQuizzes();
+                this.updateDeckOptions();
+                
+                // Show success message
+                if (actualDeleteCount > 0) {
+                    this.app.showToast(`Deleted ${actualDeleteCount} quiz${actualDeleteCount !== 1 ? 'zes' : ''}`, 'success');
+                } else {
+                    this.app.showToast('No quizzes were deleted - IDs not found', 'warning');
+                }
+            } catch (error) {
+                console.error('Error deleting quizzes:', error);
+                this.app.showToast('Failed to delete quizzes. Please try again.', 'error');
             }
             
             this.pendingDeleteQuizIds = null;
@@ -826,7 +901,7 @@ class ContentManager {
     }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ContentManager;
+// Make ContentManager available globally
+if (typeof window !== 'undefined') {
+    window.ContentManager = ContentManager;
 }

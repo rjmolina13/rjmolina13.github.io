@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        (function () {
+            const key = 'qw_theme';
+            const stored = localStorage.getItem(key) || 'auto';
+            const sys = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const eff = stored === 'auto' ? sys : stored;
+
+            const d = document.documentElement;
+            d.dataset.theme = eff;                 // if you use [data-theme="dark"] in CSS
+            d.classList.remove('theme-light','theme-dark');
+            d.classList.add(eff === 'dark' ? 'theme-dark' : 'theme-light');
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mixed Study Mode - QuizWhiz</title>
@@ -13,6 +26,9 @@
     <!-- CSS Files -->
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/footer.css">
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="app-container">
@@ -135,16 +151,27 @@
     <!-- Footer -->
     <div id="footer-container"></div>
 
+    <!-- Supabase Configuration -->
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/supabase-auth.js"></script>
+    <script src="../js/supabase-data.js"></script>
+
+    <!-- New Modules -->
+    <script src="../js/theme-manager.js"></script>
+    <script src="../js/data-sync.js"></script>
+    <script src="../js/auth-guard.js"></script>
+    
     <!-- JavaScript Modules -->
+    <script src="../js/debug-config.js"></script>
+    <script src="../js/auth-manager.js"></script>
     <script src="../js/navbar-loader.js"></script>
     <script src="../js/footer-loader.js"></script>
-    <script src="../js/data-manager.js"></script>
+    <script src="../js/unified-data-manager.js"></script>
     <script src="../js/flashcard-manager.js"></script>
     <script src="../js/quiz-manager.js"></script>
-    <script src="../js/mixed-manager.js"></script>
+    <script src="../js/mixed-manager.js?v=3"></script>
     <script src="../js/content-manager.js"></script>
     <script src="../js/ui-manager.js"></script>
-    <script src="../js/user-manager.js"></script>
     <script src="../js/event-handler.js"></script>
     <script src="../js/router.js"></script>
     <script src="../js/main.js"></script>
@@ -160,6 +187,9 @@
             if (typeof app === 'undefined') {
                 app = window.app;
             }
+            
+            // Initialize the app (this calls initializeTheme)
+            window.app.init();
             
             // Initialize router
             if (typeof Router !== 'undefined') {

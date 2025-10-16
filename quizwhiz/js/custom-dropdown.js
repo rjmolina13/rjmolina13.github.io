@@ -6,7 +6,7 @@ class CustomDropdown {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         if (!this.container) {
-            console.error(`Custom dropdown container with id '${containerId}' not found`);
+            window.debugLog?.error('customDropdown', `Custom dropdown container with id '${containerId}' not found`);
             return;
         }
         
@@ -309,9 +309,7 @@ class CustomDropdown {
     }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CustomDropdown;
-} else {
+// Make CustomDropdown available globally
+if (typeof window !== 'undefined') {
     window.CustomDropdown = CustomDropdown;
 }

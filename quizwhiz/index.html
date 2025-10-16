@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        (function () {
+            const key = 'qw_theme';
+            const stored = localStorage.getItem(key) || 'auto';
+            const sys = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const eff = stored === 'auto' ? sys : stored;
+
+            const d = document.documentElement;
+            d.dataset.theme = eff;                 // if you use [data-theme="dark"] in CSS
+            d.classList.remove('theme-light','theme-dark');
+            d.classList.add(eff === 'dark' ? 'theme-dark' : 'theme-light');
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuizWhiz - Smart Study Companion</title>
@@ -22,8 +35,12 @@
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="css/utilities.css">
     <link rel="stylesheet" href="css/love-word.css">
+    <link rel="stylesheet" href="css/auth.css">
 
     <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         .redirect-container {
@@ -276,6 +293,27 @@
                 themeIcon.className = e.matches ? 'fas fa-sun' : 'fas fa-moon';
             }
         });
+        
+        // Initialize Supabase
+        const initSupabase = async () => {
+            try {
+                // Load Supabase config script
+                const script = document.createElement('script');
+                script.src = '/js/supabase-config.js';
+                script.onload = () => {
+                    console.log('Supabase initialized successfully');
+                };
+                script.onerror = (error) => {
+                    console.error('Error loading Supabase config:', error);
+                };
+                document.head.appendChild(script);
+            } catch (error) {
+                console.error('Error initializing Supabase:', error);
+            }
+        };
+        
+        // Initialize Supabase before redirecting
+        initSupabase();
         
         // Auto-redirect after 3 seconds
         setTimeout(() => {

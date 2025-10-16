@@ -1400,7 +1400,7 @@ class QuizManager {
                 );
                 createdCount++;
             } catch (error) {
-                console.error('Error creating flashcard:', error);
+                window.debugLog?.error('quizManager', 'Error creating flashcard:', error);
             }
         });
 
@@ -1499,7 +1499,7 @@ class QuizManager {
             }
             
         } catch (error) {
-            console.error('Error saving quiz stats:', error);
+            window.debugLog?.error('quizManager', 'Error saving quiz stats:', error);
         }
     }
     
@@ -1521,7 +1521,7 @@ class QuizManager {
             
             return stats;
         } catch (error) {
-            console.error('Error loading quiz stats:', error);
+            window.debugLog?.error('quizManager', 'Error loading quiz stats:', error);
             return {};
         }
     }
@@ -1624,7 +1624,7 @@ class QuizManager {
             statsContainer.innerHTML = statsHTML;
             
         } catch (error) {
-            console.error('Error displaying quiz statistics:', error);
+            window.debugLog?.error('quizManager', 'Error displaying quiz statistics:', error);
         }
     }
 
@@ -1634,7 +1634,7 @@ class QuizManager {
     }
 }
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = QuizManager;
+// Make QuizManager available globally
+if (typeof window !== 'undefined') {
+    window.QuizManager = QuizManager;
 }

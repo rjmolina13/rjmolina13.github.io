@@ -1,0 +1,279 @@
+<!-- Authentication Modals -->
+
+<!-- Login Modal -->
+<div id="login-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Login to QuizWhiz</h2>
+            <button class="close close-modal" data-modal="login-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="login-form" class="auth-form" method="post">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required autocomplete="username" 
+                           placeholder="Enter your username" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="password-input-container">
+                        <input type="password" id="login-password" name="password" required autocomplete="current-password"
+                               placeholder="Enter your password" class="form-control">
+                        <button type="button" class="toggle-password" data-target="login-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </div>
+                <div class="auth-links">
+                    <p>Don't have an account? <a href="#" id="show-register-link">Register</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Registration Modal -->
+<div id="register-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create an Account</h2>
+            <button class="close close-modal" data-modal="register-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="register-form" class="auth-form" method="post">
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" name="username" required autocomplete="username"
+                           placeholder="Choose a username (3-20 characters)" class="form-control">
+                    <small class="form-text">Username must be 3-20 characters, using only letters, numbers, and underscores.</small>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <div class="password-input-container">
+                        <input type="password" id="register-password" name="password" required autocomplete="new-password"
+                               placeholder="Choose a password (min 6 characters)" class="form-control">
+                        <button type="button" class="toggle-password" data-target="register-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small class="form-text">Password must be at least 6 characters long.</small>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirm Password</label>
+                    <div class="password-input-container">
+                        <input type="password" id="register-confirm-password" name="confirmPassword" required autocomplete="new-password"
+                               placeholder="Confirm your password" class="form-control">
+                        <button type="button" class="toggle-password" data-target="register-confirm-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Choose Avatar</label>
+                    <div id="avatar-selection" class="avatar-grid">
+                        <!-- Avatars will be populated dynamically -->
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                </div>
+                <div class="auth-links">
+                    <p>Already have an account? <a href="#" id="show-login-link">Login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Account Settings Modal -->
+<div id="account-settings-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Account Settings</h2>
+            <button class="close close-modal" data-modal="account-settings-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="profile-tab">Profile</button>
+                <button class="tab-btn" data-tab="security-tab">Security</button>
+                <button class="tab-btn" data-tab="data-tab">Data</button>
+            </div>
+            
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content active">
+                <form id="profile-form" class="auth-form" method="post">
+                    <div class="form-group">
+                        <label for="profile-username">Username</label>
+                        <input type="text" id="profile-username" name="username" required
+                               placeholder="Your username" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Avatar</label>
+                        <div id="profile-avatar-selection" class="avatar-grid">
+                            <!-- Avatars will be populated dynamically -->
+                        </div>
+                    </div>
+                    <div id="profile-error" class="auth-error"></div>
+                    <div id="profile-success" class="auth-success"></div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Security Tab -->
+            <div id="security-tab" class="tab-content">
+                <form id="password-form" class="auth-form" method="post">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="current-password" name="currentPassword" required autocomplete="current-password"
+                                   placeholder="Enter current password" class="form-control">
+                            <button type="button" class="toggle-password" data-target="current-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="new-password" name="newPassword" required autocomplete="new-password"
+                                   placeholder="Enter new password" class="form-control">
+                            <button type="button" class="toggle-password" data-target="new-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-new-password">Confirm New Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="confirm-new-password" name="confirmNewPassword" required autocomplete="new-password"
+                                   placeholder="Confirm new password" class="form-control">
+                            <button type="button" class="toggle-password" data-target="confirm-new-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="password-error" class="auth-error"></div>
+                    <div id="password-success" class="auth-success"></div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Data Tab -->
+            <div id="data-tab" class="tab-content">
+                <div class="data-management">
+                    <div class="data-section">
+                        <h3>Data Sync</h3>
+                        <p>Your data is automatically synced to the cloud when you're signed in.</p>
+                        <button id="sync-data-btn" class="btn btn-secondary">
+                            <i class="fas fa-sync"></i> Force Sync Now
+                        </button>
+                    </div>
+                    
+                    <div class="data-section">
+                        <h3>Export Data</h3>
+                        <p>Download your data in various formats.</p>
+                        <div class="button-group">
+                            <button id="export-json-btn" class="btn btn-secondary">
+                                <i class="fas fa-file-code"></i> JSON
+                            </button>
+                            <button id="export-xml-btn" class="btn btn-secondary">
+                                <i class="fas fa-file-code"></i> XML
+                            </button>
+                            <button id="export-csv-btn" class="btn btn-secondary">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="data-section danger-zone">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                        <p>These actions cannot be undone.</p>
+                        <button id="clear-data-btn" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i> Clear All Data
+                        </button>
+                        <button id="delete-account-btn" class="btn btn-danger">
+                            <i class="fas fa-user-slash"></i> Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Clear Data Confirmation Modal -->
+<div id="clear-data-confirm-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Clear All Data</h2>
+            <button class="close close-modal" data-modal="clear-data-confirm-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="warning-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>This action <strong>cannot</strong> be undone. All your flashcards, quizzes, and settings will be permanently deleted.</p>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancel-clear-data">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-clear-data">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Stats Modal -->
+<div id="user-stats-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>User Profile</h2>
+            <button class="close close-modal" data-modal="user-stats-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="user-stats-container">
+                <!-- User Avatar and Basic Info -->
+                <div class="user-info-section">
+                    <div class="user-avatar-large" id="stats-user-avatar">
+                        <!-- Avatar will be populated dynamically -->
+                    </div>
+                    <div class="user-details">
+                        <h3 id="stats-user-name">Loading...</h3>
+                        <p class="user-email" id="stats-user-email">Loading...</p>
+                        <p class="join-date">Member since: <span id="stats-join-date">Loading...</span></p>
+                    </div>
+                </div>
+                
+                <!-- User Statistics -->
+                <div class="user-stats-section">
+                    <h4>Quiz Statistics</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="stats-total-quizzes">0</div>
+                            <div class="stat-label">Total Quizzes</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stats-average-score">N/A</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stats-best-score">N/A</div>
+                            <div class="stat-label">Best Score</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="stats-last-activity">N/A</div>
+                            <div class="stat-label">Last Activity</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

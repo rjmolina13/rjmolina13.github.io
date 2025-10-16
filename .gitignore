@@ -58,3 +58,7 @@ _zip
 /_sass/*/__*__/*
 
 quizwhiz/.stash/*
+quizwhiz/docs/
+quizwhiz/*.json
+quizwhiz/.trae
+quizwhiz/supabase/

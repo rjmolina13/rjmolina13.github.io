@@ -79,6 +79,13 @@ class UIManager {
                 break;
             case 'settings':
                 this.loadSettingsUI();
+                // Add a small delay to ensure DOM is fully rendered before setting up events
+                setTimeout(() => {
+                    console.log('🔧 UI Manager: Setting up settings events after DOM render');
+                    if (this.app.eventHandler) {
+                        this.app.eventHandler.setupSettingsEvents();
+                    }
+                }, 100);
                 break;
             case 'about':
                 this.loadAboutContent();
@@ -266,14 +273,40 @@ class UIManager {
         });
     }
 
+    setupFileInputListener() {
+        const fileInput = document.getElementById('settings-file-input');
+        if (fileInput) {
+            console.log('🚨 CRITICAL DEBUG: File input element found in UI Manager, adding event listener');
+            fileInput.addEventListener('change', (e) => {
+                console.log('🚨 CRITICAL DEBUG: File input change event triggered in UI Manager');
+                if (e.target.files[0]) {
+                    console.log('🔥 ANALYZE FILE CONTENT FUNCTION CALLED from UI Manager!');
+                    console.log('DEBUG: File selected:', e.target.files[0].name, 'Size:', e.target.files[0].size);
+                    this.app.dataManager.processFile(e.target.files[0]);
+                }
+            });
+        } else {
+            console.log('❌ CRITICAL DEBUG: File input element NOT found in UI Manager');
+        }
+    }
+
     // Theme Management
     initializeTheme() {
+        try {
+            console.log('THEME DEBUG: initializeTheme called');
+            console.log('THEME DEBUG: this.app exists:', !!this.app);
+            console.log('THEME DEBUG: this.app.settings exists:', !!this.app?.settings);
+            console.log('THEME DEBUG: this.app.settings.theme:', this.app?.settings?.theme);
+        
         // Load theme from localStorage or use default
-        const savedTheme = localStorage.getItem('quizwhiz_theme');
+        const savedTheme = localStorage.getItem('qw_theme');
+        console.log('THEME DEBUG: savedTheme from localStorage:', savedTheme);
         if (savedTheme && ['light', 'dark', 'auto'].includes(savedTheme)) {
             this.app.settings.theme = savedTheme;
         }
+        console.log('THEME DEBUG: Final theme setting:', this.app.settings.theme);
         
+        window.debugLog?.info('theme', `Initializing theme: ${this.app.settings.theme}`);
         this.applyTheme(this.app.settings.theme);
         
         // Listen for system theme changes
@@ -282,6 +315,9 @@ class UIManager {
                 this.applyTheme('auto');
             }
         });
+        } catch (error) {
+            console.error('THEME DEBUG: Error in initializeTheme:', error);
+        }
     }
 
     toggleTheme() {
@@ -296,7 +332,7 @@ class UIManager {
 
     changeTheme(theme) {
         this.app.settings.theme = theme;
-        localStorage.setItem('quizwhiz_theme', theme);
+        localStorage.setItem('qw_theme', theme);
         this.applyTheme(theme);
         this.app.dataManager.saveData();
         
@@ -390,13 +426,19 @@ class UIManager {
     }
 
     applyTheme(theme) {
+        console.log('THEME DEBUG: applyTheme called with:', theme);
         const root = document.documentElement;
         
         if (theme === 'auto') {
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            const appliedTheme = prefersDark ? 'dark' : 'light';
+            console.log('THEME DEBUG: Auto theme resolved to:', appliedTheme, 'prefersDark:', prefersDark);
+            root.setAttribute('data-theme', appliedTheme);
+            window.debugLog?.info('theme', `Applied auto theme: ${appliedTheme}`);
         } else {
+            console.log('THEME DEBUG: Setting theme to:', theme);
             root.setAttribute('data-theme', theme);
+            window.debugLog?.info('theme', `Applied theme: ${theme}`);
         }
         
         // Update theme button icon
@@ -424,28 +466,28 @@ class UIManager {
                     <h3><i class="fas fa-palette"></i> Appearance</h3>
                     <div class="setting-item">
                         <label for="theme-select">Theme</label>
-                        <div class="custom-dropdown" id="theme-dropdown">
-                            <div class="custom-dropdown-toggle" id="theme-dropdown-toggle">
-                                <span class="selected-theme">
+                        <div class="custom-select" id="theme-selector-container">
+                            <button class="select-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="selected-value">
                                     <span class="theme-icon">${this.getThemeIcon(this.app.settings.theme)}</span>
                                     ${this.getThemeLabel(this.app.settings.theme)}
                                 </span>
-                                <i class="fas fa-chevron-down custom-dropdown-arrow"></i>
-                            </div>
-                            <div class="custom-dropdown-menu" id="theme-dropdown-menu">
-                                <button class="custom-dropdown-option ${this.app.settings.theme === 'light' ? 'selected' : ''}" data-value="light">
-                                    <span class="theme-icon">☀️</span>
+                                <i class="fas fa-chevron-down arrow"></i>
+                            </button>
+                            <ul class="select-dropdown hidden" role="listbox">
+                                <li class="select-option ${this.app.settings.theme === 'light' ? 'selected' : ''}" data-value="light" role="option">
+                                    <i class="fas fa-sun"></i>
                                     Light
-                                </button>
-                                <button class="custom-dropdown-option ${this.app.settings.theme === 'dark' ? 'selected' : ''}" data-value="dark">
-                                    <span class="theme-icon">🌙</span>
+                                </li>
+                                <li class="select-option ${this.app.settings.theme === 'dark' ? 'selected' : ''}" data-value="dark" role="option">
+                                    <i class="fas fa-moon"></i>
                                     Dark
-                                </button>
-                                <button class="custom-dropdown-option ${this.app.settings.theme === 'auto' ? 'selected' : ''}" data-value="auto">
-                                    <span class="theme-icon">🔄</span>
+                                </li>
+                                <li class="select-option ${this.app.settings.theme === 'auto' ? 'selected' : ''}" data-value="auto" role="option">
+                                    <i class="fas fa-adjust"></i>
                                     Auto
-                                </button>
-                            </div>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <div class="setting-item">
@@ -514,9 +556,12 @@ class UIManager {
                 <div class="settings-section">
                     <h3><i class="fas fa-database"></i> Data Management</h3>
                     <div class="data-actions">
-                        <button class="btn btn-primary" onclick="app.dataManager.importData()">
-                            <i class="fas fa-upload"></i> Import Data
-                        </button>
+                        <div class="file-upload-container">
+                            <input type="file" id="settings-file-input" accept=".json,.csv,.txt,.xml" style="display: none;">
+                            <button class="btn btn-primary" onclick="document.getElementById('settings-file-input').click()">
+                                <i class="fas fa-upload"></i> Import Data
+                            </button>
+                        </div>
                         <div class="export-group">
                             <button class="btn btn-secondary" onclick="app.dataManager.exportData('json')">
                                 <i class="fas fa-download"></i> Export JSON
@@ -537,10 +582,12 @@ class UIManager {
                     </div>
                 </div>
             </div>
-        `;
-        
+        `;        
         // Setup custom theme dropdown
         setTimeout(() => this.setupThemeDropdown(), 100);
+        
+        // Setup file input event listener for import functionality
+        setTimeout(() => this.setupFileInputListener(), 100);
     }
 
     // About Page
@@ -1105,13 +1152,13 @@ class UIManager {
             
             return overallBest;
         } catch (error) {
-            console.error('Error getting overall best score:', error);
+            window.debugLog?.error('uiManager', 'Error getting overall best score:', error);
             return this.app.stats.bestScore || 0;
         }
     }
 }
 
-// Export for use in main app
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = UIManager;
+// Make UIManager available globally
+if (typeof window !== 'undefined') {
+    window.UIManager = UIManager;
 }
