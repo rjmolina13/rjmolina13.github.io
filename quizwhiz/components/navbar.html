@@ -1,16 +1,16 @@
 <!-- Navigation Header -->
-<header id="navbar" class="navbar navbar-root">
+<header class="navbar">
+    <div class="nav-brand">
+        <i class="fas fa-brain"></i>
+        <h1>Quiz Whiz</h1>
+    </div>
+    
     <!-- Mobile hamburger button -->
     <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
     </button>
-    
-    <div class="nav-brand">
-        <i class="fas fa-brain"></i>
-        <h1>Quiz Whiz</h1>
-    </div>
     
     <nav class="nav-menu" id="nav-menu">
         <button class="nav-btn active" data-page="home">
@@ -51,48 +51,28 @@
         </button>
     </nav>
     
-    <!-- Theme Toggle -->
-    <!-- <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
-        <i class="fas fa-sun"></i>
-    </button> -->
-    
-    <!-- Auth Section -->
-    <div class="auth-section">
-        <!-- Login/Register buttons (shown when logged out) -->
-        <div class="auth-buttons">
-            <div class="auth-container nav-btn-style">
-                <button class="auth-option" id="btnLogin" data-action="login">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Login</span>
-                </button>
-                <div class="auth-divider"></div>
-                <button class="auth-option" id="btnRegister" data-action="register">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Register</span>
-                </button>
-            </div>
-        </div>
-        
-        <!-- User Menu (shown when logged in) -->
-        <div class="user-menu hidden">
-            <div class="user-dropdown">
-                <button class="user-dropdown-toggle" id="user-dropdown-toggle">
-                    <img class="user-avatar" src="" alt="User Avatar">
-                    <span class="username" id="userDisplayName">User</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div id="userDropdown" class="user-dropdown-content">
-                    <button class="dropdown-item" id="profile-button">
-                        <i class="fas fa-user"></i> Profile
-                    </button>
-                    <a class="dropdown-item" id="gotoSettings" href="pages/settings.html">
-                        <i class="fas fa-cog"></i> Settings
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" id="btnLogout">
-                        <i class="fas fa-sign-out-alt"></i> Log out
-                    </button>
+    <!-- User Profile Section -->
+    <div class="user-profile">
+        <div class="user-dropdown">
+            <button class="user-avatar-btn" id="user-avatar" title="User Profile">
+                <i class="fas fa-user"></i>
+            </button>
+            <div class="user-dropdown-content">
+                <div class="user-info">
+                    <div class="user-avatar-display" id="user-avatar-display">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="user-name">User</span>
+                    </div>
                 </div>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" data-action="edit-profile">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </button>
+                <button class="dropdown-item" data-action="export-data">
+                    <i class="fas fa-save"></i> Save/Export Data
+                </button>
             </div>
         </div>
     </div>

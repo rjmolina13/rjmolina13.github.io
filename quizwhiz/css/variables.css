@@ -24,43 +24,6 @@
     --warning-color: #f59e0b;
     --info-color: #3b82f6;
     --primary-color-rgb: 99, 102, 241;
-    
-    /* Additional Theme Tokens */
-    --accent-color: #8b5cf6;
-    --muted-color: #6b7280;
-    --destructive-color: #dc2626;
-    --input-background: rgba(255, 255, 255, 0.9);
-    --input-border: #d1d5db;
-    --hover-background: rgba(0, 0, 0, 0.05);
-    --active-background: rgba(0, 0, 0, 0.1);
-    --disabled-color: #9ca3af;
-    --focus-ring: 0 0 0 2px rgba(99, 102, 241, 0.2);
-    --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    --gradient-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    
-    /* Typography */
-    --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 1.875rem;
-    
-    /* Spacing */
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --spacing-2xl: 3rem;
-    
-    /* Z-index */
-    --z-dropdown: 1000;
-    --z-modal: 1050;
-    --z-tooltip: 1100;
-    --z-toast: 1200;
 }
 
 /* Auto Dark Mode Detection */
@@ -78,14 +41,6 @@
         --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.4);
         --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.5);
         --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
-        
-        /* Dark theme additional tokens */
-        --input-background: rgba(30, 41, 59, 0.9);
-        --input-border: #475569;
-        --hover-background: rgba(255, 255, 255, 0.05);
-        --active-background: rgba(255, 255, 255, 0.1);
-        --disabled-color: #64748b;
-        --focus-ring: 0 0 0 2px rgba(99, 102, 241, 0.3);
     }
 }
 
@@ -119,12 +74,4 @@
     --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.4);
     --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.5);
     --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
-    
-    /* Dark theme additional tokens */
-    --input-background: rgba(30, 41, 59, 0.9);
-    --input-border: #475569;
-    --hover-background: rgba(255, 255, 255, 0.05);
-    --active-background: rgba(255, 255, 255, 0.1);
-    --disabled-color: #64748b;
-    --focus-ring: 0 0 0 2px rgba(99, 102, 241, 0.3);
 }

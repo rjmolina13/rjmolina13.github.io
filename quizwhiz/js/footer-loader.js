@@ -17,9 +17,9 @@ class FooterLoader {
             await this.loadFooter();
             this.setupFooter();
             this.isLoaded = true;
-            window.debugLog?.info('footerLoader', 'Footer loaded successfully');
+            console.log('Footer loaded successfully');
         } catch (error) {
-            window.debugLog?.error('footerLoader', 'Error loading footer:', error);
+            console.error('Error loading footer:', error);
         }
     }
 
@@ -47,7 +47,7 @@ class FooterLoader {
             this.footerContainer.innerHTML = footerHTML;
             
         } catch (error) {
-            window.debugLog?.error('footerLoader', 'Error loading footer HTML:', error);
+            console.error('Error loading footer HTML:', error);
             throw error;
         }
     }

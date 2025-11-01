@@ -1,3 +1,27 @@
+<!-- Welcome Modal -->
+<div class="modal welcome-modal" id="welcome-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="welcome-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h2>Welcome to QuizWhiz!</h2>
+        </div>
+        <div class="modal-body">
+            <p>Let's get you started! What would you like us to call you?</p>
+            <div class="form-group">
+                <label for="welcome-username">Your Name:</label>
+                <input type="text" id="welcome-username" placeholder="Enter your name" value="User" maxlength="30">
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="welcome-continue-btn" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Continue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Profile Modal -->
 <div class="modal profile-modal" id="profile-modal">
     <div class="modal-content">
@@ -18,8 +42,8 @@
             
             <!-- Username Input -->
             <div class="form-group">
-                <label for="user-modal-username">Username:</label>
-                <input type="text" id="user-modal-username" placeholder="Enter your username" maxlength="30">
+                <label for="profile-username">Username:</label>
+                <input type="text" id="profile-username" placeholder="Enter your username" maxlength="30">
             </div>
             
             <!-- Avatar Selection -->

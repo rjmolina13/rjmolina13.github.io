@@ -46,26 +46,8 @@ class Router {
         this.currentPage = page;
         this.updatePageTitle(page);
         
-        // Check if we have a QuizWhizApp instance for SPA navigation
-        if (window.app && typeof window.app.loadPageContent === 'function') {
-            // Use SPA navigation to avoid page reload and preserve auth state
-            console.log(`🔄 SPA Navigation to ${page} (preserving auth state)`);
-            
-            // Load page content first, then initialize page functionality
-            window.app.loadPageContent(page).then(() => {
-                // After content is loaded, initialize the page
-                return window.app.initializePage(page);
-            }).then(() => {
-                console.log(`✅ SPA navigation to ${page} completed`);
-            }).catch(error => {
-                console.error('SPA navigation failed, falling back to hard navigation:', error);
-                window.location.href = pageUrl;
-            });
-        } else {
-            // Fallback to hard navigation if app is not available
-            console.log(`🔄 Hard navigation to ${page} (app not available)`);
-            window.location.href = pageUrl;
-        }
+        // Navigate to the page
+        window.location.href = pageUrl;
     }
 
     setupNavigationListeners() {
@@ -142,5 +124,7 @@ if (typeof window !== 'undefined') {
     window.showSection = (section) => window.router.showSection(section);
 }
 
-// No module exports, only use window object
-window.Router = Router;
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Router;
+}

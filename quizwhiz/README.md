@@ -292,11 +292,10 @@ If you encounter any issues or have questions:
 
 
 
-
 ## Version Information
 
-- **Current Version:** v4.6
-- **Last Updated:** 2025-10-16 13:58:08 UTC
+- **Current Version:** v3.9
+- **Last Updated:** 2025-08-09 17:18:06 UTC
 - **Auto-generated:** This section is automatically updated by GitHub Actions
 
 ## 

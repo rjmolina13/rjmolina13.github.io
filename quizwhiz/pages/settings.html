@@ -60,11 +60,16 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
     </style>
+    <!-- Fallback auth visibility without Alpine.js -->
+    <style>
+        .auth-required.auth-hidden { display: none !important; }
+        .auth-required.auth-visible { display: grid; }
+    </style>
     
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     </head>
-    <body data-settings-handlers="true">
+    <body>
         <div
             class="app-container">
             <!-- Navigation Header -->
@@ -144,7 +149,7 @@
                         </div>
 
                         <!-- Data Management Section -->
-                        <div class="settings-group auth-required" id="data-management-section">
+                        <div class="settings-group auth-required auth-hidden" id="data-management-section">
                             <h3>
                                 <i class="fas fa-database"></i>
                                 Data Management</h3>
@@ -161,28 +166,45 @@
                                     <div class="upload-content">
                                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
                                         <p class="upload-text">Drag and drop files here or click to browse</p>
-                                        <small class="supported-formats">Supports JSON, XML, CSV, TXT, PDF, and DOCX files</small>
+                                        <small class="supported-formats">Supports JSON files for complete backup restoration</small>
                                         <div class="file-info" id="selected-file-info" style="display: none;">
                                             <div class="file-details">
                                                 <span class="file-name"></span>
                                                 <span class="file-size"></span>
+                                                <span class="file-status"></span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="drag-overlay" id="drag-overlay" style="display: none;">
                                         <div class="drag-content">
                                             <i class="fas fa-download drag-icon"></i>
-                                            <p class="drag-text">Drop your file here</p>
+                                            <p class="drag-text">Drop your JSON file here</p>
                                         </div>
                                     </div>
                                     <div class="upload-progress" id="upload-progress" style="display: none;">
                                         <div class="progress-bar">
                                             <div class="progress-fill" id="progress-fill"></div>
                                         </div>
-                                        <span class="progress-text" id="progress-text">Processing...</span>
+                                        <span class="progress-text" id="progress-text">Analyzing file...</span>
+                                    </div>
+                                    <div class="analysis-results" id="analysis-results" style="display: none;">
+                                        <div class="analysis-summary">
+                                            <h5><i class="fas fa-chart-bar"></i> File Analysis</h5>
+                                            <div class="analysis-stats" id="analysis-stats"></div>
+                                        </div>
+                                        <div class="analysis-actions">
+                                            <button type="button" class="btn btn-primary" id="proceed-import-btn">
+                                                <i class="fas fa-arrow-right"></i>
+                                                Proceed with Import
+                                            </button>
+                                            <button type="button" class="btn btn-secondary" id="cancel-import-btn">
+                                                <i class="fas fa-times"></i>
+                                                Cancel
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <input type="file" id="settings-file-input" accept=".json,.csv,.txt" multiple style="display: none;">
+                                <input type="file" id="settings-file-input" accept=".json" style="display: none;">
                                 <div class="file-format-help">
                                     <h4>Supported Formats:</h4>
                                     <ul>
@@ -224,7 +246,7 @@
                         </div>
 
                         <!-- Storage Information Section -->
-                        <div class="settings-group auth-required">
+                        <div class="settings-group auth-required auth-hidden">
                             <h3>
                                 <i class="fas fa-database"></i>
                                 Storage Information</h3>
@@ -434,6 +456,178 @@
             </div>
         </div>
 
+        <!-- Enhanced Import Analysis Modal -->
+        <div id="import-modal" class="modal" style="display: none;" aria-modal="true" role="dialog" aria-labelledby="importModalTitle">
+            <div class="modal-content import-analysis-modal">
+                <div class="modal-header">
+                    <h3 id="importModalTitle">
+                        <i class="fas fa-file-import"></i>
+                        Import Analysis &amp; Preview
+                    </h3>
+                    <button class="modal-close" onclick="settingsApp.uiManager.closeModal('import-modal')" aria-label="Close modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- File Information Section -->
+                    <div class="import-file-info">
+                        <h4><i class="fas fa-file-alt"></i> File Information</h4>
+                        <div class="file-info-grid">
+                            <div class="info-item">
+                                <span class="info-label">File Name:</span>
+                                <span class="info-value" id="modal-file-name">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">File Size:</span>
+                                <span class="info-value" id="modal-file-size">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Data Type:</span>
+                                <span class="info-value" id="modal-data-type">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Created:</span>
+                                <span class="info-value" id="modal-created-date">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Analysis Section -->
+                    <div class="import-content-analysis">
+                        <h4><i class="fas fa-chart-pie"></i> Content Analysis</h4>
+                        <div class="analysis-grid">
+                            <div class="analysis-card">
+                                <div class="card-icon flashcards">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-number" id="modal-flashcards-count">0</div>
+                                    <div class="card-label">Flashcards</div>
+                                    <div class="card-details" id="modal-flashcards-details">-</div>
+                                </div>
+                            </div>
+                            <div class="analysis-card">
+                                <div class="card-icon quizzes">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-number" id="modal-quizzes-count">0</div>
+                                    <div class="card-label">Quizzes</div>
+                                    <div class="card-details" id="modal-quizzes-details">-</div>
+                                </div>
+                            </div>
+                            <div class="analysis-card">
+                                <div class="card-icon decks">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-number" id="modal-decks-count">0</div>
+                                    <div class="card-label">Decks</div>
+                                    <div class="card-details" id="modal-decks-details">-</div>
+                                </div>
+                            </div>
+                            <div class="analysis-card">
+                                <div class="card-icon settings">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-number" id="modal-settings-count">0</div>
+                                    <div class="card-label">Settings</div>
+                                    <div class="card-details" id="modal-settings-details">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conflict Detection Section -->
+                    <div class="import-conflicts" id="conflicts-section" style="display: none;">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Conflicts Detected</h4>
+                        <div class="conflicts-summary">
+                            <div class="conflict-item">
+                                <span class="conflict-count" id="flashcard-conflicts">0</span>
+                                <span class="conflict-label">Flashcard conflicts</span>
+                            </div>
+                            <div class="conflict-item">
+                                <span class="conflict-count" id="quiz-conflicts">0</span>
+                                <span class="conflict-label">Quiz conflicts</span>
+                            </div>
+                        </div>
+                        <div class="conflicts-details" id="conflicts-details">
+                            <!-- Conflict details will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Import Mode Selection -->
+                    <div class="import-mode-selection">
+                        <h4><i class="fas fa-cogs"></i> Import Mode</h4>
+                        <div class="mode-options">
+                            <div class="mode-option">
+                                <input type="radio" id="replace-mode" name="import-mode" value="replace" checked>
+                                <label for="replace-mode" class="mode-label">
+                                    <div class="mode-icon replace">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </div>
+                                    <div class="mode-content">
+                                        <div class="mode-title">Replace All Data</div>
+                                        <div class="mode-description">Replace all existing data with imported data. This will permanently delete your current data.</div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="mode-option">
+                                <input type="radio" id="append-mode" name="import-mode" value="append">
+                                <label for="append-mode" class="mode-label">
+                                    <div class="mode-icon append">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </div>
+                                    <div class="mode-content">
+                                        <div class="mode-title">Append &amp; Merge</div>
+                                        <div class="mode-description">Add imported data to existing data. Conflicts will be resolved intelligently.</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Import Preview -->
+                    <div class="import-preview">
+                        <h4><i class="fas fa-eye"></i> Import Preview</h4>
+                        <div class="preview-tabs">
+                            <button class="preview-tab active" data-tab="flashcards">Flashcards</button>
+                            <button class="preview-tab" data-tab="quizzes">Quizzes</button>
+                            <button class="preview-tab" data-tab="settings">Settings</button>
+                        </div>
+                        <div class="preview-content">
+                            <div class="preview-panel active" id="preview-flashcards">
+                                <div class="preview-list" id="flashcards-preview-list">
+                                    <!-- Flashcard previews will be populated here -->
+                                </div>
+                            </div>
+                            <div class="preview-panel" id="preview-quizzes">
+                                <div class="preview-list" id="quizzes-preview-list">
+                                    <!-- Quiz previews will be populated here -->
+                                </div>
+                            </div>
+                            <div class="preview-panel" id="preview-settings">
+                                <div class="preview-list" id="settings-preview-list">
+                                    <!-- Settings previews will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="settingsApp.eventHandler.cancelModalImport()">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="execute-import-btn" onclick="settingsApp.eventHandler.executeImport()">
+                        <i class="fas fa-download"></i>
+                        Execute Import
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Import Results Modal -->
         <div id="importResultsModal" class="modal-overlay" style="display: none;" aria-modal="true" role="dialog" aria-labelledby="importResultsTitle">
             <div class="modal-content import-results-modal">
@@ -560,7 +754,6 @@
     <!-- New Modules -->
     <script src="../js/theme-manager.js"></script>
     <script src="../js/data-sync.js"></script>
-    <script src="../js/auth-guard.js"></script>
     
     <!-- JavaScript Modules - Load in order -->
     <script src="../js/debug-config.js"></script>
@@ -569,6 +762,7 @@
     <script src="../js/footer-loader.js"></script>
     <script src="../js/custom-checkbox.js"></script>
     <script src="../js/custom-dropdown.js"></script>
+    <script src="../js/data-sync.js"></script>
     <script src="../js/unified-data-manager.js"></script>
     <script src="../js/flashcard-manager.js"></script>
     <script src="../js/quiz-manager.js"></script>
@@ -578,2149 +772,12 @@
     <script src="../js/event-handler.js"></script>
     <script src="../js/router.js"></script>
     <script src="../js/main.js"></script>
-        <!-- <script src="../js/love-word-animation.js"></script> -->
-
-    <!-- Integrated Import Functionality -->
     <script>
-        // Import modal functionality integrated from import-modal.js
-        let selectedFiles = [];
-        let importAnalysis = null;
-
-        // Open import modal
-        function openImportModal() {
-            const modal = document.getElementById('importModal');
-            if (modal) {
-                modal.style.display = 'block';
-                modal.setAttribute('aria-hidden', 'false');
-                
-                resetImportModal();
-                addModalEventListeners();
-                
-                // Prevent body scroll
-                document.body.style.overflow = 'hidden';
-                
-                // Focus management
-                const firstFocusable = modal.querySelector('button, input, [tabindex]:not([tabindex="-1"])');
-                if (firstFocusable) {
-                    firstFocusable.focus();
-                }
-            }
-        }
-
-        // Close import modal (handles both original and enhanced modals)
-        function closeImportModal() {
-            // Try to close the enhanced confirmation modal first
-            const enhancedModal = document.getElementById('import-confirmation-modal');
-            if (enhancedModal) {
-                // Remove event listeners
-                document.removeEventListener('keydown', handleModalKeydown);
-                enhancedModal.removeEventListener('click', handleModalBackdropClick);
-                
-                enhancedModal.remove();
-                // Clear pending import data
-                window.pendingImport = null;
-                // Restore body scroll
-                document.body.style.overflow = '';
-                return;
-            }
-            
-            // Fallback to original modal
-            const modal = document.getElementById('importModal');
-            if (modal) {
-                modal.style.display = 'none';
-                modal.setAttribute('aria-hidden', 'true');
-                
-                resetImportModal();
-                removeModalEventListeners();
-                
-                // Restore body scroll
-                document.body.style.overflow = '';
-            }
-        }
-
-        // Add modal event listeners
-        function addModalEventListeners() {
-            document.addEventListener('keydown', handleModalKeydown);
-            const modal = document.getElementById('importModal');
-            if (modal) {
-                modal.addEventListener('click', handleModalBackdropClick);
-            }
-            
-            // Set up modal file input event listener
-            const modalFileInput = document.getElementById('modal-file-input');
-            if (modalFileInput && !modalFileInput.hasEventListener) {
-                modalFileInput.hasEventListener = true;
-                modalFileInput.addEventListener('change', (e) => {
-                    handleFileSelection(Array.from(e.target.files));
-                });
-            }
-            
-            // Set up drag and drop for modal upload area
-            const uploadArea = document.getElementById('modal-file-upload-area');
-            if (uploadArea) {
-                uploadArea.addEventListener('click', () => {
-                    modalFileInput?.click();
-                });
-                
-                uploadArea.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    uploadArea.classList.add('drag-over');
-                });
-                
-                uploadArea.addEventListener('dragleave', (e) => {
-                    e.preventDefault();
-                    uploadArea.classList.remove('drag-over');
-                });
-                
-                uploadArea.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    uploadArea.classList.remove('drag-over');
-                    const files = Array.from(e.dataTransfer.files);
-                    handleFileSelection(files);
-                });
-            }
-        }
-
-        // Remove modal event listeners
-        function removeModalEventListeners() {
-            document.removeEventListener('keydown', handleModalKeydown);
-            const modal = document.getElementById('importModal');
-            if (modal) {
-                modal.removeEventListener('click', handleModalBackdropClick);
-            }
-            
-            // Clean up modal file input event listeners
-            const modalFileInput = document.getElementById('modal-file-input');
-            const uploadArea = document.getElementById('modal-file-upload-area');
-            
-            if (modalFileInput) {
-                // Clone and replace to remove all event listeners
-                const newInput = modalFileInput.cloneNode(true);
-                modalFileInput.parentNode.replaceChild(newInput, modalFileInput);
-            }
-            
-            if (uploadArea) {
-                // Clone and replace to remove all event listeners
-                const newArea = uploadArea.cloneNode(true);
-                uploadArea.parentNode.replaceChild(newArea, uploadArea);
-            }
-        }
-
-        // Handle escape key to close modal
-        function handleModalKeydown(event) {
-            if (event.key === 'Escape') {
-                closeImportModal();
-            }
-        }
-
-        // Handle clicking outside modal content to close
-        function handleModalBackdropClick(event) {
-            // Check for enhanced confirmation modal first
-            const enhancedModal = document.getElementById('import-confirmation-modal');
-            if (enhancedModal && event.target === enhancedModal) {
-                closeImportModal();
-                return;
-            }
-            
-            // Fallback to original modal
-            const modalContent = document.querySelector('.modal-content');
-            if (modalContent && !modalContent.contains(event.target)) {
-                closeImportModal();
-            }
-        }
-
-        // Reset modal to initial state
-        function resetImportModal() {
-            selectedFiles = [];
-            importAnalysis = null;
-            
-            const fileInput = document.getElementById('modal-file-input');
-            const preview = document.getElementById('import-preview');
-            const importBtn = document.getElementById('execute-import-btn');
-            
-            if (fileInput) fileInput.value = '';
-            if (preview) preview.style.display = 'none';
-            if (importBtn) importBtn.disabled = true;
-        }
-
-        // Validate file type
-        function validateFileType(file) {
-            const supportedExtensions = ['.json', '.csv', '.txt'];
-            const fileName = file.name.toLowerCase();
-            return supportedExtensions.some(ext => fileName.endsWith(ext));
-        }
-
-        // Show toast notification using system's styled toast component
-        function showToast(message, type = 'error') {
-            if (window.app && typeof window.app.showToast === 'function') {
-                window.app.showToast(message, type);
-            } else {
-                console.log(`${type.toUpperCase()}: ${message}`);
-            }
-        }
-
-        // Handle file selection
-        async function handleFileSelection(files) {
-            if (!files || files.length === 0) return;
-            
-            // Validate file types
-            const invalidFiles = [];
-            const validFiles = [];
-            
-            for (const file of files) {
-                if (validateFileType(file)) {
-                    validFiles.push(file);
-                } else {
-                    invalidFiles.push(file.name);
-                }
-            }
-            
-            // Show error for invalid files
-            if (invalidFiles.length > 0) {
-                const fileList = invalidFiles.length === 1 ? invalidFiles[0] : `${invalidFiles.length} files`;
-                showToast('Invalid file type selected. Please choose a supported file format (JSON, CSV, or TXT).', 'error');
-                
-                // If no valid files, return early
-                if (validFiles.length === 0) {
-                    return;
-                }
-            }
-            
-            selectedFiles = validFiles;
-            
-            // Process first valid file for preview
-            if (validFiles.length > 0) {
-                const file = validFiles[0];
-                await processFileForPreview(file);
-            }
-        }
-
-        // Process file for preview
-        async function processFileForPreview(file) {
-            try {
-                const content = await readFileContent(file);
-                const analysis = await analyzeFileContent(content, file.name, file.type);
-                
-                // Add file size to analysis
-                analysis.fileSize = formatFileSize(file.size);
-                
-                // Format summary for modal display
-                const summary = {
-                    flashcards: analysis.flashcards.length,
-                    quizzes: analysis.quizzes.length,
-                    settings: analysis.settings ? 'Yes' : 'No',
-                    account: analysis.account ? (analysis.account.username || analysis.account.email || 'Yes') : 'No'
-                };
-                analysis.summary = summary;
-                
-                // Determine backup schema for display
-                analysis.schema = analysis.format === 'json' ? 
-                    (analysis.account ? 'Complete Backup' : 
-                     analysis.flashcards.length > 0 ? 'Flashcards Only' : 'Unknown') :
-                    analysis.format.toUpperCase();
-                
-                importAnalysis = analysis;
-                
-                // Show the import results modal instead of the old preview
-                showImportResultsModal(analysis);
-                
-                // Enable import button if analysis is successful
-                const importBtn = document.getElementById('execute-import-btn');
-                if (importBtn && analysis.isValid) {
-                    importBtn.disabled = false;
-                }
-                
-            } catch (error) {
-                console.error('File processing error:', error);
-                // Show error in modal format
-                const errorAnalysis = {
-                    fileName: file.name,
-                    fileSize: formatFileSize(file.size),
-                    format: 'unknown',
-                    schema: 'Error',
-                    summary: { flashcards: 0, quizzes: 0, settings: 'No', account: 'No' },
-                    validation: {
-                        isValid: false,
-                        errors: [`Failed to analyze ${file.name}: ${error.message}`],
-                        warnings: [],
-                        successes: []
-                    }
-                };
-                showImportResultsModal(errorAnalysis);
-            }
-        }
-
-        // Read file content
-        function readFileContent(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = () => reject(new Error('Failed to read file'));
-                
-                reader.readAsText(file);
-            });
-        }
-
-        // Analyze file content
-        async function analyzeFileContent(content, fileName, fileType) {
-            console.log('🔥 ANALYZE FILE CONTENT FUNCTION CALLED!');
-            console.log('Parameters:', { fileName, fileType, contentLength: content?.length });
-            const analysis = {
-                fileName,
-                fileType,
-                isValid: false,
-                format: 'unknown',
-                flashcards: [],
-                quizzes: [],
-                settings: null,
-                stats: null,
-                account: null,
-                errors: [],
-                warnings: [],
-                summary: [],
-                validation: {
-                    errors: [],
-                    warnings: [],
-                    successes: []
-                }
-            };
-
-            try {
-                // Try JSON first
-                if (fileName.toLowerCase().endsWith('.json') || fileType.includes('json')) {
-                    const data = JSON.parse(content);
-                    analysis.format = 'json';
-                    
-                    // Check for QuizWhiz backup format (with or without quizwhiz_ prefix)
-                    const hasVersion = data.version || data.exportVersion;
-                    const hasFlashcards = data.flashcards || data.quizwhiz_flashcards;
-                    const hasQuizzes = data.quizzes || data.quizwhiz_quizzes;
-                    const hasSettings = data.settings || data.quizwhiz_settings;
-                    const hasStats = data.stats || data.quizwhiz_stats;
-                    const hasAccount = data.account || data.quizwhiz_user;
-                    
-                    if (hasVersion && (hasFlashcards || hasQuizzes || hasSettings || hasStats)) {
-                        // Full backup format
-                        analysis.flashcards = data.flashcards || data.quizwhiz_flashcards || [];
-                        analysis.quizzes = data.quizzes || data.quizwhiz_quizzes || [];
-                        analysis.settings = data.settings || data.quizwhiz_settings;
-                        analysis.stats = data.stats || data.quizwhiz_stats;
-                        analysis.account = data.account || data.quizwhiz_user;
-                        analysis.isValid = true;
-                        
-                        // Generate summary
-                        if (analysis.flashcards.length > 0) {
-                            analysis.summary.push(`${analysis.flashcards.length} flashcards`);
-                        }
-                        if (analysis.quizzes.length > 0) {
-                            analysis.summary.push(`${analysis.quizzes.length} quizzes`);
-                        }
-                        if (analysis.settings) {
-                            analysis.summary.push('settings');
-                        }
-                        if (analysis.stats) {
-                            analysis.summary.push('statistics');
-                        }
-                        if (analysis.account) {
-                            analysis.summary.push(`account data (${analysis.account.username || 'user'})`);
-                        }
-                    }
-                    // Legacy flashcards-only format
-                    else if (data.flashcards && Array.isArray(data.flashcards)) {
-                        analysis.flashcards = data.flashcards;
-                        analysis.isValid = true;
-                        analysis.summary.push(`${analysis.flashcards.length} flashcards`);
-                    } else if (Array.isArray(data)) {
-                        analysis.flashcards = data;
-                        analysis.isValid = true;
-                        analysis.summary.push(`${analysis.flashcards.length} flashcards`);
-                    }
-                }
-                // Try CSV
-                else if (fileName.toLowerCase().endsWith('.csv') || fileType.includes('csv')) {
-                    analysis.format = 'csv';
-                    const lines = content.split('\n').filter(line => line.trim());
-                    
-                    if (lines.length > 1) {
-                        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                        
-                        for (let i = 1; i < lines.length; i++) {
-                            const values = lines[i].split(',').map(v => v.trim());
-                            if (values.length >= 2) {
-                                analysis.flashcards.push({
-                                    question: values[0] || '',
-                                    answer: values[1] || '',
-                                    deck: values[2] || 'Imported',
-                                    difficulty: values[3] || 'medium'
-                                });
-                            }
-                        }
-                        analysis.isValid = analysis.flashcards.length > 0;
-                    }
-                }
-                // Try TXT
-                else if (fileName.toLowerCase().endsWith('.txt') || fileType.includes('text')) {
-                    analysis.format = 'txt';
-                    const lines = content.split('\n').filter(line => line.trim());
-                    
-                    for (const line of lines) {
-                        const parts = line.split('|').map(p => p.trim());
-                        if (parts.length >= 2) {
-                            analysis.flashcards.push({
-                                question: parts[0] || '',
-                                answer: parts[1] || '',
-                                deck: parts[2] || 'Imported',
-                                difficulty: parts[3] || 'medium'
-                            });
-                        }
-                    }
-                    analysis.isValid = analysis.flashcards.length > 0;
-                }
-                
-            } catch (error) {
-                analysis.errors.push(`Parse error: ${error.message}`);
-                // Ensure validation object exists before pushing errors
-                if (!analysis.validation) {
-                    analysis.validation = { errors: [], warnings: [], successes: [] };
-                }
-                analysis.validation.errors.push(`File parsing failed: ${error.message}`);
-            }
-
-            // Comprehensive validation
-            console.log('🔍 ANALYZE DEBUG: About to call validateImportData');
-            console.log('🔍 ANALYZE DEBUG: analysis before validation:', {
-                isValid: analysis.isValid,
-                flashcards: analysis.flashcards.length,
-                quizzes: analysis.quizzes.length,
-                format: analysis.format
-            });
-            
-            validateImportData(analysis);
-            
-            console.log('🔍 ANALYZE DEBUG: analysis after validation:', {
-                isValid: analysis.isValid,
-                validationErrors: analysis.validation.errors.length,
-                flashcards: analysis.flashcards.length,
-                quizzes: analysis.quizzes.length
-            });
-
-            return analysis;
-        }
-        
-        // Comprehensive validation function
-        function validateImportData(analysis) {
-            // Ensure validation object exists
-            if (!analysis.validation) {
-                analysis.validation = {
-                    errors: [],
-                    warnings: [],
-                    successes: []
-                };
-            }
-            
-            // File format validation
-            if (analysis.format === 'unknown') {
-                analysis.validation.errors.push('Unsupported file format. Please use JSON, CSV, or TXT files.');
-            } else {
-                analysis.validation.successes.push(`File format (${analysis.format.toUpperCase()}) recognized successfully`);
-            }
-            
-            // Content validation
-            if (analysis.flashcards.length === 0 && analysis.quizzes.length === 0) {
-                analysis.validation.errors.push('No valid flashcards or quizzes found in the file');
-            } else {
-                analysis.validation.successes.push(`Found ${analysis.flashcards.length + analysis.quizzes.length} total records`);
-            }
-            
-            // Initialize counters at function level to avoid scope issues
-            let validFlashcards = 0;
-            let validQuizzes = 0;
-            
-            // Flashcard validation
-            if (analysis.flashcards.length > 0) {
-                let invalidFlashcards = 0;
-                
-                analysis.flashcards.forEach((card, index) => {
-                    const cardErrors = [];
-                    
-                    // Required fields validation
-                    if (!card.question || card.question.trim() === '') {
-                        cardErrors.push('missing question');
-                    }
-                    if (!card.answer || card.answer.trim() === '') {
-                        cardErrors.push('missing answer');
-                    }
-                    
-                    // Field length validation
-                    if (card.question && card.question.length > 500) {
-                        cardErrors.push('question too long (max 500 characters)');
-                    }
-                    if (card.answer && card.answer.length > 1000) {
-                        cardErrors.push('answer too long (max 1000 characters)');
-                    }
-                    
-                    // Data type validation
-                    if (card.difficulty && !['easy', 'medium', 'hard'].includes(card.difficulty.toLowerCase())) {
-                        analysis.validation.warnings.push(`Flashcard ${index + 1}: Invalid difficulty '${card.difficulty}', defaulting to 'medium'`);
-                        card.difficulty = 'medium';
-                    }
-                    
-                    if (cardErrors.length > 0) {
-                        analysis.validation.errors.push(`Flashcard ${index + 1}: ${cardErrors.join(', ')}`);
-                        invalidFlashcards++;
-                    } else {
-                        validFlashcards++;
-                    }
-                });
-                
-                if (validFlashcards > 0) {
-                    analysis.validation.successes.push(`${validFlashcards} flashcards validated successfully`);
-                }
-                if (invalidFlashcards > 0) {
-                    analysis.validation.warnings.push(`${invalidFlashcards} flashcards have validation issues`);
-                }
-            }
-            
-            // Quiz validation - handle both legacy individual quiz format and new quiz set format
-            if (analysis.quizzes.length > 0) {
-                let invalidQuizzes = 0;
-                
-                analysis.quizzes.forEach((quiz, index) => {
-                    const quizErrors = [];
-                    
-                    // Check if this is a legacy individual quiz question or new quiz set format
-                    if (quiz.question && (quiz.correctAnswer || quiz.correct)) {
-                        // Legacy individual quiz question format
-                        if (!quiz.question || quiz.question.trim() === '') {
-                            quizErrors.push('missing question');
-                        }
-                        if (!quiz.correctAnswer && !quiz.correct) {
-                            quizErrors.push('missing correct answer');
-                        }
-                        if (!quiz.wrongAnswers && !quiz.incorrect) {
-                            quizErrors.push('missing wrong answers');
-                        } else {
-                            const wrongAnswers = quiz.wrongAnswers || quiz.incorrect;
-                            if (!Array.isArray(wrongAnswers) || wrongAnswers.length === 0) {
-                                quizErrors.push('wrong answers must be an array with at least one item');
-                            }
-                        }
-                        
-                        // Normalize legacy format to current format
-                        if (quiz.correctAnswer && !quiz.correct) {
-                            quiz.correct = quiz.correctAnswer;
-                            delete quiz.correctAnswer;
-                        }
-                        if (quiz.wrongAnswers && !quiz.incorrect) {
-                            quiz.incorrect = quiz.wrongAnswers;
-                            delete quiz.wrongAnswers;
-                        }
-                    } else {
-                        // New quiz set format with multiple questions
-                        if (!quiz.title || quiz.title.trim() === '') {
-                            quizErrors.push('missing title');
-                        }
-                        if (!quiz.questions || !Array.isArray(quiz.questions) || quiz.questions.length === 0) {
-                            quizErrors.push('no questions found');
-                        }
-                        
-                        // Questions validation for quiz sets
-                        if (quiz.questions && Array.isArray(quiz.questions)) {
-                            quiz.questions.forEach((question, qIndex) => {
-                                if (!question.question || question.question.trim() === '') {
-                                    quizErrors.push(`question ${qIndex + 1} missing text`);
-                                }
-                                if (!question.options || !Array.isArray(question.options) || question.options.length < 2) {
-                                    quizErrors.push(`question ${qIndex + 1} needs at least 2 options`);
-                                }
-                                if (question.correctAnswer === undefined || question.correctAnswer === null) {
-                                    quizErrors.push(`question ${qIndex + 1} missing correct answer`);
-                                }
-                            });
-                        }
-                    }
-                    
-                    if (quizErrors.length > 0) {
-                        analysis.validation.errors.push(`Quiz ${index + 1} (${quiz.title || quiz.question || 'Untitled'}): ${quizErrors.join(', ')}`);
-                        invalidQuizzes++;
-                    } else {
-                        validQuizzes++;
-                    }
-                });
-                
-                if (validQuizzes > 0) {
-                    analysis.validation.successes.push(`${validQuizzes} quizzes validated successfully`);
-                }
-                if (invalidQuizzes > 0) {
-                    analysis.validation.warnings.push(`${invalidQuizzes} quizzes have validation issues`);
-                }
-            }
-            
-            // Schema compatibility validation
-            if (analysis.account) {
-                if (!analysis.account.username && !analysis.account.email) {
-                    analysis.validation.warnings.push('Account data missing username or email');
-                } else {
-                    analysis.validation.successes.push('Account data structure is valid');
-                }
-            }
-            
-            if (analysis.settings) {
-                analysis.validation.successes.push('Settings data found and will be imported');
-            }
-            
-            if (analysis.stats) {
-                analysis.validation.successes.push('Statistics data found and will be imported');
-            }
-            
-            // Security validation
-            const totalSize = JSON.stringify(analysis).length;
-            if (totalSize > 10 * 1024 * 1024) { // 10MB limit
-                analysis.validation.errors.push('File size too large (max 10MB supported)');
-            } else {
-                analysis.validation.successes.push('File size within acceptable limits');
-            }
-            
-            // Set overall validity - allow import if we have valid flashcards even if quizzes are malformed
-            console.log('🚨 VALIDATION DEBUG: validation.errors.length:', analysis.validation.errors.length);
-            console.log('🚨 VALIDATION DEBUG: flashcards.length:', analysis.flashcards.length);
-            console.log('🚨 VALIDATION DEBUG: quizzes.length:', analysis.quizzes.length);
-            console.log('🚨 VALIDATION DEBUG: validation.errors:', analysis.validation.errors);
-            
-            // Count valid flashcards and quizzes
-            const hasValidFlashcards = validFlashcards > 0;
-            const hasValidQuizzes = validQuizzes > 0;
-            const hasOnlyQuizErrors = analysis.validation.errors.every(error => error.includes('Quiz'));
-            
-            // Allow import if:
-            // 1. No errors at all, OR
-            // 2. We have valid flashcards and only quiz-related errors
-            analysis.isValid = (analysis.validation.errors.length === 0 && 
-                              (analysis.flashcards.length > 0 || analysis.quizzes.length > 0)) ||
-                              (hasValidFlashcards && hasOnlyQuizErrors);
-                              
-            console.log('🚨 VALIDATION DEBUG: hasValidFlashcards:', hasValidFlashcards);
-            console.log('🚨 VALIDATION DEBUG: hasValidQuizzes:', hasValidQuizzes);
-            console.log('🚨 VALIDATION DEBUG: hasOnlyQuizErrors:', hasOnlyQuizErrors);
-            console.log('🚨 VALIDATION DEBUG: Final isValid result:', analysis.isValid);
-        }
-
-        // Legacy function - kept for compatibility but no longer used
-        // The modal now handles import preview display
-        function displayImportPreview(analysis) {
-            // This function is deprecated - using showImportResultsModal instead
-            console.log('displayImportPreview called but deprecated - using modal instead');
-        }
-
-        // Show import error - now uses modal format
-        function showImportError(message) {
-            // Create error analysis for modal display
-            const errorAnalysis = {
-                fileName: 'Unknown file',
-                fileSize: 'Unknown size',
-                format: 'unknown',
-                schema: 'Error',
-                summary: { flashcards: 0, quizzes: 0, settings: 'No', account: 'No' },
-                validation: {
-                    isValid: false,
-                    errors: [message],
-                    warnings: [],
-                    successes: []
-                }
-            };
-            showImportResultsModal(errorAnalysis);
-        }
-
-        // Execute import
-        async function executeImport() {
-            if (!importAnalysis || !importAnalysis.isValid) {
-                showImportError('No valid data to import');
-                return;
-            }
-            
-            try {
-                // Import flashcards using the unified data manager
-                if (window.app && window.app.dataManager) {
-                    for (const flashcard of importAnalysis.flashcards) {
-                        await window.app.dataManager.addFlashcard(flashcard);
-                    }
-                    
-                    // Show success message
-                    if (window.app.uiManager) {
-                        window.app.uiManager.showNotification(
-                            `Successfully imported ${importAnalysis.flashcards.length} flashcards!`,
-                            'success'
-                        );
-                    }
-                    
-                    closeImportModal();
-                } else {
-                    throw new Error('Data manager not available');
-                }
-                
-            } catch (error) {
-                console.error('Import execution error:', error);
-                showImportError(`Import failed: ${error.message}`);
-            }
-        }
-
-        // Initialize import functionality when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DEBUG: Settings page DOMContentLoaded event fired');
-            // Set up file input event listeners
-            const fileInput = document.getElementById('settings-file-input');
-            const fileUploadArea = document.getElementById('settings-file-upload-area');
-            
-            console.log('DEBUG: Elements found:', {
-                fileInput: !!fileInput,
-                fileUploadArea: !!fileUploadArea,
-                fileInputId: fileInput?.id,
-                fileInputType: fileInput?.type
-            });
-            
-            if (fileInput) {
-                console.log('🚨 CRITICAL DEBUG: File input element found, adding event listener');
-            } else {
-                console.log('🚨 CRITICAL DEBUG: File input element NOT found!');
-            }
-            
-
-            
-            if (fileUploadArea && fileInput) {
-                // Add click handler to trigger file input
-                fileUploadArea.addEventListener('click', (e) => {
-                    // Don't trigger if clicking on file info or other interactive elements
-                    if (!e.target.closest('.file-info') && !e.target.closest('button')) {
-                        fileInput.click();
-                    }
-                });
-                
-                // Get drag overlay and file info elements
-                const dragOverlay = fileUploadArea.querySelector('.drag-overlay');
-                const fileInfo = fileUploadArea.querySelector('.file-info');
-                const uploadProgress = fileUploadArea.querySelector('.upload-progress');
-                
-                // Enhanced drag and drop functionality
-                fileUploadArea.addEventListener('dragenter', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    fileUploadArea.classList.add('drag-over');
-                    if (dragOverlay) dragOverlay.style.display = 'flex';
-                });
-                
-                fileUploadArea.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    fileUploadArea.classList.add('drag-over');
-                });
-                
-                fileUploadArea.addEventListener('dragleave', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Only remove drag-over if leaving the upload area entirely
-                    if (!fileUploadArea.contains(e.relatedTarget)) {
-                        fileUploadArea.classList.remove('drag-over');
-                        if (dragOverlay) dragOverlay.style.display = 'none';
-                    }
-                });
-                
-                fileUploadArea.addEventListener('drop', (e) => {
-                    console.log('DEBUG: Settings page drop event triggered');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    fileUploadArea.classList.remove('drag-over');
-                    if (dragOverlay) dragOverlay.style.display = 'none';
-                    
-                    const files = e.dataTransfer.files;
-                    console.log('DEBUG: Files in drop event:', files.length);
-                    if (files.length > 0) {
-                        displayFileInfo(files[0], fileInfo);
-                        console.log('DEBUG: About to call processFilesWithConfirmation from settings drop handler');
-                        processFilesWithConfirmation(files);
-                    }
-                });
-                
-                console.log('🔥 FILE INPUT EVENT LISTENER ADDED!');
-        if (!fileInput.hasEventListener) {
-            fileInput.hasEventListener = true;
-            fileInput.addEventListener('change', (e) => {
-                console.log('🔥 FILE INPUT CHANGE EVENT TRIGGERED!', e.target.files);
-                    console.log('DEBUG: Settings page file input change event triggered');
-                    if (e.target.files.length > 0) {
-                        console.log('DEBUG: Files in change event:', e.target.files.length);
-                        displayFileInfo(e.target.files[0], fileInfo);
-                        console.log('DEBUG: About to call processFilesWithConfirmation from settings file input');
-                        processFilesWithConfirmation(e.target.files);
-                    }
-                });
-            }
-            }
-            
-            // Export functionality
-            const exportJsonBtn = document.getElementById('export-json-btn');
-            const exportXmlBtn = document.getElementById('export-xml-btn');
-            
-            if (exportJsonBtn) {
-                exportJsonBtn.addEventListener('click', () => exportData('json'));
-            }
-            
-            if (exportXmlBtn) {
-                exportXmlBtn.addEventListener('click', () => exportData('xml'));
-            }
-        });
-
-        // Display file information in the upload area
-        function displayFileInfo(file, fileInfoElement) {
-            if (!fileInfoElement) return;
-            
-            const fileSize = (file.size / 1024).toFixed(2);
-            const lastModified = new Date(file.lastModified).toLocaleDateString();
-            
-            fileInfoElement.innerHTML = `
-                <div class="file-details">
-                    <div class="file-icon">
-                        <i class="fas fa-file-code"></i>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-stats">
-                            <span class="file-size">${fileSize} KB</span>
-                            <span class="file-date">Modified: ${lastModified}</span>
-                        </div>
-                    </div>
-                    <div class="file-status">
-                        <i class="fas fa-check-circle text-success"></i>
-                    </div>
-                </div>
-            `;
-            
-            fileInfoElement.style.display = 'block';
-        }
-        
-        // Clear file info display and reset upload area
-        function clearFileInfo() {
-            const fileInfo = document.getElementById('selected-file-info');
-            const fileInput = document.getElementById('settings-file-input');
-            const fileUploadArea = document.getElementById('settings-file-upload-area');
-            
-            if (fileInfo) {
-                fileInfo.style.display = 'none';
-                fileInfo.innerHTML = '';
-            }
-            
-            if (fileInput) {
-                fileInput.value = '';
-            }
-            
-            if (fileUploadArea) {
-                fileUploadArea.classList.remove('processing');
-                const uploadProgress = fileUploadArea.querySelector('.upload-progress');
-                if (uploadProgress) {
-                    uploadProgress.style.display = 'none';
-                }
-            }
-            
-            console.log('DEBUG: File info cleared and upload area reset');
-        }
-        
-        // Process files with confirmation modal
-        async function processFilesWithConfirmation(files) {
-            console.log('DEBUG: processFilesWithConfirmation called with files:', files);
-            if (!files || files.length === 0) return;
-            
-            const fileUploadArea = document.getElementById('settings-file-upload-area');
-            const uploadProgress = fileUploadArea?.querySelector('.upload-progress');
-            
-            try {
-                // Show processing state
-                if (fileUploadArea) {
-                    fileUploadArea.classList.add('processing');
-                }
-                
-                if (uploadProgress) {
-                    uploadProgress.style.display = 'block';
-                    updateProgressBar(uploadProgress, 10, 'Validating file...');
-                }
-                
-                for (const file of files) {
-                    if (uploadProgress) {
-                        updateProgressBar(uploadProgress, 30, 'Reading file content...');
-                    }
-                    
-                    if (uploadProgress) {
-                        updateProgressBar(uploadProgress, 60, 'Analyzing data structure...');
-                    }
-                    
-                    // Read file content first
-                    const content = await readFileContent(file);
-                    // Use the local analyzeFileContent function that returns proper analysis with isValid
-                    const analysis = await analyzeFileContent(content, file.name, file.type);
-                    
-                    if (uploadProgress) {
-                        updateProgressBar(uploadProgress, 90, 'Preparing import summary...');
-                    }
-                    
-                    console.log('Analysis result:', { isValid: analysis.isValid, errors: analysis.errors, analysis });
-                    
-                    console.log('DEBUG: Analysis result:', analysis);
-                    console.log('DEBUG: analysis.isValid value:', analysis.isValid);
-                    console.log('DEBUG: analysis.errors:', analysis.errors);
-                    console.log('🚨 CRITICAL DEBUG: About to check analysis.isValid condition');
-                    
-                    if (analysis.isValid) {
-                        console.log('🚨 CRITICAL DEBUG: Inside analysis.isValid === true block');
-                        console.log('About to call showEnhancedImportConfirmationModal...');
-                        console.log('File object:', file);
-                        console.log('Analysis object keys:', Object.keys(analysis));
-                        // Show import confirmation modal
-                        showEnhancedImportConfirmationModal(file, analysis);
-                    } else {
-                        // Get error message from validation.errors or fallback to analysis.errors
-                        let errorMessage = 'Unknown error';
-                        if (analysis.validation && analysis.validation.errors && analysis.validation.errors.length > 0) {
-                            errorMessage = analysis.validation.errors.join(', ');
-                        } else if (analysis.errors && analysis.errors.length > 0) {
-                            errorMessage = analysis.errors.join(', ');
-                        }
-                        
-                        console.log('Analysis is invalid, showing error message:', errorMessage);
-                        console.log('Analysis validation errors:', analysis.validation?.errors);
-                        console.log('Analysis errors:', analysis.errors);
-                        showImportError(`Failed to analyze ${file.name}: ${errorMessage}`);
-                    }
-                    
-                    if (uploadProgress) {
-                        updateProgressBar(uploadProgress, 100, 'Analysis complete!');
-                        setTimeout(() => {
-                            uploadProgress.style.display = 'none';
-                        }, 1000);
-                    }
-                }
-            } catch (error) {
-                console.error('Import error:', error);
-                showImportError(`Import failed: ${error.message}`);
-            } finally {
-                // Remove processing state
-                if (fileUploadArea) {
-                    fileUploadArea.classList.remove('processing');
-                }
-            }
-        }
-        
-        // Make function globally accessible
-        window.processFilesWithConfirmation = processFilesWithConfirmation;
-        
-        // Update progress bar
-        function updateProgressBar(progressElement, percentage, message) {
-            const progressBar = progressElement.querySelector('.progress-bar');
-            const progressText = progressElement.querySelector('.progress-text');
-            
-            if (progressBar) {
-                progressBar.style.width = `${percentage}%`;
-            }
-            
-            if (progressText) {
-                progressText.textContent = message;
-            }
-        }
-        
-        // Execute import directly with enhanced conflict resolution and progress tracking
-        async function executeImportDirectly(analysis, importMode = 'append', progressCallback = null) {
-            if (!analysis || !analysis.isValid) return;
-            
-            let backup = null;
-            let importedCount = 0;
-            const totalItems = (analysis.flashcards?.length || 0) + (analysis.quizzes?.length || 0);
-            
-            try {
-                // Create backup for rollback capability
-                if (progressCallback) progressCallback(5, 'Creating backup...');
-                backup = await createDataBackup();
-                
-                const user = window.auth?.currentUser;
-                
-                if (user && window.app?.dataManager) {
-                    // Enhanced Supabase import with conflict resolution
-                    if (importMode === 'replace') {
-                        if (progressCallback) progressCallback(10, 'Clearing existing data...');
-                        await window.app.dataManager.clearAllData();
-                    }
-                    
-                    // Import flashcards with conflict resolution
-                    if (analysis.flashcards && analysis.flashcards.length > 0) {
-                        if (progressCallback) progressCallback(20, 'Processing flashcards...');
-                        
-                        for (let i = 0; i < analysis.flashcards.length; i++) {
-                            const card = analysis.flashcards[i];
-                            
-                            try {
-                                // Auto-correct schema mismatches
-                                const correctedCard = await autoCorrectFlashcard(card);
-                                
-                                // Handle conflicts based on import mode
-                                if (importMode === 'overwrite') {
-                                    await window.app.dataManager.upsertFlashcard(correctedCard);
-                                } else {
-                                    await window.app.dataManager.insertFlashcard(correctedCard);
-                                }
-                                
-                                importedCount++;
-                                const progress = 20 + (i / analysis.flashcards.length) * 30;
-                                if (progressCallback) progressCallback(progress, `Imported ${importedCount}/${totalItems} items...`);
-                                
-                            } catch (cardError) {
-                                console.warn(`Failed to import flashcard ${i + 1}:`, cardError);
-                                // Continue with other cards
-                            }
-                        }
-                    }
-                    
-                    // Import quizzes with conflict resolution
-                    if (analysis.quizzes && analysis.quizzes.length > 0) {
-                        if (progressCallback) progressCallback(50, 'Processing quizzes...');
-                        
-                        for (let i = 0; i < analysis.quizzes.length; i++) {
-                            const quiz = analysis.quizzes[i];
-                            
-                            try {
-                                // Auto-correct schema mismatches
-                                const correctedQuiz = await autoCorrectQuiz(quiz);
-                                
-                                // Handle conflicts based on import mode
-                                if (importMode === 'overwrite') {
-                                    await window.app.dataManager.upsertQuiz(correctedQuiz);
-                                } else {
-                                    await window.app.dataManager.insertQuiz(correctedQuiz);
-                                }
-                                
-                                importedCount++;
-                                const progress = 50 + (i / analysis.quizzes.length) * 30;
-                                if (progressCallback) progressCallback(progress, `Imported ${importedCount}/${totalItems} items...`);
-                                
-                            } catch (quizError) {
-                                console.warn(`Failed to import quiz ${i + 1}:`, quizError);
-                                // Continue with other quizzes
-                            }
-                        }
-                    }
-                    
-                    // Import settings and stats
-                    if (analysis.settings) {
-                        if (progressCallback) progressCallback(85, 'Importing settings...');
-                        await window.app.dataManager.importSettings(analysis.settings);
-                    }
-                    
-                    if (analysis.stats) {
-                        if (progressCallback) progressCallback(90, 'Importing statistics...');
-                        await window.app.dataManager.importStats(analysis.stats);
-                    }
-                    
-                } else {
-                    // Enhanced localStorage import with conflict resolution
-                    if (importMode === 'replace') {
-                        if (progressCallback) progressCallback(10, 'Clearing existing data...');
-                        localStorage.removeItem('flashcards');
-                        localStorage.removeItem('quizzes');
-                        localStorage.removeItem('settings');
-                        localStorage.removeItem('stats');
-                    }
-                    
-                    // Import flashcards with deduplication
-                    if (analysis.flashcards && analysis.flashcards.length > 0) {
-                        if (progressCallback) progressCallback(20, 'Processing flashcards...');
-                        
-                        const existingData = JSON.parse(localStorage.getItem('flashcards') || '[]');
-                        let mergedData;
-                        
-                        if (importMode === 'append') {
-                            // Deduplicate based on question content
-                            const existingQuestions = new Set(existingData.map(card => card.question?.toLowerCase().trim()));
-                            const newCards = analysis.flashcards.filter(card => 
-                                !existingQuestions.has(card.question?.toLowerCase().trim())
-                            );
-                            mergedData = [...existingData, ...newCards];
-                        } else if (importMode === 'overwrite') {
-                            // Merge and update existing cards
-                            const cardMap = new Map(existingData.map(card => [card.question?.toLowerCase().trim(), card]));
-                            analysis.flashcards.forEach(newCard => {
-                                cardMap.set(newCard.question?.toLowerCase().trim(), newCard);
-                            });
-                            mergedData = Array.from(cardMap.values());
-                        } else {
-                            mergedData = analysis.flashcards;
-                        }
-                        
-                        localStorage.setItem('flashcards', JSON.stringify(mergedData));
-                        importedCount += analysis.flashcards.length;
-                    }
-                    
-                    // Import quizzes with deduplication
-                    if (analysis.quizzes && analysis.quizzes.length > 0) {
-                        if (progressCallback) progressCallback(60, 'Processing quizzes...');
-                        
-                        const existingQuizzes = JSON.parse(localStorage.getItem('quizzes') || '[]');
-                        let mergedQuizzes;
-                        
-                        if (importMode === 'append') {
-                            // Deduplicate based on title
-                            const existingTitles = new Set(existingQuizzes.map(quiz => quiz.title?.toLowerCase().trim()));
-                            const newQuizzes = analysis.quizzes.filter(quiz => 
-                                !existingTitles.has(quiz.title?.toLowerCase().trim())
-                            );
-                            mergedQuizzes = [...existingQuizzes, ...newQuizzes];
-                        } else if (importMode === 'overwrite') {
-                            // Merge and update existing quizzes
-                            const quizMap = new Map(existingQuizzes.map(quiz => [quiz.title?.toLowerCase().trim(), quiz]));
-                            analysis.quizzes.forEach(newQuiz => {
-                                quizMap.set(newQuiz.title?.toLowerCase().trim(), newQuiz);
-                            });
-                            mergedQuizzes = Array.from(quizMap.values());
-                        } else {
-                            mergedQuizzes = analysis.quizzes;
-                        }
-                        
-                        localStorage.setItem('quizzes', JSON.stringify(mergedQuizzes));
-                        importedCount += analysis.quizzes.length;
-                    }
-                    
-                    if (analysis.settings) {
-                        if (progressCallback) progressCallback(85, 'Importing settings...');
-                        localStorage.setItem('settings', JSON.stringify(analysis.settings));
-                    }
-                    
-                    if (analysis.stats) {
-                        if (progressCallback) progressCallback(90, 'Importing statistics...');
-                        localStorage.setItem('stats', JSON.stringify(analysis.stats));
-                    }
-                }
-                
-                if (progressCallback) progressCallback(95, 'Refreshing interface...');
-                
-                // Refresh UI if available
-                if (window.app?.uiManager?.updateUI) {
-                    window.app.uiManager.updateUI();
-                }
-                
-                if (progressCallback) progressCallback(100, 'Import completed successfully!');
-                
-                return {
-                    success: true,
-                    importedCount,
-                    totalItems,
-                    message: `Successfully imported ${importedCount} items`
-                };
-                
-            } catch (error) {
-                console.error('Import failed:', error);
-                
-                // Attempt rollback if backup exists
-                if (backup) {
-                    try {
-                        if (progressCallback) progressCallback(0, 'Rolling back changes...');
-                        await restoreDataBackup(backup);
-                        if (progressCallback) progressCallback(100, 'Rollback completed');
-                    } catch (rollbackError) {
-                        console.error('Rollback failed:', rollbackError);
-                    }
-                }
-                
-                throw new Error(`Import execution failed: ${error.message}`);
-            }
-        }
-        
-        // Create data backup for rollback capability
-        async function createDataBackup() {
-            const backup = {};
-            
-            try {
-                const user = window.auth?.currentUser;
-                
-                if (user && window.app?.dataManager) {
-                    // Backup Supabase data
-                    backup.flashcards = await window.app.dataManager.getAllFlashcards();
-                    backup.quizzes = await window.app.dataManager.getAllQuizzes();
-                    backup.settings = await window.app.dataManager.getSettings();
-                    backup.stats = await window.app.dataManager.getStats();
-                } else {
-                    // Backup localStorage data
-                    backup.flashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
-                    backup.quizzes = JSON.parse(localStorage.getItem('quizzes') || '[]');
-                    backup.settings = JSON.parse(localStorage.getItem('settings') || '{}');
-                    backup.stats = JSON.parse(localStorage.getItem('stats') || '{}');
-                }
-                
-                backup.timestamp = Date.now();
-                return backup;
-            } catch (error) {
-                console.warn('Failed to create backup:', error);
-                return null;
-            }
-        }
-        
-        // Restore data from backup
-        async function restoreDataBackup(backup) {
-            if (!backup) return;
-            
-            try {
-                const user = window.auth?.currentUser;
-                
-                if (user && window.app?.dataManager) {
-                    // Restore to Supabase
-                    await window.app.dataManager.clearAllData();
-                    
-                    if (backup.flashcards?.length > 0) {
-                        for (const card of backup.flashcards) {
-                            await window.app.dataManager.insertFlashcard(card);
-                        }
-                    }
-                    
-                    if (backup.quizzes?.length > 0) {
-                        for (const quiz of backup.quizzes) {
-                            await window.app.dataManager.insertQuiz(quiz);
-                        }
-                    }
-                    
-                    if (backup.settings) {
-                        await window.app.dataManager.importSettings(backup.settings);
-                    }
-                    
-                    if (backup.stats) {
-                        await window.app.dataManager.importStats(backup.stats);
-                    }
-                } else {
-                    // Restore to localStorage
-                    localStorage.setItem('flashcards', JSON.stringify(backup.flashcards || []));
-                    localStorage.setItem('quizzes', JSON.stringify(backup.quizzes || []));
-                    localStorage.setItem('settings', JSON.stringify(backup.settings || {}));
-                    localStorage.setItem('stats', JSON.stringify(backup.stats || {}));
-                }
-            } catch (error) {
-                console.error('Failed to restore backup:', error);
-                throw error;
-            }
-        }
-        
-        // Auto-correct flashcard schema mismatches
-        async function autoCorrectFlashcard(card) {
-            const corrected = { ...card };
-            
-            // Ensure required fields
-            if (!corrected.id) {
-                corrected.id = `fc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            }
-            
-            if (!corrected.question) {
-                corrected.question = 'Untitled Question';
-            }
-            
-            if (!corrected.answer) {
-                corrected.answer = 'No answer provided';
-            }
-            
-            // Normalize difficulty
-            if (corrected.difficulty && !['easy', 'medium', 'hard'].includes(corrected.difficulty.toLowerCase())) {
-                corrected.difficulty = 'medium';
-            }
-            
-            // Ensure timestamps
-            if (!corrected.created_at) {
-                corrected.created_at = new Date().toISOString();
-            }
-            
-            if (!corrected.updated_at) {
-                corrected.updated_at = new Date().toISOString();
-            }
-            
-            // Sanitize content
-            corrected.question = sanitizeContent(corrected.question);
-            corrected.answer = sanitizeContent(corrected.answer);
-            
-            return corrected;
-        }
-        
-        // Auto-correct quiz schema mismatches
-        async function autoCorrectQuiz(quiz) {
-            const corrected = { ...quiz };
-            
-            // Ensure required fields
-            if (!corrected.id) {
-                corrected.id = `qz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            }
-            
-            if (!corrected.title) {
-                corrected.title = 'Untitled Quiz';
-            }
-            
-            if (!corrected.questions || !Array.isArray(corrected.questions)) {
-                corrected.questions = [];
-            }
-            
-            // Correct questions
-            corrected.questions = corrected.questions.map((question, index) => {
-                const correctedQuestion = { ...question };
-                
-                if (!correctedQuestion.id) {
-                    correctedQuestion.id = `q_${Date.now()}_${index}`;
-                }
-                
-                if (!correctedQuestion.question) {
-                    correctedQuestion.question = `Question ${index + 1}`;
-                }
-                
-                if (!correctedQuestion.options || !Array.isArray(correctedQuestion.options)) {
-                    correctedQuestion.options = ['Option A', 'Option B'];
-                }
-                
-                if (correctedQuestion.correctAnswer === undefined || correctedQuestion.correctAnswer === null) {
-                    correctedQuestion.correctAnswer = 0;
-                }
-                
-                // Sanitize content
-                correctedQuestion.question = sanitizeContent(correctedQuestion.question);
-                correctedQuestion.options = correctedQuestion.options.map(opt => sanitizeContent(opt));
-                
-                return correctedQuestion;
-            });
-            
-            // Ensure timestamps
-            if (!corrected.created_at) {
-                corrected.created_at = new Date().toISOString();
-            }
-            
-            if (!corrected.updated_at) {
-                corrected.updated_at = new Date().toISOString();
-            }
-            
-            // Sanitize content
-            corrected.title = sanitizeContent(corrected.title);
-            if (corrected.description) {
-                corrected.description = sanitizeContent(corrected.description);
-            }
-            
-            return corrected;
-        }
-        
-        // Sanitize content for security
-        function sanitizeContent(content) {
-            if (typeof content !== 'string') return content;
-            
-            // Remove potentially dangerous HTML/JS
-            return content
-                .replace(/<script[^>]*>.*?<\/script>/gi, '')
-                .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
-                .replace(/javascript:/gi, '')
-                .replace(/on\w+\s*=/gi, '')
-                .trim();
-        }
-        
-        // Show import success message using system's styled toast component
-        function showImportSuccess(message) {
-            if (window.app && typeof window.app.showToast === 'function') {
-                window.app.showToast(message, 'success');
-            } else {
-                console.log(`SUCCESS: ${message}`);
-            }
-        }
-        
-        // Show import error message using system's styled toast component
-        function showImportError(message) {
-            if (window.app && typeof window.app.showToast === 'function') {
-                window.app.showToast(message, 'error');
-            } else {
-                console.log(`ERROR: ${message}`);
-            }
-        }
-        
-        // Show enhanced import confirmation modal
-        function showEnhancedImportConfirmationModal(file, analysis) {
-            console.log('showEnhancedImportConfirmationModal called with:', { file: file.name, analysis });
-            
-            // Remove existing modal if present
-            const existingModal = document.getElementById('import-confirmation-modal');
-            if (existingModal) {
-                existingModal.remove();
-            }
-            
-            try {
-                // Generate validation report
-                console.log('Generating validation report...');
-                const validationReport = generateValidationReport(analysis);
-                console.log('Generating data preview...');
-                const dataPreview = generateDataPreview(analysis);
-                console.log('Generating impact analysis...');
-                const impactAnalysis = generateImpactAnalysis(analysis);
-            
-            const modalHTML = `
-                <div id="import-confirmation-modal" class="import-confirmation-modal show">
-                    <div class="import-modal-content enhanced">
-                        <div class="import-modal-header">
-                            <h3><i class="fas fa-file-import"></i> Import Confirmation</h3>
-                            <button class="import-modal-close" onclick="closeImportModal()">&times;</button>
-                        </div>
-                        <div class="import-modal-body">
-                            <!-- File Metadata -->
-                            <div class="file-info section">
-                                <h4><i class="fas fa-info-circle"></i> File Information</h4>
-                                <div class="info-grid">
-                                    <div class="info-item">
-                                        <span class="label">Name:</span>
-                                        <span class="value">${file.name}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="label">Size:</span>
-                                        <span class="value">${(file.size / 1024).toFixed(2)} KB</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="label">Type:</span>
-                                        <span class="value">${file.type || 'Unknown'}</span>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="label">Modified:</span>
-                                        <span class="value">${new Date(file.lastModified).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Validation Report -->
-                            <div class="validation-report section">
-                                <h4><i class="fas fa-shield-alt"></i> Validation Report</h4>
-                                ${validationReport}
-                            </div>
-                            
-                            <!-- Data Preview -->
-                            <div class="data-preview section">
-                                <h4><i class="fas fa-eye"></i> Data Preview (First 5 Records)</h4>
-                                ${dataPreview}
-                            </div>
-                            
-                            <!-- Impact Analysis -->
-                            <div class="impact-analysis section">
-                                <h4><i class="fas fa-chart-line"></i> Impact Analysis</h4>
-                                ${impactAnalysis}
-                            </div>
-                            
-                            <!-- Import Options -->
-                            <div class="import-mode section">
-                                <h4><i class="fas fa-cogs"></i> Import Options</h4>
-                                <div class="radio-group">
-                                    <label class="radio-option">
-                                        <input type="radio" name="import-mode" value="append" checked>
-                                        <span class="radio-custom"></span>
-                                        <div class="radio-content">
-                                            <strong>Merge</strong>
-                                            <small>Add new data, skip duplicates</small>
-                                        </div>
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="import-mode" value="overwrite">
-                                        <span class="radio-custom"></span>
-                                        <div class="radio-content">
-                                            <strong>Overwrite</strong>
-                                            <small>Update existing records, add new ones</small>
-                                        </div>
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="import-mode" value="replace">
-                                        <span class="radio-custom"></span>
-                                        <div class="radio-content">
-                                            <strong>Replace All</strong>
-                                            <small>Clear existing data and import (backup recommended)</small>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <!-- Progress Section (hidden by default) -->
-                            <div class="import-progress section" style="display: none;">
-                                <h4><i class="fas fa-spinner fa-spin"></i> Import Progress</h4>
-                                <div class="import-progress-bar" style="display: none;">
-                                    <div class="progress-container">
-                                        <div class="progress-fill" style="width: 0%;"></div>
-                                    </div>
-                                </div>
-                                <div class="import-progress-text" style="display: none;">Preparing import...</div>
-                            </div>
-                        </div>
-                        <div class="import-modal-footer">
-                            <button class="btn btn-secondary import-cancel-btn" onclick="closeImportModal()">Cancel</button>
-                            <button class="btn btn-primary import-confirm-btn" onclick="executeConfirmedImport()">Import Data</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-                console.log('Inserting modal HTML into document...');
-                document.body.insertAdjacentHTML('beforeend', modalHTML);
-                
-                // Store file and analysis for later use
-                window.pendingImport = { file, analysis };
-                
-                // Show modal
-                console.log('Showing modal...');
-                const modal = document.getElementById('import-confirmation-modal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                    console.log('Modal displayed successfully');
-                    
-                    // Add event listeners for the enhanced modal
-                    document.addEventListener('keydown', handleModalKeydown);
-                    modal.addEventListener('click', handleModalBackdropClick);
-                    
-                    // Prevent body scroll
-                    document.body.style.overflow = 'hidden';
-                    
-                    // Clear file details from upload area - display them only in modal
-                    clearFileInfo();
-                    console.log('File details cleared from upload area');
-                } else {
-                    console.error('Modal element not found after insertion');
-                }
-            } catch (error) {
-                console.error('Error in showEnhancedImportConfirmationModal:', error);
-                showImportError(`Failed to show import confirmation: ${error.message}`);
-            }
-        }
-        
-        // Helper functions for enhanced modal content
-        function generateValidationReport(analysis) {
-            // Defensive programming: ensure validation object exists
-            const validation = analysis.validation || {
-                errors: [],
-                warnings: [],
-                successes: []
-            };
-            
-            let html = '<div class="validation-summary">';
-            
-            if (!validation.errors || validation.errors.length === 0) {
-                html += '<div class="validation-item success">';
-                html += '<i class="fas fa-check-circle"></i>';
-                html += '<span>All validations passed successfully</span>';
-                html += '</div>';
-            } else {
-                validation.errors.forEach(error => {
-                    html += '<div class="validation-item error">';
-                    html += '<i class="fas fa-exclamation-circle"></i>';
-                    html += `<span>${error}</span>`;
-                    html += '</div>';
-                });
-            }
-            
-            if (validation.warnings && validation.warnings.length > 0) {
-                validation.warnings.forEach(warning => {
-                    html += '<div class="validation-item warning">';
-                    html += '<i class="fas fa-exclamation-triangle"></i>';
-                    html += `<span>${warning}</span>`;
-                    html += '</div>';
-                });
-            }
-            
-            html += '</div>';
-            return html;
-        }
-        
-        function generateDataPreview(analysis) {
-            let html = '<div class="preview-sections">';
-            
-            // Flashcards preview
-            if (analysis.flashcards.length > 0) {
-                html += '<div class="preview-section">';
-                html += '<h5><i class="fas fa-layer-group"></i> Flashcards</h5>';
-                html += '<div class="preview-items">';
-                const previewCards = analysis.flashcards.slice(0, 3);
-                previewCards.forEach(card => {
-                    html += '<div class="preview-item">';
-                    html += `<strong>Q:</strong> ${card.question?.substring(0, 50)}${card.question?.length > 50 ? '...' : ''}<br>`;
-                    html += `<strong>A:</strong> ${card.answer?.substring(0, 50)}${card.answer?.length > 50 ? '...' : ''}`;
-                    html += '</div>';
-                });
-                if (analysis.flashcards.length > 3) {
-                    html += `<div class="preview-more">... and ${analysis.flashcards.length - 3} more</div>`;
-                }
-                html += '</div></div>';
-            }
-            
-            // Quizzes preview
-            if (analysis.quizzes.length > 0) {
-                html += '<div class="preview-section">';
-                html += '<h5><i class="fas fa-question-circle"></i> Quizzes</h5>';
-                html += '<div class="preview-items">';
-                
-                // Group quizzes by deck to show proper preview
-                const quizzesByDeck = {};
-                analysis.quizzes.forEach(quiz => {
-                    const deck = quiz.deck || 'Untitled Quiz';
-                    if (!quizzesByDeck[deck]) {
-                        quizzesByDeck[deck] = {
-                            title: deck,
-                            questions: [],
-                            difficulties: new Set()
-                        };
-                    }
-                    quizzesByDeck[deck].questions.push(quiz);
-                    if (quiz.difficulty) {
-                        quizzesByDeck[deck].difficulties.add(quiz.difficulty);
-                    }
-                });
-                
-                const deckEntries = Object.entries(quizzesByDeck).slice(0, 3);
-                deckEntries.forEach(([deckName, deckData]) => {
-                    html += '<div class="preview-item">';
-                    html += `<strong>${deckData.title}</strong><br>`;
-                    html += `<small>${deckData.questions.length} questions`;
-                    if (deckData.difficulties.size > 0) {
-                        const difficultyList = Array.from(deckData.difficulties).join(', ');
-                        html += ` • ${difficultyList}`;
-                    }
-                    html += '</small>';
-                    html += '</div>';
-                });
-                
-                const totalDecks = Object.keys(quizzesByDeck).length;
-                if (totalDecks > 3) {
-                    html += `<div class="preview-more">... and ${totalDecks - 3} more quiz decks</div>`;
-                }
-                html += '</div></div>';
-            }
-            
-            html += '</div>';
-            return html || '<p class="no-preview">No data to preview</p>';
-        }
-        
-        function generateImpactAnalysis(analysis) {
-            let html = '<div class="impact-grid">';
-            
-            // Data counts
-            html += '<div class="impact-item">';
-            html += '<div class="impact-number">' + (analysis.flashcards.length + analysis.quizzes.length) + '</div>';
-            html += '<div class="impact-label">Total Records</div>';
-            html += '</div>';
-            
-            html += '<div class="impact-item">';
-            html += '<div class="impact-number">' + analysis.flashcards.length + '</div>';
-            html += '<div class="impact-label">Flashcards</div>';
-            html += '</div>';
-            
-            html += '<div class="impact-item">';
-            html += '<div class="impact-number">' + analysis.quizzes.length + '</div>';
-            html += '<div class="impact-label">Quizzes</div>';
-            html += '</div>';
-            
-            // Estimated storage impact
-            const estimatedSize = JSON.stringify(analysis).length;
-            html += '<div class="impact-item">';
-            html += '<div class="impact-number">' + (estimatedSize / 1024).toFixed(1) + 'KB</div>';
-            html += '<div class="impact-label">Storage Impact</div>';
-            html += '</div>';
-            
-            html += '</div>';
-            
-            // Conflict warnings
-            if (analysis.validation && analysis.validation.warnings && analysis.validation.warnings.length > 0) {
-                html += '<div class="conflict-warning">';
-                html += '<i class="fas fa-exclamation-triangle"></i>';
-                html += '<span>Potential conflicts detected. Review import mode carefully.</span>';
-                html += '</div>';
-            }
-            
-            return html;
-        }
-        
-        // Close import confirmation modal
-        function closeImportConfirmationModal() {
-            const modal = document.getElementById('import-confirmation-modal');
-            if (modal) {
-                modal.remove();
-            }
-            window.pendingImport = null;
-        }
-        
-        // Execute confirmed import
-        async function executeConfirmedImport() {
-            if (!window.pendingImport) return;
-            
-            const { file, analysis } = window.pendingImport;
-            const importMode = document.querySelector('input[name="import-mode"]:checked')?.value || 'append';
-            const progressSection = document.querySelector('.import-progress');
-            const progressBar = document.querySelector('.import-progress-bar');
-            const progressText = document.querySelector('.import-progress-text');
-            const importButton = document.querySelector('.import-confirm-btn');
-            const cancelButton = document.querySelector('.import-cancel-btn');
-            
-            // Show progress UI
-            if (progressSection) {
-                progressSection.style.display = 'block';
-            }
-            
-            if (progressBar) {
-                progressBar.style.display = 'block';
-                const fill = progressBar.querySelector('.progress-fill');
-                if (fill) fill.style.width = '0%';
-            }
-            
-            if (progressText) {
-                progressText.textContent = 'Preparing import...';
-                progressText.style.display = 'block';
-            }
-            
-            // Disable buttons during import
-            if (importButton) importButton.disabled = true;
-            if (cancelButton) cancelButton.disabled = true;
-            
-            try {
-                const result = await executeImportDirectly(analysis, importMode, (progress, message) => {
-                    // Update progress bar
-                    if (progressBar) {
-                        const fill = progressBar.querySelector('.progress-fill');
-                        if (fill) {
-                            fill.style.width = `${progress}%`;
-                        }
-                    }
-                    
-                    // Update progress text
-                    if (progressText) {
-                        progressText.textContent = message;
-                    }
-                });
-                
-                // Wait a moment to show completion
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                const totalItems = (analysis.flashcards?.length || 0) + (analysis.quizzes?.length || 0);
-                const successMessage = result?.message || `Successfully imported ${totalItems} items from ${file.name}`;
-                
-                closeImportConfirmationModal();
-                clearFileInfo(); // Clear the stuck file info display
-                showImportSuccess(successMessage);
-                
-            } catch (error) {
-                console.error('Import execution error:', error);
-                
-                // Hide progress UI on error
-                if (progressBar) progressBar.style.display = 'none';
-                if (progressText) progressText.style.display = 'none';
-                
-                // Re-enable buttons
-                if (importButton) importButton.disabled = false;
-                if (cancelButton) cancelButton.disabled = false;
-                
-                showImportError(`Import failed: ${error.message}`);
-            }
-        }
-         
-         // Export data functionality
-         async function exportData(format = 'json') {
-             try {
-                 const exportData = await gatherAllData();
-                 
-                 if (!exportData || Object.keys(exportData).length === 0) {
-                     showImportError('No data available to export');
-                     return;
-                 }
-                 
-                 const timestamp = new Date().toISOString().split('T')[0];
-                 const filename = `quizwhiz_backup-${exportData.account?.username || 'user'}-${timestamp}`;
-                 
-                 if (format === 'json') {
-                     downloadJSON(exportData, filename);
-                 } else if (format === 'xml') {
-                     downloadXML(exportData, filename);
-                 }
-                 
-                 showImportSuccess(`Data exported successfully as ${filename}.${format}`);
-             } catch (error) {
-                 console.error('Export error:', error);
-                 showImportError(`Export failed: ${error.message}`);
-             }
-         }
-         
-         // Gather all data from Firebase or localStorage
-         async function gatherAllData() {
-             const exportData = {
-                 version: '2.0',
-                 exportDate: new Date().toISOString(),
-                 account: null,
-                 flashcards: [],
-                 quizzes: [],
-                 settings: null,
-                 stats: null
-             };
-             
-             try {
-                 const user = window.auth?.currentUser;
-                 
-                 if (user && window.app) {
-                     // Get data from app state (which syncs with Firebase)
-                     exportData.account = {
-                         uid: user.uid,
-                         email: user.email,
-                         username: window.app.dataManager?.currentUser?.username || user.displayName || user.email || 'user',
-                         registrationDate: user.metadata?.creationTime || new Date().toISOString(),
-                         streakData: window.app.streakData || {}
-                     };
-                     
-                     exportData.flashcards = window.app.flashcards || [];
-                     exportData.quizzes = window.app.quizzes || [];
-                     exportData.settings = window.app.settings || {};
-                     exportData.stats = window.app.stats || {};
-                 } else {
-                     // Get data from localStorage
-                     exportData.flashcards = JSON.parse(localStorage.getItem('flashcards') || '[]');
-                     exportData.quizzes = JSON.parse(localStorage.getItem('quizzes') || '[]');
-                     exportData.settings = JSON.parse(localStorage.getItem('settings') || '{}');
-                     exportData.stats = JSON.parse(localStorage.getItem('stats') || '{}');
-                     
-                     exportData.account = {
-                         username: 'guest',
-                         type: 'local'
-                     };
-                 }
-                 
-                 return exportData;
-             } catch (error) {
-                 console.error('Error gathering data:', error);
-                 throw new Error(`Failed to gather export data: ${error.message}`);
-             }
-         }
-         
-         // Download data as JSON
-         function downloadJSON(data, filename) {
-             const jsonString = JSON.stringify(data, null, 2);
-             const blob = new Blob([jsonString], { type: 'application/json' });
-             const url = URL.createObjectURL(blob);
-             
-             const a = document.createElement('a');
-             a.href = url;
-             a.download = `${filename}.json`;
-             document.body.appendChild(a);
-             a.click();
-             document.body.removeChild(a);
-             URL.revokeObjectURL(url);
-         }
-         
-         // Download data as XML
-         function downloadXML(data, filename) {
-             const xmlString = convertToXML(data);
-             const blob = new Blob([xmlString], { type: 'application/xml' });
-             const url = URL.createObjectURL(blob);
-             
-             const a = document.createElement('a');
-             a.href = url;
-             a.download = `${filename}.xml`;
-             document.body.appendChild(a);
-             a.click();
-             document.body.removeChild(a);
-             URL.revokeObjectURL(url);
-         }
-         
-         // Convert JSON to XML format
-         function convertToXML(data) {
-             let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<quizwhiz_backup>\n';
-             
-             xml += `  <version>${data.version}</version>\n`;
-             xml += `  <exportDate>${data.exportDate}</exportDate>\n`;
-             
-             if (data.account) {
-                 xml += '  <account>\n';
-                 Object.entries(data.account).forEach(([key, value]) => {
-                     xml += `    <${key}>${escapeXML(value)}</${key}>\n`;
-                 });
-                 xml += '  </account>\n';
-             }
-             
-             if (data.flashcards && data.flashcards.length > 0) {
-                 xml += '  <flashcards>\n';
-                 data.flashcards.forEach(card => {
-                     xml += '    <flashcard>\n';
-                     Object.entries(card).forEach(([key, value]) => {
-                         xml += `      <${key}>${escapeXML(value)}</${key}>\n`;
-                     });
-                     xml += '    </flashcard>\n';
-                 });
-                 xml += '  </flashcards>\n';
-             }
-             
-             if (data.quizzes && data.quizzes.length > 0) {
-                 xml += '  <quizzes>\n';
-                 data.quizzes.forEach(quiz => {
-                     xml += '    <quiz>\n';
-                     Object.entries(quiz).forEach(([key, value]) => {
-                         if (typeof value === 'object') {
-                             xml += `      <${key}>${escapeXML(JSON.stringify(value))}</${key}>\n`;
-                         } else {
-                             xml += `      <${key}>${escapeXML(value)}</${key}>\n`;
-                         }
-                     });
-                     xml += '    </quiz>\n';
-                 });
-                 xml += '  </quizzes>\n';
-             }
-             
-             if (data.settings && Object.keys(data.settings).length > 0) {
-                 xml += '  <settings>\n';
-                 Object.entries(data.settings).forEach(([key, value]) => {
-                     xml += `    <${key}>${escapeXML(typeof value === 'object' ? JSON.stringify(value) : value)}</${key}>\n`;
-                 });
-                 xml += '  </settings>\n';
-             }
-             
-             if (data.stats && Object.keys(data.stats).length > 0) {
-                 xml += '  <stats>\n';
-                 Object.entries(data.stats).forEach(([key, value]) => {
-                     xml += `    <${key}>${escapeXML(typeof value === 'object' ? JSON.stringify(value) : value)}</${key}>\n`;
-                 });
-                 xml += '  </stats>\n';
-             }
-             
-             xml += '</quizwhiz_backup>';
-             return xml;
-         }
-         
-         // Escape XML special characters
-         function escapeXML(str) {
-             if (str == null) return '';
-             return String(str)
-                 .replace(/&/g, '&amp;')
-                 .replace(/</g, '&lt;')
-                 .replace(/>/g, '&gt;')
-                 .replace(/"/g, '&quot;')
-                 .replace(/'/g, '&apos;');
-         }
-         
-         // Import Results Modal Functions
-         function showImportResultsModal(analysis) {
-             const modal = document.getElementById('importResultsModal');
-             const progressSection = document.getElementById('importProgress');
-             const fileSummarySection = document.getElementById('fileSummary');
-             const importSummarySection = document.getElementById('importSummary');
-             const validationSection = document.getElementById('validationResults');
-             
-             // Show progress (initially hidden)
-             progressSection.style.display = 'none';
-             
-             // Populate file summary
-             document.getElementById('fileName').textContent = analysis.fileName || 'Unknown file';
-             document.getElementById('fileSize').textContent = analysis.fileSize || 'Unknown size';
-             document.getElementById('fileFormat').textContent = analysis.format || 'Unknown format';
-             document.getElementById('backupType').textContent = analysis.schema || 'Unknown type';
-             
-             // Populate import summary
-             const summary = analysis.summary || {};
-             document.getElementById('flashcardsCount').textContent = summary.flashcards || 0;
-             document.getElementById('quizzesCount').textContent = summary.quizzes || 0;
-             document.getElementById('settingsCount').textContent = summary.settings || 0;
-             document.getElementById('accountInfo').textContent = summary.account || 'None';
-             
-             // Populate validation results
-             const validation = analysis.validation || {};
-             const validList = document.getElementById('validationList');
-             validList.innerHTML = '';
-             
-             if (validation.isValid) {
-                 const successItem = document.createElement('li');
-                 successItem.className = 'validation-success';
-                 successItem.innerHTML = '<i class="fas fa-check-circle"></i> File is valid and ready for import';
-                 validList.appendChild(successItem);
-             }
-             
-             if (validation.warnings && validation.warnings.length > 0) {
-                 validation.warnings.forEach(warning => {
-                     const warningItem = document.createElement('li');
-                     warningItem.className = 'validation-warning';
-                     warningItem.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${warning}`;
-                     validList.appendChild(warningItem);
-                 });
-             }
-             
-             if (validation.errors && validation.errors.length > 0) {
-                 validation.errors.forEach(error => {
-                     const errorItem = document.createElement('li');
-                     errorItem.className = 'validation-error';
-                     errorItem.innerHTML = `<i class="fas fa-times-circle"></i> ${error}`;
-                     validList.appendChild(errorItem);
-                 });
-             }
-             
-             // Show the modal
-             modal.style.display = 'flex';
-         }
-         
-         function closeImportResultsModal() {
-             const modal = document.getElementById('importResultsModal');
-             modal.style.display = 'none';
-         }
-         
-         function showImportProgress(message, percentage) {
-             const progressSection = document.getElementById('importProgress');
-             const progressBar = document.getElementById('importProgressBar');
-             const progressText = document.getElementById('importProgressText');
-             
-             progressSection.style.display = 'block';
-             progressBar.style.width = `${percentage}%`;
-             progressText.textContent = message;
-         }
-
-         // Delete Account functionality
-         function confirmDeleteAccount() {
-             if (window.app && window.app.authManager) {
-                 window.app.authManager.confirmDeleteAccount();
-             } else {
-                 console.error('AuthManager not available');
-             }
-         }
-
-         // Boot flags to prevent duplicate initialization
-         let settingsPageInitialized = false;
-         let deleteAccountListenerAdded = false;
-
-         // Initialize app for this page
-         document.addEventListener('DOMContentLoaded', async () => {
-             // Prevent duplicate initialization
-             if (settingsPageInitialized) {
-                 console.log('Settings page already initialized, skipping...');
-                 return;
-             }
-             
-             console.log('Settings page DOMContentLoaded event fired');
-             settingsPageInitialized = true;
-             
-            // Set up data sync for settings with theme default to 'auto'
-            DataSync.bindDoc('app-settings', {
-                theme: 'auto',
-                animations: true,
-                autoFlip: 0,
-                shuffleDefault: false,
-                difficultyFeature: false
-            });
-            
-            // Create QuizWhizApp instance if it doesn't exist
-            if (typeof window.app === 'undefined') {
-                window.app = new QuizWhizApp();
-            }
-            if (typeof app === 'undefined') {
-                app = window.app;
-            }
-            
-            // Initialize the app (this calls initializeTheme)
-            window.app.init();
-            
-            // Initialize router if not already done
-            if (typeof Router !== 'undefined') {
-                app.router = new Router(app);
-            }
-            
-            // Setup auth guards for data management section
-            setupAuthGuards();
-            
-            // Properly initialize the page with navbar loading
-            await window.app.initializePage('settings');
-            
-            // Setup Delete Account button event listener with guard
-            if (!deleteAccountListenerAdded) {
-                const deleteAccountBtn = document.getElementById('delete-account-btn');
-                if (deleteAccountBtn) {
-                    deleteAccountBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        console.log('Delete Account button clicked - opening modal');
-                        if (window.app && window.app.authManager) {
-                            window.app.authManager.confirmDeleteAccount();
-                        } else {
-                            console.error('AuthManager not available');
-                        }
-                    });
-                    deleteAccountListenerAdded = true;
-                    console.log('Delete Account button event listener added');
-                } else {
-                    console.error('Delete Account button not found');
-                }
-            }
-        });
-
-        // Setup auth guards for protected sections
-        function setupAuthGuards() {
-            const authRequiredSections = document.querySelectorAll('.auth-required');
-            
-            // Initial state - show loading
-            authRequiredSections.forEach(section => {
-                section.classList.add('auth-loading');
-            });
-            
-            // Function to update auth state
-            const updateAuthState = (event, session) => {
-                const isAuthenticated = session && session.user;
-                console.log('Settings auth guard: Auth state updated', { event, isAuthenticated });
-                
-                authRequiredSections.forEach(section => {
-                    section.classList.remove('auth-loading', 'auth-hidden');
-                    if (!isAuthenticated) {
-                        // Hide sections completely when not authenticated
-                        section.style.display = 'none';
-                    } else {
-                        // Show sections when authenticated
-                        section.style.display = 'block';
-                    }
-                });
-                
-                // Re-initialize dropdowns after auth state changes
-                if (isAuthenticated && window.app && window.app.eventHandler) {
-                    console.log('🔧 Auth guard: Re-initializing settings events after auth state change');
-                    setTimeout(() => {
-                        window.app.eventHandler.setupSettingsEvents();
-                    }, 200);
-                }
-            };
-            
-            // Check if Supabase auth service is available
-            if (window.supabaseAuthService) {
-                console.log('Settings: Using supabaseAuthService for auth guards');
-                
-                // Listen for auth state changes
-                window.supabaseAuthService.onAuthStateChange(updateAuthState);
-                
-                // Check current auth state immediately
-                const currentUser = window.supabaseAuthService.getCurrentUser();
-                if (currentUser) {
-                    updateAuthState('SIGNED_IN', { user: currentUser });
-                } else {
-                    updateAuthState('SIGNED_OUT', null);
-                }
-            } else {
-                console.log('Settings: Waiting for supabaseAuthService to be available');
-                
-                // Fallback - check periodically until supabase auth service is available
-                const checkAuth = setInterval(() => {
-                    if (window.supabaseAuthService) {
-                        clearInterval(checkAuth);
-                        console.log('Settings: supabaseAuthService now available, setting up auth guards');
-                        
-                        // Listen for auth state changes
-                        window.supabaseAuthService.onAuthStateChange(updateAuthState);
-                        
-                        // Check current auth state immediately
-                        const currentUser = window.supabaseAuthService.getCurrentUser();
-                        if (currentUser) {
-                            updateAuthState('SIGNED_IN', { user: currentUser });
-                        } else {
-                            updateAuthState('SIGNED_OUT', null);
-                        }
-                    }
-                }, 100);
-                
-                // Clear interval after 10 seconds to prevent infinite checking
-                setTimeout(() => {
-                    clearInterval(checkAuth);
-                    // If still no auth service, hide auth-required sections
-                    if (!window.supabaseAuthService) {
-                        console.warn('Settings: supabaseAuthService not available after 10 seconds, hiding auth sections');
-                        authRequiredSections.forEach(section => {
-                            section.classList.remove('auth-loading');
-                            section.style.display = 'none';
-                        });
-                    }
-                }, 10000);
-            }
-        }
+        // Initialize the main app instance
+        window.app = new QuizWhizApp();
     </script>
+    <script src="../js/settings-page.js"></script>
+    <!-- <script src="../js/love-word-animation.js"></script> -->
+
 </body>
 </html>

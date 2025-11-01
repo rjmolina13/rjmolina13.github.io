@@ -328,9 +328,14 @@
         font-size: 2rem;
     }
     
-    /* .stats-grid layout is now handled in layout.css */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
     
-    /* .quick-actions layout is now handled in layout.css */
+    .quick-actions {
+        flex-direction: column;
+        align-items: center;
+    }
     
     .flashcard-inner {
         height: 300px;
