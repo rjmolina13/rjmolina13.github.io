@@ -5,3 +5,59 @@ dist
 .trae
 .log
 .figma
+ .vercel/
+
+ # OS and editor files
+ .DS_Store
+ ._*
+ Thumbs.db
+
+ # Generic temp and logs
+ *.diff
+ *.err
+ *.orig
+ *.log
+ *.rej
+ *.swo
+ *.swp
+ *.vi
+ *~
+
+ # IDE/project metadata
+ .cache
+ .project
+ .settings
+ .tmproj
+ *.esproj
+ nbproject
+ *.sublime-project
+ *.sublime-workspace
+ .idea
+ *.komodoproject
+ .komodotools
+
+ # Validation artifacts
+ validation-status.json
+ validation-report.json
+
+ # Build caches and vendor
+ vendor
+ .sass-cache
+ .jekyll-metadata
+ .jekyll-cache
+ _zip
+
+ # Additional build outputs
+ .next/
+
+ # QuizWhiz-local ignores adapted from repo .gitignore
+ .stash/
+ docs/
+ *.json
+ supabase/
+ json/
+ test_pdf/
+
+ # Misc
+ update.bat
+

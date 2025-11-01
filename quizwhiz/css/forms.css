@@ -148,7 +148,8 @@
     margin-bottom: 0.75rem;
 }
 
-.file-upload-area input {
+/* Main file upload area input - positioned to cover the area */
+#settings-file-upload-area input[type="file"] {
     position: absolute;
     top: 0;
     left: 0;
@@ -157,6 +158,41 @@
     opacity: 0;
     cursor: pointer;
     z-index: 1;
+}
+
+/* Content page file upload area input */
+#file-upload-area input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* Modal file upload inputs - hidden and not positioned over the area */
+.modal .file-upload-area input[type="file"] {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Hidden file inputs that are not in upload areas */
+input[type="file"][style*="display: none"],
+input[type="file"].hidden {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* Custom Dropdown Styles */

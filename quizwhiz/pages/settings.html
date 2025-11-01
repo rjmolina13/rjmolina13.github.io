@@ -66,8 +66,7 @@
         .auth-required.auth-visible { display: grid; }
     </style>
     
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Local Storage Authentication - No external services needed -->
     </head>
     <body>
         <div
@@ -309,43 +308,7 @@
         <!-- Toast Notifications -->
         <div class="toast-container" id="toast-container"></div>
 
-        <!-- Import Modal -->
-        <div id="importModal" class="modal" style="display: none;" aria-modal="true" role="dialog" aria-labelledby="importTitle">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="importTitle">
-                        <i class="fas fa-upload"></i>
-                        Import Data
-                    </h3>
-                    <span class="close" onclick="closeImportModal()" aria-label="Close modal">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <div class="import-section">
-                        <p>Select a file to import your flashcards and data:</p>
-                        <div class="file-upload-area" id="modal-file-upload-area">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <p>Drag and drop files here or click to browse</p>
-                            <small>Supports JSON, CSV, and TXT files only</small>
-                            <input type="file" id="modal-file-input" accept=".json,.csv,.txt" multiple>
-                        </div>
-                        <div id="import-preview" class="import-preview" style="display: none;">
-                            <h4>Import Preview:</h4>
-                            <div id="import-analysis"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeImportModal()">
-                        <i class="fas fa-times"></i>
-                        Cancel
-                    </button>
-                    <button type="button" class="btn btn-primary" id="execute-import-btn" disabled>
-                        <i class="fas fa-upload"></i>
-                        Import
-                    </button>
-                </div>
-            </div>
-        </div>
+        <!-- Duplicate import modal removed - was causing file dialog conflicts -->
 
         <!-- Clear Data Confirmation Modal -->
         <div class="modal" id="clear-data-modal">
@@ -464,7 +427,7 @@
                         <i class="fas fa-file-import"></i>
                         Import Analysis &amp; Preview
                     </h3>
-                    <button class="modal-close" onclick="settingsApp.uiManager.closeModal('import-modal')" aria-label="Close modal">
+                    <button class="modal-close" onclick="window.app.uiManager.closeModal('import-modal')" aria-label="Close modal">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -616,11 +579,11 @@
                     </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="settingsApp.eventHandler.cancelModalImport()">
+                    <button type="button" class="btn btn-secondary" onclick="window.app.eventHandler.cancelModalImport()">
                         <i class="fas fa-times"></i>
                         Cancel
                     </button>
-                    <button type="button" class="btn btn-primary" id="execute-import-btn" onclick="settingsApp.eventHandler.executeImport()">
+                    <button type="button" class="btn btn-primary" id="execute-import-btn" onclick="window.app.eventHandler.executeImport()">
                         <i class="fas fa-download"></i>
                         Execute Import
                     </button>
@@ -746,24 +709,16 @@
         <!-- Footer -->
         <div id="footer-container"></div>
 
-    <!-- Supabase Configuration -->
-    <script src="../js/supabase-config.js"></script>
-    <script src="../js/supabase-auth.js"></script>
-    <script src="../js/supabase-data.js"></script>
-    
-    <!-- New Modules -->
+    <!-- Local Storage Authentication System -->
     <script src="../js/theme-manager.js"></script>
-    <script src="../js/data-sync.js"></script>
     
     <!-- JavaScript Modules - Load in order -->
-    <script src="../js/debug-config.js"></script>
-    <script src="../js/auth-manager.js"></script>
     <script src="../js/navbar-loader.js"></script>
     <script src="../js/footer-loader.js"></script>
     <script src="../js/custom-checkbox.js"></script>
     <script src="../js/custom-dropdown.js"></script>
-    <script src="../js/data-sync.js"></script>
-    <script src="../js/unified-data-manager.js"></script>
+    <script src="../js/user-manager.js"></script>
+    <script src="../js/data-manager.js"></script>
     <script src="../js/flashcard-manager.js"></script>
     <script src="../js/quiz-manager.js"></script>
     <script src="../js/mixed-manager.js"></script>
@@ -773,10 +728,34 @@
     <script src="../js/router.js"></script>
     <script src="../js/main.js"></script>
     <script>
+        console.log('Script block started');
+        console.log('QuizWhizApp available:', typeof QuizWhizApp);
+        
+        // Cleanup existing app instance if it exists
+        if (window.app && typeof window.app.cleanup === 'function') {
+            console.log('Cleaning up existing app');
+            window.app.cleanup();
+        }
+        
         // Initialize the main app instance
-        window.app = new QuizWhizApp();
+        console.log('Creating QuizWhizApp instance');
+        try {
+            window.app = new QuizWhizApp();
+            console.log('QuizWhizApp created successfully:', window.app);
+            console.log('App has eventHandler:', !!window.app.eventHandler);
+        } catch (error) {
+            console.error('Error creating QuizWhizApp:', error);
+            console.error('Error stack:', error.stack);
+        }
+        
+        // Initialize authentication guards after app is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ensure theme manager is initialized and auth guards are set up
+            if (window.themeManager) {
+                window.themeManager.setupAuthGuards();
+            }
+        });
     </script>
-    <script src="../js/settings-page.js"></script>
     <!-- <script src="../js/love-word-animation.js"></script> -->
 
 </body>

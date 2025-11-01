@@ -2,8 +2,95 @@
 
 class EventHandler {
     constructor(app) {
+        console.log('EventHandler constructor called');
         this.app = app;
+        this.eventListeners = new Map(); // Track event listeners for cleanup
+        this.debounceTimers = new Map(); // Track debounce timers
+        console.log('About to call setupEventListeners');
         this.setupEventListeners();
+        console.log('setupEventListeners completed');
+    }
+
+    /**
+     * Add event listener with cleanup tracking
+     */
+    addEventListenerWithCleanup(element, event, handler, options = {}) {
+        if (!element) return;
+        
+        // Create a more unique key that includes element reference and class info
+        const elementId = element.id || '';
+        const elementClass = element.className || '';
+        const elementTag = element.tagName || '';
+        const elementPath = this.getElementPath(element);
+        const key = `${elementId}-${elementClass}-${elementTag}-${elementPath}-${event}`;
+        
+        // Remove existing listener if it exists
+        if (this.eventListeners.has(key)) {
+            const { element: oldElement, event: oldEvent, handler: oldHandler } = this.eventListeners.get(key);
+            oldElement.removeEventListener(oldEvent, oldHandler);
+        }
+        
+        // Add new listener
+        element.addEventListener(event, handler, options);
+        this.eventListeners.set(key, { element, event, handler });
+    }
+
+    /**
+     * Get a unique path for an element to help with key generation
+     */
+    getElementPath(element) {
+        if (!element || !element.parentNode) return '';
+        
+        const path = [];
+        let current = element;
+        
+        while (current && current !== document.body && path.length < 5) {
+            let selector = current.tagName.toLowerCase();
+            if (current.id) {
+                selector += `#${current.id}`;
+            } else if (current.className) {
+                selector += `.${current.className.split(' ')[0]}`;
+            }
+            path.unshift(selector);
+            current = current.parentNode;
+        }
+        
+        return path.join('>');
+    }
+
+    /**
+     * Debounced event handler
+     */
+    debounce(key, func, delay = 300) {
+        // Clear existing timer
+        if (this.debounceTimers.has(key)) {
+            clearTimeout(this.debounceTimers.get(key));
+        }
+        
+        // Set new timer
+        const timer = setTimeout(() => {
+            func();
+            this.debounceTimers.delete(key);
+        }, delay);
+        
+        this.debounceTimers.set(key, timer);
+    }
+
+    /**
+     * Cleanup all event listeners
+     */
+    cleanup() {
+        // Remove all tracked event listeners
+        for (const [key, { element, event, handler }] of this.eventListeners) {
+            element.removeEventListener(event, handler);
+        }
+        this.eventListeners.clear();
+        
+        // Clear all debounce timers
+        for (const timer of this.debounceTimers.values()) {
+            clearTimeout(timer);
+        }
+        this.debounceTimers.clear();
     }
 
     setupEventListeners() {
@@ -1628,6 +1715,36 @@ class EventHandler {
     }
 
     setupFileEvents() {
+        console.log('=== DEBUGGING FILE EVENTS SETUP ===');
+        
+        // Remove any modal file inputs to prevent conflicts
+        const modalFileInputs = document.querySelectorAll('.modal input[type="file"]');
+        console.log(`Found ${modalFileInputs.length} modal file inputs to remove`);
+        modalFileInputs.forEach(input => {
+            console.log(`Removing modal file input: ${input.id || input.className}`);
+            // Completely remove the element from the DOM
+            if (input.parentNode) {
+                input.parentNode.removeChild(input);
+            }
+        });
+
+        // Also remove any file upload areas inside modals to prevent confusion
+        const modalFileUploadAreas = document.querySelectorAll('.modal .file-upload-area');
+        console.log(`Found ${modalFileUploadAreas.length} modal file upload areas to disable`);
+        modalFileUploadAreas.forEach(area => {
+            console.log(`Disabling modal file upload area: ${area.id || area.className}`);
+            area.style.pointerEvents = 'none';
+            area.style.opacity = '0.5';
+            area.style.cursor = 'not-allowed';
+            // Add a visual indicator that it's disabled
+            const disabledText = document.createElement('div');
+            disabledText.textContent = 'File upload disabled in modal';
+            disabledText.style.color = 'red';
+            disabledText.style.fontSize = '12px';
+            disabledText.style.marginTop = '10px';
+            area.appendChild(disabledText);
+        });
+
         // Content page file input
         const fileInput = document.getElementById('file-input');
         if (fileInput) {
@@ -1641,11 +1758,13 @@ class EventHandler {
         // Settings page file input
         const settingsFileInput = document.getElementById('settings-file-input');
         if (settingsFileInput) {
-            settingsFileInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) {
+            const handleFileInputChange = (e) => {
+                // Ensure this is the correct file input
+                if (e.target.id === 'settings-file-input' && e.target.files[0]) {
                     this.app.dataManager.processFile(e.target.files[0]);
                 }
-            });
+            };
+            this.addEventListenerWithCleanup(settingsFileInput, 'change', handleFileInputChange);
         }
 
         // Content page drag and drop
@@ -1673,47 +1792,88 @@ class EventHandler {
 
         // Settings page file upload area drag and drop
         const settingsFileUploadArea = document.getElementById('settings-file-upload-area');
+        console.log('Settings file upload area found:', !!settingsFileUploadArea);
+        console.log('Settings file input found:', !!settingsFileInput);
         if (settingsFileUploadArea && settingsFileInput) {
-            settingsFileUploadArea.addEventListener('click', (e) => {
+            console.log('Setting up settings file upload area event listeners');
+            // Create a debounced click handler to prevent multiple triggers
+            const handleFileUploadClick = (e) => {
+                console.log('=== FILE UPLOAD CLICK HANDLER TRIGGERED ===');
                 // Prevent default behavior and event bubbling
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Only trigger file input if not clicking directly on the file input
-                if (e.target !== settingsFileInput) {
-                    settingsFileInput.click();
+                // Ensure we're clicking on the main upload area, not a modal
+                const isInModal = e.target.closest('.modal');
+                if (isInModal) {
+                    return; // Don't handle clicks from modal areas
                 }
-            });
+                
+                // Only trigger file input if not clicking directly on the file input
+                if (e.target !== settingsFileInput && !settingsFileInput.contains(e.target)) {
+                    // Additional check to ensure the settings file input is the intended target
+                    if (settingsFileInput.id === 'settings-file-input') {
+                        // Use debounce to prevent multiple rapid clicks
+                        this.debounce('settings-file-upload-click', () => {
+                            // Final check before triggering
+                            if (settingsFileInput && !settingsFileInput.disabled) {
+                                settingsFileInput.click();
+                            }
+                        }, 100); // Short debounce delay for responsiveness
+                    }
+                }
+            };
+            
+            // Use the cleanup-tracked event listener
+            this.addEventListenerWithCleanup(settingsFileUploadArea, 'click', handleFileUploadClick);
             
             // Prevent the file input itself from bubbling up
-            settingsFileInput.addEventListener('click', (e) => {
+            const handleFileInputClick = (e) => {
                 e.stopPropagation();
-            });
+                // Ensure this is the correct file input
+                if (e.target.id !== 'settings-file-input') {
+                    e.preventDefault();
+                    return false;
+                }
+            };
+            this.addEventListenerWithCleanup(settingsFileInput, 'click', handleFileInputClick);
 
-            settingsFileUploadArea.addEventListener('dragover', (e) => {
+            // Drag and drop handlers
+            const handleDragOver = (e) => {
                 e.preventDefault();
                 settingsFileUploadArea.classList.add('drag-over');
-            });
+            };
+            this.addEventListenerWithCleanup(settingsFileUploadArea, 'dragover', handleDragOver);
 
-            settingsFileUploadArea.addEventListener('dragleave', () => {
-                settingsFileUploadArea.classList.remove('drag-over');
-            });
+            const handleDragLeave = (e) => {
+                // Only remove drag-over if we're actually leaving the upload area
+                if (!settingsFileUploadArea.contains(e.relatedTarget)) {
+                    settingsFileUploadArea.classList.remove('drag-over');
+                }
+            };
+            this.addEventListenerWithCleanup(settingsFileUploadArea, 'dragleave', handleDragLeave);
 
-            settingsFileUploadArea.addEventListener('drop', (e) => {
+            const handleDrop = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 settingsFileUploadArea.classList.remove('drag-over');
                 
                 const files = Array.from(e.dataTransfer.files);
                 files.forEach(file => {
                     this.app.dataManager.processFile(file);
                 });
-            });
+            };
+            this.addEventListenerWithCleanup(settingsFileUploadArea, 'drop', handleDrop);
         }
 
         // Content page file upload area click to browse
         const fileUploadArea = document.getElementById('file-upload-area');
+        console.log('Content file upload area found:', !!fileUploadArea);
+        console.log('Content file input found:', !!fileInput);
         if (fileUploadArea && fileInput) {
+            console.log('Setting up content file upload area event listeners');
             fileUploadArea.addEventListener('click', (e) => {
+                console.log('=== CONTENT FILE UPLOAD CLICK HANDLER TRIGGERED ===');
                 // Prevent default behavior and event bubbling
                 e.preventDefault();
                 e.stopPropagation();
@@ -2234,6 +2394,21 @@ class EventHandler {
         });
     }
 
+    cancelModalImport() {
+        // Close the import modal
+        if (this.app && this.app.uiManager) {
+            this.app.uiManager.closeModal('import-modal');
+        }
+    }
+
+    executeImport() {
+        // Execute the import process
+        if (this.app && this.app.dataManager) {
+            // This would typically be handled by the data manager
+            console.log('Execute import called - should be handled by data manager');
+        }
+    }
+
     // Cleanup
     destroy() {
         // Remove all event listeners if needed
@@ -2327,6 +2502,18 @@ function endMixedSession() {
 function reviewMixedMistakes() {
     if (window.app) {
         window.app.mixedManager.reviewMixedMistakes();
+    }
+}
+
+function closeImportModal() {
+    if (window.app) {
+        window.app.uiManager.closeModal('importModal');
+    }
+}
+
+function closeImportResultsModal() {
+    if (window.app) {
+        window.app.uiManager.closeModal('import-results-modal');
     }
 }
 

@@ -3,9 +3,11 @@
 // Initialize the QuizWhiz Application
 class QuizWhizApp {
     constructor() {
+        console.log('QuizWhizApp constructor started');
         // App version information
         this.version = "3.9";
         this.lastUpdated = "2025-08-10";
+        console.log('Version info set');
         
         // Expose version globally for footer
         window.APP_VERSION = this.version;
@@ -50,19 +52,37 @@ class QuizWhizApp {
         };
         
         // Initialize managers
+        console.log('Creating DataManager');
         this.dataManager = new DataManager(this);
+        console.log('Creating FlashcardManager');
         this.flashcardManager = new FlashcardManager(this);
+        console.log('Creating QuizManager');
         this.quizManager = new QuizManager(this);
+        console.log('Creating MixedManager');
         this.mixedManager = new MixedManager(this);
+        console.log('Creating ContentManager');
         this.contentManager = new ContentManager(this);
+        console.log('Creating UIManager');
         this.uiManager = new UIManager(this);
+        console.log('Creating UserManager');
         this.userManager = new UserManager(this);
+        console.log('About to create EventHandler');
         this.eventHandler = new EventHandler(this);
+        console.log('EventHandler created successfully');
         
         // Track current page for cleanup
         this.currentPage = null;
         
         this.init();
+    }
+
+    /**
+     * Cleanup method to remove event listeners and prevent memory leaks
+     */
+    cleanup() {
+        if (this.eventHandler && typeof this.eventHandler.cleanup === 'function') {
+            this.eventHandler.cleanup();
+        }
     }
 
     init() {

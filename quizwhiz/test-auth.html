@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Authentication</title>
+</head>
+<body>
+    <h1>Authentication Test</h1>
+    <div id="auth-status"></div>
+    <button onclick="createUser()">Create Test User</button>
+    <button onclick="clearUser()">Clear User</button>
+    <button onclick="checkAuth()">Check Auth Status</button>
+    
+    <script src="js/user-manager.js"></script>
+    <script>
+        function checkAuth() {
+            const userData = localStorage.getItem('quizwhiz_user');
+            const status = document.getElementById('auth-status');
+            
+            if (userData) {
+                const user = JSON.parse(userData);
+                status.innerHTML = `<p>User authenticated: ${user.name || 'Unknown'}</p><pre>${JSON.stringify(user, null, 2)}</pre>`;
+            } else {
+                status.innerHTML = '<p>No user found in localStorage</p>';
+            }
+        }
+        
+        function createUser() {
+            const userManager = new UserManager();
+            checkAuth();
+        }
+        
+        function clearUser() {
+            localStorage.removeItem('quizwhiz_user');
+            checkAuth();
+        }
+        
+        // Check on load
+        checkAuth();
+    </script>
+</body>
+</html>

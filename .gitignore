@@ -64,3 +64,4 @@ quizwhiz/.trae
 quizwhiz/supabase/
 quizwhiz/json/
 quizwhiz/test_pdf/
+ quizwhiz/test*
