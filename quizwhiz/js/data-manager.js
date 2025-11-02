@@ -451,16 +451,25 @@ class DataManager {
     }
 
     async processFile(file) {
+        console.log('📁 processFile called with:', {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type
+        });
+        
         const fileExtension = file.name.split('.').pop().toLowerCase();
         
         try {
             // First analyze the file content
+            console.log('🔍 Starting file analysis...');
             const analysis = await this.analyzeFileContent(file);
+            console.log('✅ File analysis complete:', analysis);
             
             // Show import confirmation modal with analysis
+            console.log('🎭 Showing import confirmation modal...');
             this.showImportConfirmationModal(file, analysis);
         } catch (error) {
-            console.error('Error processing file:', error);
+            console.error('❌ Error processing file:', error);
             this.app.showToast('Error processing file: ' + error.message, 'error');
         }
     }
@@ -691,7 +700,7 @@ class DataManager {
                                 <p>How would you like to handle this import?</p>
                                 
                                 <div class="option-buttons">
-                                    <button class="btn btn-primary import-option-btn" onclick="app.dataManager.executeImport('${file.name}', 'merge')">
+                                    <button class="btn btn-primary import-option-btn" data-mode="merge" data-filename="${file.name}">
                                         <div class="btn-content">
                                             <div class="btn-main">
                                                 <i class="fas fa-plus-circle"></i> Merge/Append
@@ -702,7 +711,7 @@ class DataManager {
                                         </div>
                                     </button>
                                     
-                                    <button class="btn btn-warning import-option-btn" onclick="app.dataManager.executeImport('${file.name}', 'replace')">
+                                    <button class="btn btn-warning import-option-btn" data-mode="replace" data-filename="${file.name}">
                                         <div class="btn-content">
                                             <div class="btn-main">
                                                 <i class="fas fa-sync-alt"></i> Replace
@@ -737,14 +746,14 @@ class DataManager {
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         
-        // Add event listeners for option buttons
-        const optionButtons = document.querySelectorAll('.option-btn');
-        optionButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove selected class from all buttons
-                optionButtons.forEach(btn => btn.classList.remove('selected'));
-                // Add selected class to clicked button
-                button.classList.add('selected');
+        // Add event listeners for import option buttons
+        const importOptionButtons = document.querySelectorAll('.import-option-btn');
+        importOptionButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const mode = e.currentTarget.dataset.mode;
+                const fileName = e.currentTarget.dataset.filename;
+                console.log('🎯 Import button clicked:', { mode, fileName });
+                this.executeImport(fileName, mode);
             });
         });
         
@@ -757,11 +766,20 @@ class DataManager {
         });
         
         // Store file for later use
+        console.log('💾 Setting pendingImportFile:', file.name);
         this.pendingImportFile = file;
         this.pendingImportAnalysis = analysis;
+        console.log('✅ pendingImportFile set successfully');
     }
 
     async executeImport(fileName, mode) {
+        console.log('🚀 executeImport called:', {
+            fileName: fileName,
+            mode: mode,
+            hasPendingFile: !!this.pendingImportFile,
+            pendingFileName: this.pendingImportFile ? this.pendingImportFile.name : 'none'
+        });
+        
         // Close the modal
         const modal = document.getElementById('import-confirmation-modal');
         if (modal) {
@@ -769,6 +787,7 @@ class DataManager {
         }
 
         if (!this.pendingImportFile) {
+            console.log('❌ No pendingImportFile found!');
             this.app.showToast('No file to import', 'error');
             return;
         }

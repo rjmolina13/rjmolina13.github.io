@@ -1715,180 +1715,162 @@ class EventHandler {
     }
 
     setupFileEvents() {
-        console.log('=== DEBUGGING FILE EVENTS SETUP ===');
-        
         // Remove any modal file inputs to prevent conflicts
         const modalFileInputs = document.querySelectorAll('.modal input[type="file"]');
-        console.log(`Found ${modalFileInputs.length} modal file inputs to remove`);
         modalFileInputs.forEach(input => {
-            console.log(`Removing modal file input: ${input.id || input.className}`);
             // Completely remove the element from the DOM
             if (input.parentNode) {
                 input.parentNode.removeChild(input);
             }
         });
 
-        // Also remove any file upload areas inside modals to prevent confusion
+        // Also disable any file upload areas inside modals to prevent confusion
         const modalFileUploadAreas = document.querySelectorAll('.modal .file-upload-area');
-        console.log(`Found ${modalFileUploadAreas.length} modal file upload areas to disable`);
         modalFileUploadAreas.forEach(area => {
-            console.log(`Disabling modal file upload area: ${area.id || area.className}`);
             area.style.pointerEvents = 'none';
             area.style.opacity = '0.5';
             area.style.cursor = 'not-allowed';
-            // Add a visual indicator that it's disabled
-            const disabledText = document.createElement('div');
-            disabledText.textContent = 'File upload disabled in modal';
-            disabledText.style.color = 'red';
-            disabledText.style.fontSize = '12px';
-            disabledText.style.marginTop = '10px';
-            area.appendChild(disabledText);
         });
 
-        // Content page file input
-        const fileInput = document.getElementById('file-input');
-        if (fileInput) {
-            fileInput.addEventListener('change', (e) => {
-                if (e.target.files[0]) {
-                    this.app.dataManager.processFile(e.target.files[0]);
-                }
-            });
-        }
+        // Setup settings page file upload events
+        this.setupSettingsFileEvents();
+        
+        // Setup content page file upload events
+        this.setupContentFileEvents();
+    }
 
-        // Settings page file input
+    setupSettingsFileEvents() {
+        // Settings page file input - only set up if we're on settings page
         const settingsFileInput = document.getElementById('settings-file-input');
-        if (settingsFileInput) {
-            const handleFileInputChange = (e) => {
-                // Ensure this is the correct file input
-                if (e.target.id === 'settings-file-input' && e.target.files[0]) {
-                    this.app.dataManager.processFile(e.target.files[0]);
-                }
-            };
-            this.addEventListenerWithCleanup(settingsFileInput, 'change', handleFileInputChange);
-        }
-
-        // Content page drag and drop
-        const dropZone = document.getElementById('drop-zone');
-        if (dropZone) {
-            dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.classList.add('drag-over');
-            });
-
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.classList.remove('drag-over');
-            });
-
-            dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('drag-over');
-                
-                const files = Array.from(e.dataTransfer.files);
-                files.forEach(file => {
-                    this.app.dataManager.processFile(file);
-                });
-            });
-        }
-
-        // Settings page file upload area drag and drop
         const settingsFileUploadArea = document.getElementById('settings-file-upload-area');
-        console.log('Settings file upload area found:', !!settingsFileUploadArea);
-        console.log('Settings file input found:', !!settingsFileInput);
-        if (settingsFileUploadArea && settingsFileInput) {
-            console.log('Setting up settings file upload area event listeners');
-            // Create a debounced click handler to prevent multiple triggers
-            const handleFileUploadClick = (e) => {
-                console.log('=== FILE UPLOAD CLICK HANDLER TRIGGERED ===');
-                // Prevent default behavior and event bubbling
-                e.preventDefault();
-                e.stopPropagation();
+        
+        // Only proceed if both elements exist and we're actually on the settings page
+        if (!settingsFileInput || !settingsFileUploadArea) {
+            return;
+        }
+
+        // Add a flag to prevent duplicate event setup
+        if (settingsFileUploadArea.dataset.eventsSetup === 'true') {
+            return;
+        }
+        settingsFileUploadArea.dataset.eventsSetup = 'true';
+
+        // File input change handler
+        const handleFileInputChange = (e) => {
+            console.log('🔍 File input change event triggered:', {
+                targetId: e.target.id,
+                hasFiles: !!e.target.files,
+                fileCount: e.target.files ? e.target.files.length : 0,
+                firstFile: e.target.files && e.target.files[0] ? e.target.files[0].name : 'none'
+            });
+            
+            // Extra validation to ensure this is the correct input
+            if (e.target.id === 'settings-file-input' && e.target.files && e.target.files[0]) {
+                console.log('✅ Calling processFile with:', e.target.files[0].name);
+                this.app.dataManager.processFile(e.target.files[0]);
+            } else {
+                console.log('❌ File input change validation failed');
+            }
+        };
+        this.addEventListenerWithCleanup(settingsFileInput, 'change', handleFileInputChange);
+
+        // Click handler for upload area - with improved isolation
+        const handleFileUploadClick = (e) => {
+            console.log('🖱️ Upload area clicked:', {
+                target: e.target.tagName + (e.target.id ? '#' + e.target.id : ''),
+                isInModal: !!e.target.closest('.modal'),
+                isSettingsUploadArea: !!e.target.closest('#settings-file-upload-area')
+            });
+            
+            // Prevent default behavior and event bubbling
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Ensure we're not in a modal
+            const isInModal = e.target.closest('.modal');
+            if (isInModal) {
+                console.log('❌ Click ignored - in modal');
+                return false;
+            }
+            
+            // Ensure we're clicking on the settings upload area specifically
+            const isSettingsUploadArea = e.target.closest('#settings-file-upload-area');
+            if (!isSettingsUploadArea) {
+                console.log('❌ Click ignored - not in settings upload area');
+                return false;
+            }
+            
+            // Only trigger if not clicking directly on the file input
+            if (e.target !== settingsFileInput && !settingsFileInput.contains(e.target)) {
+                console.log('🎯 Triggering file dialog...');
                 
-                // Ensure we're clicking on the main upload area, not a modal
-                const isInModal = e.target.closest('.modal');
-                if (isInModal) {
-                    return; // Don't handle clicks from modal areas
-                }
-                
-                // Only trigger file input if not clicking directly on the file input
-                if (e.target !== settingsFileInput && !settingsFileInput.contains(e.target)) {
-                    // Additional check to ensure the settings file input is the intended target
-                    if (settingsFileInput.id === 'settings-file-input') {
-                        // Use debounce to prevent multiple rapid clicks
-                        this.debounce('settings-file-upload-click', () => {
-                            // Final check before triggering
-                            if (settingsFileInput && !settingsFileInput.disabled) {
-                                settingsFileInput.click();
-                            }
-                        }, 100); // Short debounce delay for responsiveness
+                // Clear any existing debounce timers for other file uploads
+                this.debounceTimers.forEach((timer, key) => {
+                    if (key.includes('file-upload-click') && key !== 'settings-file-upload-click') {
+                        clearTimeout(timer);
+                        this.debounceTimers.delete(key);
                     }
-                }
-            };
-            
-            // Use the cleanup-tracked event listener
-            this.addEventListenerWithCleanup(settingsFileUploadArea, 'click', handleFileUploadClick);
-            
-            // Prevent the file input itself from bubbling up
-            const handleFileInputClick = (e) => {
-                e.stopPropagation();
-                // Ensure this is the correct file input
-                if (e.target.id !== 'settings-file-input') {
-                    e.preventDefault();
-                    return false;
-                }
-            };
-            this.addEventListenerWithCleanup(settingsFileInput, 'click', handleFileInputClick);
-
-            // Drag and drop handlers
-            const handleDragOver = (e) => {
-                e.preventDefault();
-                settingsFileUploadArea.classList.add('drag-over');
-            };
-            this.addEventListenerWithCleanup(settingsFileUploadArea, 'dragover', handleDragOver);
-
-            const handleDragLeave = (e) => {
-                // Only remove drag-over if we're actually leaving the upload area
-                if (!settingsFileUploadArea.contains(e.relatedTarget)) {
-                    settingsFileUploadArea.classList.remove('drag-over');
-                }
-            };
-            this.addEventListenerWithCleanup(settingsFileUploadArea, 'dragleave', handleDragLeave);
-
-            const handleDrop = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                settingsFileUploadArea.classList.remove('drag-over');
-                
-                const files = Array.from(e.dataTransfer.files);
-                files.forEach(file => {
-                    this.app.dataManager.processFile(file);
                 });
-            };
-            this.addEventListenerWithCleanup(settingsFileUploadArea, 'drop', handleDrop);
-        }
-
-        // Content page file upload area click to browse
-        const fileUploadArea = document.getElementById('file-upload-area');
-        console.log('Content file upload area found:', !!fileUploadArea);
-        console.log('Content file input found:', !!fileInput);
-        if (fileUploadArea && fileInput) {
-            console.log('Setting up content file upload area event listeners');
-            fileUploadArea.addEventListener('click', (e) => {
-                console.log('=== CONTENT FILE UPLOAD CLICK HANDLER TRIGGERED ===');
-                // Prevent default behavior and event bubbling
-                e.preventDefault();
-                e.stopPropagation();
                 
-                // Only trigger file input if not clicking directly on the file input
-                if (e.target !== fileInput) {
-                    fileInput.click();
-                }
-            });
+                // Use debounce to prevent multiple rapid clicks
+                this.debounce('settings-file-upload-click', () => {
+                    if (settingsFileInput && !settingsFileInput.disabled && document.contains(settingsFileInput)) {
+                        console.log('📂 Opening file dialog...');
+                        settingsFileInput.click();
+                    } else {
+                        console.log('❌ Cannot open file dialog - input not available');
+                    }
+                }, 300); // Increased debounce delay
+            } else {
+                console.log('❌ Click ignored - directly on file input');
+            }
             
-            // Prevent the file input itself from bubbling up
-            fileInput.addEventListener('click', (e) => {
-                e.stopPropagation();
+            return false;
+        };
+        this.addEventListenerWithCleanup(settingsFileUploadArea, 'click', handleFileUploadClick);
+        
+        // Prevent file input click from bubbling
+        const handleFileInputClick = (e) => {
+            e.stopPropagation();
+            // Only allow the settings file input to proceed
+            if (e.target.id !== 'settings-file-input') {
+                e.preventDefault();
+                return false;
+            }
+        };
+        this.addEventListenerWithCleanup(settingsFileInput, 'click', handleFileInputClick);
+
+        // Drag and drop handlers
+        const handleDragOver = (e) => {
+            e.preventDefault();
+            settingsFileUploadArea.classList.add('drag-over');
+        };
+        this.addEventListenerWithCleanup(settingsFileUploadArea, 'dragover', handleDragOver);
+
+        const handleDragLeave = (e) => {
+            if (!settingsFileUploadArea.contains(e.relatedTarget)) {
+                settingsFileUploadArea.classList.remove('drag-over');
+            }
+        };
+        this.addEventListenerWithCleanup(settingsFileUploadArea, 'dragleave', handleDragLeave);
+
+        const handleDrop = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            settingsFileUploadArea.classList.remove('drag-over');
+            
+            const files = Array.from(e.dataTransfer.files);
+            files.forEach(file => {
+                this.app.dataManager.processFile(file);
             });
-        }
+        };
+        this.addEventListenerWithCleanup(settingsFileUploadArea, 'drop', handleDrop);
+    }
+
+    setupContentFileEvents() {
+        // Content page file upload functionality has been removed
+        // All file uploads are now handled through the Settings page
+        return;
     }
 
     setupSettingsEvents() {

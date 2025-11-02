@@ -83,13 +83,13 @@
 .data-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.25rem;
+    /* gap: 1.25rem;
     margin-bottom: 2rem;
     padding: 1rem;
     background: var(--surface-color);
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-light);
+    box-shadow: var(--shadow-light); */
 }
 
 .data-actions .btn {

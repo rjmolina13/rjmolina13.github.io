@@ -281,14 +281,9 @@
                                         <i class="fas fa-trash"></i>
                                         Clear All Data
                                     </button>
-                                    <button type="button" class="btn btn-danger" id="delete-account-btn">
-                                        <i class="fas fa-user-times"></i>
-                                        Delete Account
-                                    </button>
                                 </div>
                                 <div class="danger-descriptions">
                                     <small class="clear-data-desc">Clear All Data: This action cannot be undone. All data including flashcards, quizzes, settings, statistics, user profile, and preferences will be permanently deleted.</small>
-                                    <small class="delete-account-desc">Delete Account: This will permanently delete your account and all associated data from our servers. This action cannot be undone.</small>
                                 </div>
                             </div>
                         </div>
@@ -346,78 +341,7 @@
             </div>
         </div>
 
-        <!-- Delete Account Confirmation Modal -->
-        <div class="modal" id="delete-account-modal">
-            <div class="modal-content delete-account-modal">
-                <div class="modal-header">
-                    <h2>
-                        <i class="fas fa-user-times"></i>
-                        Delete Account
-                    </h2>
-                    <span class="close" onclick="app.uiManager.closeModal('delete-account-modal')">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <!-- Initial Warning Section -->
-                    <div id="delete-warning-section" class="delete-section">
-                        <div class="warning-message">
-                            <p class="warning-title">
-                                <i class="fas fa-exclamation-triangle warning-icon"></i>
-                                <strong>CRITICAL WARNING:</strong>
-                            </p>
-                            <p class="warning-subtitle">
-                                <strong>This action is PERMANENT and IRREVERSIBLE!</strong>
-                            </p>
-                            <p class="warning-description">Deleting your account will permanently remove:</p>
-                            <ul class="warning-list">
-                                <li>Your user account and profile</li>
-                                <li>All flashcards, decks, and study materials</li>
-                                <li>All study progress, statistics, and achievements</li>
-                                <li>All settings and preferences</li>
-                                <li>All data from our servers</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="confirmation-input-section">
-                            <p class="confirmation-instruction"><strong>To confirm, type "delete" in the box below:</strong></p>
-                            <input type="text" id="delete-confirmation-input" placeholder="Type 'delete' to confirm" class="form-control confirmation-input">
-                        </div>
-                    </div>
-                    
-                    <!-- Final Confirmation Section (Hidden by default) -->
-                    <div id="final-confirmation-section" class="delete-section" style="display: none;">
-                        <div class="final-confirmation-message">
-                            <div class="final-warning-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <h3>Final Confirmation</h3>
-                            <p><strong>Are you absolutely sure you want to delete your account?</strong></p>
-                            <p class="final-warning-text">This action cannot be undone and all your data will be permanently lost.</p>
-                        </div>
-                        <div class="modal-actions">
-                            <button type="button" id="final-delete-no" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i>
-                                Go Back
-                            </button>
-                            <button type="button" id="final-delete-yes" class="btn btn-danger">
-                                <i class="fas fa-trash-alt"></i>
-                                Yes, Delete Forever
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-actions">
-                        <button type="button" onclick="app.uiManager.closeModal('delete-account-modal')" class="btn btn-secondary">
-                            <i class="fas fa-times"></i>
-                            Cancel
-                        </button>
-                        <button type="button" id="confirm-delete-account-btn" class="btn btn-danger" disabled>
-                            <i class="fas fa-user-times"></i>
-                            <span id="delete-btn-text">Delete My Account</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Enhanced Import Analysis Modal -->
         <div id="import-modal" class="modal" style="display: none;" aria-modal="true" role="dialog" aria-labelledby="importModalTitle">
