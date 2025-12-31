@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the 2026 Wishes — With Love</title>
+    <link rel="icon" type="image/svg+xml" href="hny/assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="hny/assets/css/style.css">
+    <link rel="preload" as="audio" href="hny/assets/sfx/game-music-loop-7-145285.ogg">
+    <link rel="preload" as="audio" href="hny/assets/sfx/losing-horn-313723.ogg">
+    <link rel="preload" as="audio" href="hny/assets/sfx/mixkit-game-success-alert-2039.ogg">
+    <link rel="preload" as="audio" href="hny/assets/sfx/one_beep-99630.ogg">
+    <link rel="preload" as="audio" href="hny/assets/sfx/orchestral-win-331233.ogg">
+    <link rel="preload" as="audio" href="hny/assets/sfx/letter_bgm.ogg">
+</head>
+<body>
+    <!-- Background Particles Container -->
+    <div id="particles-container"></div>
+    
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen active">
+        <div class="start-bg-effects">
+            <i class="fas fa-heart bg-icon"></i>
+            <i class="fas fa-star bg-icon"></i>
+            <i class="fas fa-heart bg-icon"></i>
+            <i class="fas fa-star bg-icon"></i>
+            <i class="fas fa-heart bg-icon"></i>
+            <i class="fas fa-star bg-icon"></i>
+            <i class="fas fa-heart bg-icon"></i>
+            <i class="fas fa-star bg-icon"></i>
+            <i class="fas fa-heart bg-icon"></i>
+            <i class="fas fa-star bg-icon"></i>
+            <i class="fas fa-heart bg-icon"></i>
+            <i class="fas fa-star bg-icon"></i>
+        </div>
+        <div class="screen-content">
+            <div class="heart-banner">
+                <i class="fas fa-heart heart"></i>
+                <i class="fas fa-heart heart"></i>
+                <span class="banner-text">Happy New Year, Andrea!</span>
+                <i class="fas fa-heart heart"></i>
+                <i class="fas fa-heart heart"></i>
+            </div>
+            <h1 class="game-title">Journey to 2026 — with bb</h1>
+            <p class="subtitle">A sweet little game to catch hearts and unlock a letter</p>
+            <div class="instructions">
+                <h3><i class="fas fa-star"></i> How to Play</h3>
+                <ul>
+                    <li><i class="fas fa-arrow-left"></i> <i class="fas fa-arrow-right"></i> Use arrow keys or touch/drag to move</li>
+                    <li><i class="fas fa-heart"></i> <i class="fas fa-star"></i> Catch hearts and stars to grow love</li>
+                    <li><i class="fas fa-bolt"></i> <i class="fas fa-exclamation-triangle"></i> Avoid mishaps that hurt hearts</li>
+                    <li><i class="fas fa-gift"></i> Reach 100% to win the game</li>
+                </ul>
+            </div>
+            <button id="start-button" class="start-button pulse" disabled>
+                <span id="loading-text">Loading Assets...</span>
+                <div id="loading-bar-container" style="display: none; width: 100px; height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; overflow: hidden; margin-left: 10px;">
+                    <div id="loading-bar" style="width: 0%; height: 100%; background: #fff;"></div>
+                </div>
+                <i class="fas fa-play" id="start-icon" style="display: none;"></i>
+            </button>
+            <div class="start-decor">
+                <i class="fas fa-heart decor-heart"></i>
+                <i class="fas fa-star decor-star"></i>
+                <span class="year-chip">2026</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <!-- HUD -->
+        <div id="hud" class="hud">
+            <div class="health-container">
+                <span class="hud-label">Health:</span>
+                <div class="hearts" id="hearts">
+                    <i class="fas fa-heart"></i>
+                    <i class="fas fa-heart"></i>
+                    <i class="fas fa-heart"></i>
+                </div>
+            </div>
+            <div class="progress-container">
+                <span class="hud-label">Progress:</span>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <span id="progress-text" class="progress-text">0%</span>
+            </div>
+            <div class="score-container">
+                <span class="hud-label">Score:</span>
+                <span id="score-text" class="score-text">0</span>
+            </div>
+        </div>
+        
+        <!-- Game Canvas -->
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="overlay-screen">
+            <div class="overlay-content">
+                <h2>Game Over</h2>
+                <p>Your journey ended too soon...</p>
+                <p class="final-score">Final Score: <span id="final-score">0</span></p>
+                <button id="retry-button" class="retry-button">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div id="win-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="paper-letter">
+                    <button id="close-modal" class="close-button" aria-label="Close letter">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="paper-decor top-left" aria-label="Happy New Year"><i class="fas fa-glass-cheers"></i></div>
+                    <div class="paper-watermarks">
+                        <i class="fas fa-heart watermark h1"></i>
+                        <i class="fas fa-heart watermark h2"></i>
+                        <i class="fas fa-heart watermark h3"></i>
+                    </div>
+                    <div id="love-letter" class="love-letter"></div>
+                    <div class="paper-decor feather"><i class="fas fa-feather"></i></div>
+                    <div class="wax-seal"><i class="fas fa-heart"></i></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="play-again-button" class="play-again-button">
+                    <i class="fas fa-heart"></i> Play Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Footer -->
+    <footer class="game-footer">
+        <div class="footer-left">
+            &copy; <span id="year"></span> | <a href="https://github.com/rjmolina13/" target="_blank" rel="noopener noreferrer">@rjmolina13</a>
+        </div>
+        <div class="footer-right">
+            <span class="version-text">bb-hny v2.0 ♡</span>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.12.0/tsparticles.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.58/Tone.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="hny/assets/js/game.js"></script>
+</body>
+</html>
