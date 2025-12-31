@@ -407,22 +407,37 @@ class Player {
     }
     
     update(deltaTime, inputManager, viewWidth) {
-        // Handle input with inertia
-        if (inputManager.left) {
-            this.velocity.x -= this.speed * 0.1;
+        // Handle touch input (direct follow with lerp)
+        if (inputManager.isTouching && inputManager.touchX !== null) {
+            // Linear interpolation (lerp) for smooth following
+            // targetX is the touch position, clamped to screen bounds
+            const targetX = Math.max(this.width / 2, Math.min(viewWidth - this.width / 2, inputManager.touchX));
+            
+            // "0.1" is the smoothing factor (0.0 - 1.0). Lower = smoother/slower, Higher = snappier/faster.
+            // Using deltaTime to make it framerate independent would be ideal, but simple lerp feels good here.
+            this.x += (targetX - this.x) * 0.15;
+            
+            // Reset velocity for when we switch back to keyboard
+            this.velocity.x = 0; 
+            
+        } else {
+            // Handle keyboard/mouse input with inertia
+            if (inputManager.left) {
+                this.velocity.x -= this.speed * 0.1;
+            }
+            if (inputManager.right) {
+                this.velocity.x += this.speed * 0.1;
+            }
+            
+            // Apply friction
+            this.velocity.x *= this.friction;
+            
+            // Limit velocity
+            this.velocity.x = Math.max(-this.speed, Math.min(this.speed, this.velocity.x));
+            
+            // Update position
+            this.x += this.velocity.x;
         }
-        if (inputManager.right) {
-            this.velocity.x += this.speed * 0.1;
-        }
-        
-        // Apply friction
-        this.velocity.x *= this.friction;
-        
-        // Limit velocity
-        this.velocity.x = Math.max(-this.speed, Math.min(this.speed, this.velocity.x));
-        
-        // Update position
-        this.x += this.velocity.x;
         
         // Keep player in bounds
         this.x = Math.max(this.width / 2, Math.min(viewWidth - this.width / 2, this.x));
@@ -438,7 +453,8 @@ class Player {
         ctx.fillStyle = '#ff6b9a';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(this.icon, this.x, this.y);
+        // Round coordinates to prevent sub-pixel rendering aliasing which looks like jitter
+        ctx.fillText(this.icon, Math.round(this.x), Math.round(this.y));
         ctx.restore();
     }
 }
@@ -487,6 +503,8 @@ class InputManager {
     }
     
     bindEvents() {
+        const canvas = document.getElementById('game-canvas');
+        
         // Keyboard events
         window.addEventListener('keydown', (e) => {
             switch(e.code) {
@@ -514,35 +532,22 @@ class InputManager {
             }
         });
         
-        // Touch events
+        // Touch events - attach to canvas specifically to ensure coordinates are relative to it if needed
+        // but using clientX on window is fine for full screen
         window.addEventListener('touchstart', (e) => {
             this.isTouching = true;
-            this.touchStartX = e.touches[0].clientX;
-        });
+            this.touchX = e.touches[0].clientX;
+        }, { passive: false });
         
         window.addEventListener('touchmove', (e) => {
-            if (!this.isTouching || this.touchStartX === null) return;
-            
-            const touchX = e.touches[0].clientX;
-            const deltaX = touchX - this.touchStartX;
-            
-            if (deltaX > 20) {
-                this.right = true;
-                this.left = false;
-            } else if (deltaX < -20) {
-                this.left = true;
-                this.right = false;
-            } else {
-                this.left = false;
-                this.right = false;
-            }
-        });
+            if (!this.isTouching) return;
+            this.touchX = e.touches[0].clientX;
+            e.preventDefault(); // Prevent scrolling
+        }, { passive: false });
         
         window.addEventListener('touchend', () => {
             this.isTouching = false;
-            this.touchStartX = null;
-            this.left = false;
-            this.right = false;
+            this.touchX = null;
         });
         
         // Mouse events (for desktop testing)
@@ -615,12 +620,36 @@ class SoundManager {
             Tone.Transport.bpm.value = 70;
         }
         if (window.Howl) {
-            this.backgroundMusic = new Howl({ src: ['hny/assets/sfx/game-music-loop-7-145285.ogg'], format: ['ogg'], preload: true, loop: true, volume: 0.56 });
-            this.sounds.lose = new Howl({ src: ['hny/assets/sfx/losing-horn-313723.ogg'], format: ['ogg'], preload: true });
-            this.sounds.collect = new Howl({ src: ['hny/assets/sfx/mixkit-game-success-alert-2039.ogg'], format: ['ogg'], preload: true });
-            this.sounds.damage = new Howl({ src: ['hny/assets/sfx/one_beep-99630.ogg'], format: ['ogg'], preload: true });
-            this.sounds.win = new Howl({ src: ['hny/assets/sfx/orchestral-win-331233.ogg'], format: ['ogg'], preload: true });
-            this.sounds.letter = new Howl({ src: ['hny/assets/sfx/letter_bgm.ogg'], format: ['ogg'], preload: true, volume: 1.0 });
+            this.backgroundMusic = new Howl({ 
+                src: ['hny/assets/sfx_dist/game-music-loop-7-145285.ogg', 'hny/assets/sfx_dist/game-music-loop-7-145285.mp3'], 
+                format: ['ogg', 'mp3'], 
+                preload: true, loop: true, volume: 0.56 
+            });
+            this.sounds.lose = new Howl({ 
+                src: ['hny/assets/sfx_dist/losing-horn-313723.ogg', 'hny/assets/sfx_dist/losing-horn-313723.mp3'], 
+                format: ['ogg', 'mp3'], 
+                preload: true 
+            });
+            this.sounds.collect = new Howl({ 
+                src: ['hny/assets/sfx_dist/mixkit-game-success-alert-2039.ogg', 'hny/assets/sfx_dist/mixkit-game-success-alert-2039.mp3'], 
+                format: ['ogg', 'mp3'], 
+                preload: true 
+            });
+            this.sounds.damage = new Howl({ 
+                src: ['hny/assets/sfx_dist/one_beep-99630.ogg', 'hny/assets/sfx_dist/one_beep-99630.mp3'], 
+                format: ['ogg', 'mp3'], 
+                preload: true 
+            });
+            this.sounds.win = new Howl({ 
+                src: ['hny/assets/sfx_dist/orchestral-win-331233.ogg', 'hny/assets/sfx_dist/orchestral-win-331233.mp3'], 
+                format: ['ogg', 'mp3'], 
+                preload: true 
+            });
+            this.sounds.letter = new Howl({ 
+                src: ['hny/assets/sfx_dist/letter_bgm.ogg', 'hny/assets/sfx_dist/letter_bgm.mp3'], 
+                format: ['ogg', 'mp3'], 
+                preload: true, volume: 1.0 
+            });
         }
     }
 
